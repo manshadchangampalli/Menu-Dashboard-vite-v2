@@ -1,0 +1,14 @@
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary-brand: #111827;
+  --color-app-bg: #F9FAFB;
+  --color-app-border: #E5E7EB;
+  --color-app-text: #111827;
+  --color-app-muted: #6B7280;
+  --color-app-accent: #F3F4F6;
+  --color-destructive: #EF4444;
+
+  --font-display: Inter, sans-serif;
+}
