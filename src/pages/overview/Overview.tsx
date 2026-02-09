@@ -1,21 +1,22 @@
 
 import React from 'react';
-import { 
-    ChevronRight, 
-    FileDown, 
-    Plus, 
-    DollarSign, 
-    ShoppingCart, 
-    Users, 
-    Star, 
-    BarChart2, 
-    Clock, 
-    Utensils, 
-    UserPlus, 
-    AlertTriangle 
+import {
+    ChevronRight,
+    FileDown,
+    Plus,
+    DollarSign,
+    ShoppingCart,
+    Users,
+    Star,
+    BarChart2,
+    Clock,
+    Utensils,
+    UserPlus,
+    AlertTriangle
 } from "lucide-react";
 import StatCard from "../../components/stat-card/StatCard";
 import RecentActivityList from "../../components/recent-activity-list/RecentActivityList";
+import { Button } from "../../components/ui/button";
 
 const Overview = () => {
     const stats = [
@@ -85,14 +86,14 @@ const Overview = () => {
                     <p className="text-app-muted mt-1 font-medium">Real-time performance across all restaurant branches.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 h-9 rounded-md border border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm">
+                    <Button variant="outline" className="border-app-border bg-white font-semibold hover:bg-app-bg shadow-sm">
                         <FileDown className="w-[18px] h-[18px]" />
                         Export
-                    </button>
-                    <button className="flex items-center gap-2 px-4 h-9 rounded-md bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm">
+                    </Button>
+                    <Button className="bg-app-text text-white font-semibold hover:bg-app-text/90 shadow-sm">
                         <Plus className="w-[18px] h-[18px]" />
                         New Order
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -110,7 +111,7 @@ const Overview = () => {
                         </div>
                         <h4 className="font-bold text-lg text-app-text">Activity Insights</h4>
                         <p className="text-app-muted max-w-xs mt-2 text-sm leading-relaxed font-medium">This module will contain interactive performance charts and sales data trends.</p>
-                        <button className="mt-6 px-6 py-2 border border-app-border rounded-md text-sm font-semibold hover:bg-app-bg transition-colors">Initialize Data</button>
+                        <Button variant="outline" className="mt-6 border-app-border font-semibold hover:bg-app-bg">Initialize Data</Button>
                     </div>
                 </div>
                 <div className="space-y-8">
@@ -120,7 +121,7 @@ const Overview = () => {
                             Recent Activity
                         </h4>
                         <RecentActivityList activities={activities} />
-                        <button className="w-full mt-8 py-2.5 text-xs font-bold uppercase tracking-widest text-app-muted hover:text-app-text border border-transparent hover:border-app-border rounded-md transition-all">View All Activity Logs</button>
+                        <Button variant="ghost" className="w-full mt-8 h-auto py-2.5 text-xs font-bold uppercase tracking-widest text-app-muted hover:text-app-text border border-transparent hover:border-app-border transition-all">View All Activity Logs</Button>
                     </div>
                 </div>
             </div>

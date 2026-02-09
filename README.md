@@ -121,3 +121,13 @@ src/
 \`\`\`
 
 ---
+
+
+# Recommended Way to Create Components
+
+\`\`\`
+maximum create small compoenents then we can resuse it anywhere else . example use profile should be using lot of places . so do maximum items reusabel . and check if anything that i can use previously generated component then reuse that 
+
+Responsiveness:
+Resize the window to ensure the panel looks good on different screen sizes (though it's primarily a desktop feature based on the design).
+\`\`\`

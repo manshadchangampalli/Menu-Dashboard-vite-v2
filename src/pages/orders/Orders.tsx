@@ -1,72 +1,9 @@
 
-import { useState } from "react";
 import { ChevronRight, History, Plus } from "lucide-react";
-import FilterTabs from "../../components/ui/FilterTabs";
-import OrdersTable, { type Order } from "../../components/orders/OrdersTable";
-import Pagination from "../../components/ui/Pagination";
+import OrdersTable from "../../components/orders/OrdersTable";
+import { Button } from "../../components/ui/button";
 
 const Orders = () => {
-    const [activeTab, setActiveTab] = useState("All Orders");
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const tabs = ["All Orders", "Pending", "Preparing", "Ready", "Delivered"];
-
-    const orders: Order[] = [
-        {
-            id: "#ORD-2841",
-            timestamp: "Today, 12:45 PM",
-            timeAgo: "3 mins ago",
-            customer: {
-                name: "John Doe",
-                initials: "JD",
-            },
-            items: "2x Wagyu Burger, 1x Truffle Fries",
-            total: "$54.20",
-            status: "Pending",
-        },
-        {
-            id: "#ORD-2839",
-            timestamp: "Today, 12:38 PM",
-            timeAgo: "10 mins ago",
-            customer: {
-                name: "Alice Smith",
-                initials: "AS",
-            },
-            items: "1x Caesar Salad, 2x Salmon Grill",
-            total: "$78.50",
-            status: "Preparing",
-        },
-        {
-            id: "#ORD-2835",
-            timestamp: "Today, 12:20 PM",
-            timeAgo: "28 mins ago",
-            customer: {
-                name: "Marcus Kane",
-                initials: "MK",
-            },
-            items: "3x Pepperoni Pizza Large",
-            total: "$62.00",
-            status: "Ready",
-        },
-        {
-            id: "#ORD-2832",
-            timestamp: "Today, 11:55 AM",
-            timeAgo: "53 mins ago",
-            customer: {
-                name: "Linda Blair",
-                initials: "LB",
-            },
-            items: "2x Pasta Carbonara, 1x Red Wine",
-            total: "$45.00",
-            status: "Ready",
-        },
-    ];
-
-    // Filter logic (mock implementation for now)
-    const filteredOrders = activeTab === "All Orders"
-        ? orders
-        : orders.filter(order => order.status === activeTab);
-
     return (
         <main className="flex-1 overflow-y-auto p-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -80,32 +17,18 @@ const Orders = () => {
                     <p className="text-app-muted mt-1 font-medium">Manage and monitor live orders in real-time.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 h-9 rounded-md border border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm text-app-text">
+                    <Button variant="outline" className="border-app-border bg-white font-semibold text-app-text hover:bg-app-bg shadow-sm">
                         <History className="w-[18px] h-[18px]" />
                         Order History
-                    </button>
-                    <button className="flex items-center gap-2 px-4 h-9 rounded-md bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm">
+                    </Button>
+                    <Button className="bg-app-text text-white font-semibold hover:bg-app-text/90 shadow-sm">
                         <Plus className="w-[18px] h-[18px]" />
                         New Walk-in Order
-                    </button>
+                    </Button>
                 </div>
             </div>
 
-            <FilterTabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-            />
-
-            <OrdersTable orders={filteredOrders} />
-
-            <Pagination
-                currentPage={currentPage}
-                totalPages={4}
-                totalItems={48}
-                itemsPerPage={12}
-                onPageChange={setCurrentPage}
-            />
+            <OrdersTable apiKey="mock-api-key" />
         </main>
     );
 };
