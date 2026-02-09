@@ -1,11 +1,17 @@
-
+import { useState } from "react";
 import { ChevronRight, History, Plus } from "lucide-react";
 import OrdersTable from "../../components/orders/OrdersTable";
+import OrderDetailPanel from "../../components/orders/OrderDetailPanel";
+import ProcessOrderModal from "../../components/orders/ProcessOrderModal";
 import { Button } from "../../components/ui/button";
+import type { Order } from "./order.type";
 
 const Orders = () => {
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [showProcessModal, setShowProcessModal] = useState(false);
+
     return (
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-8 relative">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
                     <div className="flex items-center gap-2 text-xs font-semibold text-app-muted mb-2 uppercase tracking-widest">
@@ -28,7 +34,23 @@ const Orders = () => {
                 </div>
             </div>
 
-            <OrdersTable apiKey="mock-api-key" />
+            <OrdersTable
+                apiKey="mock-api-key"
+                onViewDetails={(order) => setSelectedOrder(order)}
+            />
+
+            <OrderDetailPanel
+                order={selectedOrder}
+                open={!!selectedOrder}
+                onClose={() => setSelectedOrder(null)}
+                onProcess={() => setShowProcessModal(true)}
+            />
+
+            <ProcessOrderModal
+                order={selectedOrder}
+                open={showProcessModal}
+                onOpenChange={setShowProcessModal}
+            />
         </main>
     );
 };

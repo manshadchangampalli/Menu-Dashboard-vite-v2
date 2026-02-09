@@ -31,6 +31,7 @@ interface DataTableProps<T> {
     initialPageSize?: number
     actions?: React.ReactNode
     searchKeys?: (keyof T | string)[]
+    onRowClick?: (item: T) => void
 }
 
 // Helper to access nested properties safely
@@ -46,6 +47,7 @@ export function DataTable<T extends { id: string | number }>({
     initialPageSize = 10,
     actions,
     searchKeys,
+    onRowClick,
 }: DataTableProps<T>) {
     const [data, setData] = React.useState<T[]>([])
     const [loading, setLoading] = React.useState(true)
@@ -203,7 +205,11 @@ export function DataTable<T extends { id: string | number }>({
                             </TableRow>
                         ) : (
                             data.map((item) => (
-                                <TableRow key={item.id}>
+                                <TableRow 
+                                    key={item.id}
+                                    onClick={() => onRowClick?.(item)}
+                                    className={cn(onRowClick && "cursor-pointer hover:bg-muted/50")}
+                                >
                                     {columns.map((column) => (
                                         <TableCell key={String(column.accessorKey)} className={column.className}>
                                             {column.cell ? column.cell(item) : (item[column.accessorKey] as React.ReactNode)}
