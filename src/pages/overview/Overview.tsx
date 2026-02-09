@@ -72,7 +72,7 @@ const Overview = () => {
     ];
 
     return (
-        <main className="flex-1 overflow-y-auto flex flex-col p-8 gap-6">
+        <main className="flex-1 overflow-y-auto flex flex-col p-8 gap-4">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-2 text-xs font-semibold text-app-muted mb-2 uppercase tracking-widest">
@@ -97,13 +97,13 @@ const Overview = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, index) => (
                     <StatCard key={index} {...stat} />
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <div className="xl:col-span-2 space-y-8">
                     <div className="bg-white border border-app-border rounded-lg p-6 min-h-[400px] flex flex-col items-center justify-center text-center shadow-sm">
                         <div className="bg-app-bg size-16 rounded-full flex items-center justify-center mb-4 border border-app-border">
