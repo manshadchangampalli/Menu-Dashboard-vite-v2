@@ -104,43 +104,6 @@ export const MOCK_MENU_ITEMS: MenuItem[] = [
              { name: "Dietary", value: "Vegetarian" }
         ]
     },
-    // Dinner
-    {
-        id: "5",
-        name: "Grilled Salmon",
-        sku: "DN-MN-005",
-        shortDescription: "Fresh atlantic salmon with herbs.",
-        longDescription: "Sustainably sourced Atlantic salmon, grilled with lemon butter and fresh herbs. Served alongside grilled asparagus and a bed of fluffy wild rice.",
-        category: "Main Course",
-        price: 28.00,
-        image: "https://images.unsplash.com/photo-1467003909585-2f8a7270028d?auto=format&fit=crop&q=80&w=1000",
-        images: [
-             "https://images.unsplash.com/photo-1467003909585-2f8a7270028d?auto=format&fit=crop&q=80&w=1000"
-        ],
-        rating: 4.7,
-        reviews: 85,
-        inStock: true,
-        menuType: "Dinner",
-        attributes: [
-            { name: "Calories", value: "650 kcal" },
-            { name: "Protein", value: "45g" }
-        ]
-    },
-    {
-        id: "6",
-        name: "Chocolate Lava Cake",
-        sku: "DN-DS-006",
-        shortDescription: "Decadent chocolate cake with molten center.",
-        longDescription: "Rich dark chocolate cake with a warm, gooey molten center. Served with a scoop of Madagascar vanilla bean ice cream and fresh berries.",
-        category: "Desserts",
-        price: 12.00,
-        image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476d?auto=format&fit=crop&q=80&w=1000",
-        images: [
-            "https://images.unsplash.com/photo-1606313564200-e75d5e30476d?auto=format&fit=crop&q=80&w=1000"
-        ],
-        inStock: true,
-        menuType: "Dinner"
-    },
     // Ramadan Special
     {
         id: "7",
