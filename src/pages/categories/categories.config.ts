@@ -7,41 +7,47 @@ export const MOCK_CATEGORIES: Category[] = [
         name: "Appetizers",
         itemCount: 12,
         icon: UtensilsCrossed,
-        isActive: true
+        isActive: true,
+        menuId: "1" // Main Menu
     },
     {
         id: "2",
         name: "Main Course",
         itemCount: 24,
         icon: Utensils,
-        isActive: true
+        isActive: true,
+        menuId: "1" // Main Menu
     },
     {
         id: "3",
         name: "Beverages",
         itemCount: 18,
         icon: Martini,
-        isActive: true
+        isActive: true,
+        menuId: "2" // Breakfast Menu
     },
     {
         id: "4",
         name: "Desserts",
         itemCount: 8,
         icon: CakeSlice,
-        isActive: true
+        isActive: true,
+        menuId: "1" // Main Menu
     },
     {
         id: "5",
         name: "Daily Specials",
         itemCount: 0,
         icon: Star,
-        isActive: false // Matches reference "Availability" unchecked
+        isActive: false, // Matches reference "Availability" unchecked
+        menuId: "3" // Ramadan Special
     },
     {
         id: "6",
         name: "Kids Menu",
         itemCount: 6,
         icon: Baby,
-        isActive: true
+        isActive: true,
+        menuId: "4" // Delivery Exclusives
     }
 ];

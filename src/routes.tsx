@@ -4,7 +4,9 @@ import AppLayout from "./layout/AppLayout";
 import Overview from "./pages/overview/Overview";
 import Orders from "./pages/orders/Orders";
 import Reservations from "./pages/reservations/Reservations";
-import MenuItems from "./pages/menu/Menu";
+import MenuItemList from "./pages/menu-items/MenuItemList";
+import Menu from "./pages/menu/Menu";
+import MenuDetail from "./pages/menu-detail/MenuDetail";
 import Categories from "./pages/categories/Categories";
 import Branches from "./pages/branches/Branches";
 import StaffMembers from "./pages/staff/Staff";
@@ -36,8 +38,16 @@ export const router = createBrowserRouter([
                 Component: Reservations,
             },
             {
+                path: "menu-items",
+                Component: MenuItemList,
+            },
+            {
                 path: "menu",
-                Component: MenuItems,
+                Component: Menu,
+            },
+            {
+                path: "menu/:id",
+                Component: MenuDetail,
             },
             {
                 path: "categories",

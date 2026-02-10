@@ -50,17 +50,6 @@ const StaffMembers = () => {
                         <span className="text-app-muted text-xs font-bold">87% availability</span>
                     </div>
                 </div>
-                <div className="bg-white border border-app-border p-5 rounded-lg shadow-sm">
-                    <h3 className="text-app-muted text-[10px] font-bold uppercase tracking-wider mb-1">Role Distribution</h3>
-                    <div className="flex items-end justify-between">
-                        <p className="text-2xl font-bold text-app-text">Diverse</p>
-                        <div className="flex -space-x-2">
-                            <div className="size-6 rounded-full border-2 border-white bg-indigo-500" title="Admin"></div>
-                            <div className="size-6 rounded-full border-2 border-white bg-amber-500" title="Chef"></div>
-                            <div className="size-6 rounded-full border-2 border-white bg-blue-500" title="Waiter"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     );

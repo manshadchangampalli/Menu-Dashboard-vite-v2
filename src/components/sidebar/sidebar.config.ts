@@ -10,6 +10,8 @@ import {
   BarChart2,
   Settings,
   LogOut,
+  BookOpen,
+
 } from "lucide-react";
 
 export const SIDEBAR_ITEMS = [
@@ -32,9 +34,15 @@ export const SIDEBAR_ITEMS = [
     id: "reservations",
   },
   {
+    title: "Menus",
+    icon: BookOpen,
+    url: "/menu",
+    id: "menus",
+  },
+  {
     title: "Menu Items",
     icon: Utensils,
-    url: "/menu",
+    url: "/menu-items",
     id: "menu-items",
   },
   {

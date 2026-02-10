@@ -1,13 +1,11 @@
-import { useState } from "react";
-import { ChevronRight, Download, Plus } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import MenuTable from "../../components/menu/MenuTable";
-import MenuDetailPanel from "../../components/menu/MenuDetailPanel";
-import { MOCK_MENU_ITEMS } from "./menu.config";
-import type { MenuItem } from "./menu.type";
+import { MOCK_MENUS } from "./menu.config";
+import { useNavigate } from "react-router";
 
-const MenuItems = () => {
-    const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+const Menu = () => {
+    const navigate = useNavigate();
 
     return (
         <main className="flex-1 overflow-y-auto p-8">
@@ -18,37 +16,27 @@ const MenuItems = () => {
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span>Inventory</span>
                         <ChevronRight className="w-3.5 h-3.5" />
-                        <span className="text-app-text">Menu Items</span>
+                        <span className="text-app-text">Menus</span>
                     </div>
-                    <h2 className="text-3xl font-bold tracking-tight text-app-text">Menu Management</h2>
-                    <p className="text-app-muted mt-1 font-medium">Configure and manage your restaurant's digital catalog.</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-app-text">Menus</h2>
+                    <p className="text-app-muted mt-1 font-medium">Manage your different menus (Breakfast, Lunch, Dinner, etc.)</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="flex items-center gap-2 h-9 border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm">
-                        <Download className="size-[18px]" />
-                        Export
-                    </Button>
                     <Button className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm">
                         <Plus className="size-[18px]" />
-                        Add Item
+                        Create Menu
                     </Button>
                 </div>
             </div>
 
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
                 <MenuTable 
-                    data={MOCK_MENU_ITEMS} 
-                    onRowClick={(item) => setSelectedItem(item)}
+                    data={MOCK_MENUS} 
+                    onRowClick={(menu) => navigate(`/menu/${menu.id}`)}
                 />
             </div>
-
-            <MenuDetailPanel 
-                item={selectedItem} 
-                open={!!selectedItem} 
-                onClose={() => setSelectedItem(null)} 
-            />
         </main>
     );
 };
 
-export default MenuItems;
+export default Menu;

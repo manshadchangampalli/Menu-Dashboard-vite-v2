@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { MenuItem } from "../../pages/menu/menu.type";
+import type { MenuItem } from "../../pages/menu-items/menuItems.type";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
-import { Edit2, Trash2, X, Star, Box, Video, Image as ImageIcon, ExternalLink } from "lucide-react";
+import { Edit2, Trash2, X, Star, Box, Video, ExternalLink } from "lucide-react";
 
 interface MenuDetailPanelProps {
     item: MenuItem | null;
@@ -10,7 +10,7 @@ interface MenuDetailPanelProps {
     onClose: () => void;
 }
 
-const MenuDetailPanel = ({ item, open, onClose }: MenuDetailPanelProps) => {
+const MenuItemDetailPanel = ({ item, open, onClose }: MenuDetailPanelProps) => {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
 
     if (!item) return null;
@@ -83,7 +83,7 @@ const MenuDetailPanel = ({ item, open, onClose }: MenuDetailPanelProps) => {
                                         <button
                                             key={idx}
                                             onClick={() => setActiveImageIndex(idx)}
-                                            className={`size-10 rounded border-2 overflow-hidden flex-shrink-0 transition-all ${activeImageIndex === idx ? 'border-app-text shadow-sm' : 'border-app-border opacity-70 hover:opacity-100'}`}
+                                            className={`size-10 rounded border-2 overflow-hidden shrink-0 transition-all ${activeImageIndex === idx ? 'border-app-text shadow-sm' : 'border-app-border opacity-70 hover:opacity-100'}`}
                                         >
                                             <img src={img} className="w-full h-full object-cover" alt="" />
                                         </button>
@@ -219,4 +219,4 @@ const MenuDetailPanel = ({ item, open, onClose }: MenuDetailPanelProps) => {
     );
 };
 
-export default MenuDetailPanel;
+export default MenuItemDetailPanel;

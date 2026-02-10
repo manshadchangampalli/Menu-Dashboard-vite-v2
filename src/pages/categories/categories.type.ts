@@ -8,4 +8,5 @@ export interface Category {
     itemCount: number;
     icon: LucideIcon;
     isActive: boolean;
+    menuId?: string; // Optional for now, but will be populated
 }
