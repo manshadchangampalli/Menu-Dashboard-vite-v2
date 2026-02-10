@@ -3,6 +3,7 @@ import { Switch } from "../ui/switch";
 import { Button } from "../ui/button";
 import { Edit2, MoreVertical } from "lucide-react";
 import type { StaffMember, StaffRole } from "../../pages/staff/staff.type";
+import { useNavigate } from "react-router";
 
 interface StaffTableProps {
     data: StaffMember[];
@@ -10,6 +11,11 @@ interface StaffTableProps {
 }
 
 const StaffTable = ({ data, onEdit }: StaffTableProps) => {
+    const navigate = useNavigate();
+
+    const handleRowClick = (staff: StaffMember) => {
+        navigate(`/staff/${staff.id}`);
+    };
 
     const getRoleBadgeColor = (role: StaffRole) => {
         switch (role) {
@@ -74,10 +80,10 @@ const StaffTable = ({ data, onEdit }: StaffTableProps) => {
             accessorKey: "id",
             className: "text-right",
             cell: (staff) => (
-                <div className="flex items-center justify-end gap-2">
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         className="text-app-muted hover:text-app-text hover:bg-app-bg"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -86,9 +92,9 @@ const StaffTable = ({ data, onEdit }: StaffTableProps) => {
                     >
                         <Edit2 className="size-5" />
                     </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         className="text-app-muted hover:text-app-text hover:bg-app-bg"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -105,6 +111,7 @@ const StaffTable = ({ data, onEdit }: StaffTableProps) => {
             data={data}
             searchKeys={["name", "role", "branchName"]}
             initialPageSize={10}
+            onRowClick={handleRowClick}
         />
     );
 };

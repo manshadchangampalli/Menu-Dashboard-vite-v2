@@ -11,8 +11,14 @@ import StaffMembers from "./pages/staff/Staff";
 import Analytics from "./pages/analytics/Analytics";
 import Settings from "./pages/settings/Settings";
 import BranchDetail from "./pages/branch-detail/BranchDetail";
+import StaffDetail from "./pages/staff-detail/StaffDetail";
+import Login from "./pages/login/Login";
 
 export const router = createBrowserRouter([
+    {
+        path: "/login",
+        Component: Login,
+    },
     {
         path: "/",
         Component: AppLayout,
@@ -48,6 +54,10 @@ export const router = createBrowserRouter([
             {
                 path: "staff",
                 Component: StaffMembers,
+            },
+            {
+                path: "staff/:id",
+                Component: StaffDetail,
             },
             {
                 path: "analytics",
