@@ -12,7 +12,7 @@ interface OrdersTableProps {
     onViewDetails?: (order: Order) => void;
 }
 
-const OrdersTable = ({ apiKey, onViewDetails }: OrdersTableProps) => {
+const OrdersTable = ({ onViewDetails }: OrdersTableProps) => {
     const [activeTab, setActiveTab] = useState("All Orders");
     const tabs = ["All Orders", "Pending", "Preparing", "Ready", "Delivered"];
 

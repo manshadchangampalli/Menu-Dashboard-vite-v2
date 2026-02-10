@@ -2,7 +2,7 @@ import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import type { Menu } from "../../pages/menu/menu.type";
-import { Edit2, Trash2, Eye, Clock } from "lucide-react";
+import { Edit2, Trash2, Clock } from "lucide-react";
 
 interface MenuTableProps {
     data: Menu[];

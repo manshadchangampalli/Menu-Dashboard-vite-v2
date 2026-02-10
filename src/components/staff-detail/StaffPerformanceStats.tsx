@@ -9,7 +9,7 @@ const StaffPerformanceStats = () => {
             <h4 className="text-[11px] font-bold text-app-muted uppercase tracking-widest mb-6">Performance Overview</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, index) => {
-                    const Icon = stat.icon;
+
                     return (
                         <div key={index} className="p-4 rounded-xl border border-app-border bg-white shadow-sm flex flex-col gap-1">
                             <span className="text-2xl font-bold text-app-text">{stat.value}</span>

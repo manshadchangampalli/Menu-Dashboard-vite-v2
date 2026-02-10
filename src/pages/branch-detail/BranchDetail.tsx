@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+
 import BranchHeader from "../../components/branch-detail/BranchHeader";
 import BranchStats from "../../components/branch-detail/BranchStats";
 import BranchGeneralInfo from "../../components/branch-detail/BranchGeneralInfo";
