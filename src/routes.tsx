@@ -10,6 +10,7 @@ import Branches from "./pages/branches/Branches";
 import StaffMembers from "./pages/staff/Staff";
 import Analytics from "./pages/analytics/Analytics";
 import Settings from "./pages/settings/Settings";
+import BranchDetail from "./pages/branch-detail/BranchDetail";
 
 export const router = createBrowserRouter([
     {
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
             {
                 path: "branches",
                 Component: Branches,
+            },
+            {
+                path: "branches/:id",
+                Component: BranchDetail,
             },
             {
                 path: "staff",
