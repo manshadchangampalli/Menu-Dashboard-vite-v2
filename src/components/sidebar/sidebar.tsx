@@ -1,9 +1,18 @@
 
 import { SIDEBAR_ITEMS } from "./sidebar.config";
 import { Link, useLocation } from "react-router";
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const Sidebar = () => {
     const location = useLocation();
+    const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+
+    const handleLogout = () => {
+        // Add actual logout logic here
+        console.log("User logged out");
+        setIsLogoutDialogOpen(false);
+    };
 
     const isActive = (path: string) => {
         return location.pathname === path;
@@ -86,20 +95,38 @@ const Sidebar = () => {
 
             <div className="p-4 border-t border-app-border space-y-0.5">
                 {footerItems.map((item) => (
-                    <Link 
-                        key={item.id} 
-                        to={item.url} 
-                        className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all ${
-                            item.id === "logout" 
-                                ? "text-red-600 hover:bg-red-50" 
-                                : getLinkClass(item.url)
-                        }`}
-                    >
-                        <item.icon className="w-5 h-5" />
-                        <span className={`text-sm ${item.id === "logout" ? "font-semibold" : ""}`}>{item.title}</span>
-                    </Link>
+                    item.id === "logout" ? (
+                        <button
+                            key={item.id}
+                            onClick={() => setIsLogoutDialogOpen(true)}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-red-600 hover:bg-red-50 cursor-pointer"
+                        >
+                            <item.icon className="w-5 h-5" />
+                            <span className="text-sm font-semibold">{item.title}</span>
+                        </button>
+                    ) : (
+                        <Link 
+                            key={item.id} 
+                            to={item.url} 
+                            className={getLinkClass(item.url)}
+                        >
+                            <item.icon className="w-5 h-5" />
+                            <span className="text-sm">{item.title}</span>
+                        </Link>
+                    )
                 ))}
             </div>
+
+            <ConfirmDialog
+                open={isLogoutDialogOpen}
+                onOpenChange={setIsLogoutDialogOpen}
+                title="Confirm Logout"
+                description="Are you sure you want to log out from the application?"
+                confirmText="Logout"
+                cancelText="Cancel"
+                onConfirm={handleLogout}
+                variant="destructive"
+            />
         </aside>
     );
 };

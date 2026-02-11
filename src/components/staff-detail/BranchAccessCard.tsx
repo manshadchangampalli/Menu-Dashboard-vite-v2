@@ -18,26 +18,26 @@ const BranchAccessCard = () => {
 
             <div className="space-y-4">
                 {branches.map((branch) => (
-                    <div 
+                    <div
                         key={branch.id}
-                        className="flex items-center justify-between p-3 rounded-lg border border-app-border hover:border-app-accent/30 hover:bg-app-accent/5 transition-colors group"
+                        className="flex items-center justify-between p-3 rounded-lg border border-app-border transition-colors group"
                     >
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-full ${branch.isPrimary ? 'bg-app-accent/10 text-app-accent' : 'bg-gray-100 text-gray-500'}`}>
+                            <div className={`p-2 rounded-full ${branch.isPrimary ? 'bg-app-accent/10 text-app-text' : 'bg-gray-100 text-gray-500'}`}>
                                 <MapPin size={16} />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-app-text group-hover:text-app-accent transition-colors">
+                                <h4 className="text-sm font-semibold text-app-text transition-colors">
                                     {branch.name}
                                 </h4>
                                 {branch.isPrimary && (
-                                    <span className="text-[10px] uppercase font-bold text-app-accent tracking-wider">
+                                    <span className="text-[10px] uppercase font-bold text-app-text bg-green-500/20 px-2 py-1 rounded-full tracking-wider">
                                         Primary Location
                                     </span>
                                 )}
                             </div>
                         </div>
-                        
+
                         {branch.isPrimary && (
                             <CheckCircle size={16} className="text-app-accent" />
                         )}
