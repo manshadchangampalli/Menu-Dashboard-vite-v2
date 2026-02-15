@@ -82,7 +82,7 @@ const ProcessOrderModal = ({ order, open, onOpenChange }: ProcessOrderModalProps
                         )}
                     </div>
 
-                    <div className="space-y-8 bg-white p-6 rounded-xl border border-app-border h-fit shadow-sm">
+                    <div className="space-y-8 bg-white p-3 rounded-xl border border-app-border h-fit shadow-sm">
                         <section>
                             <h3 className="text-xs font-bold text-app-muted uppercase tracking-widest mb-4">Quick Status Update</h3>
                             <div className="flex flex-col gap-3">
