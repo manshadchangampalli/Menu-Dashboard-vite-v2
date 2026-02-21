@@ -2,10 +2,10 @@ import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Utensils, Mail, Lock } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useLogin } from "./hooks/useAuth";
 
 const Login = () => {
-    const navigate = useNavigate();
+    const { mutate, isPending } = useLogin();
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             email: "",
@@ -15,10 +15,10 @@ const Login = () => {
     });
 
     const onSubmit = (data: any) => {
-        console.log("Login submitted:", data);
-        // In a real app, you would handle authentication here.
-        // For now, just navigate to the dashboard.
-        navigate("/");
+        mutate({
+            email: data.email,
+            password: data.password
+        });
     };
 
     return (
@@ -100,7 +100,7 @@ const Login = () => {
                             )}
                         </div>
 
-                        <div className="flex items-center space-x-2 pb-2">
+                        {/* <div className="flex items-center space-x-2 pb-2">
                             <Controller
                                 name="remember"
                                 control={control}
@@ -118,10 +118,10 @@ const Login = () => {
                             <label className="text-sm font-medium text-app-muted cursor-pointer select-none" htmlFor="remember">
                                 Keep me signed in
                             </label>
-                        </div>
+                        </div> */}
 
-                        <Button type="submit" className="w-full">
-                            Sign In
+                        <Button type="submit" className="w-full" disabled={isPending}>
+                            {isPending ? "Signing In..." : "Sign In"}
                         </Button>
                     </form>
                 </div>
