@@ -3,14 +3,15 @@ import { SIDEBAR_ITEMS } from "./sidebar.config";
 import { Link, useLocation } from "react-router";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useLogout } from "@/pages/login/hooks/useAuth";
 
 const Sidebar = () => {
     const location = useLocation();
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+    const { mutate: logout } = useLogout();
 
     const handleLogout = () => {
-        // Add actual logout logic here
-        console.log("User logged out");
+        logout();
         setIsLogoutDialogOpen(false);
     };
 

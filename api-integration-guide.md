@@ -17,17 +17,20 @@ export interface FeatureResponse {
 ```
 
 ## Step 2: Create API Service
-Add `feature.api.ts` in the same `service` folder. Use the global `httpService` instance.
+Add `feature.api.ts` in the same `service` folder. Use the global `httpService` instance and the `ApiEndpoints` enum.
+
+> [!IMPORTANT]
+> Always add your new endpoint to `src/services/api-endpoints.ts` before using it.
 
 ```typescript
 import httpService from "@/services/http";
+import { ApiEndpoints } from "@/services/api-endpoints";
 import type { FeatureRequest, FeatureResponse } from "./feature.type";
 
 export const getFeatureData = (params: FeatureRequest) => {
   return httpService.get<FeatureResponse>({
-    endpoint: "feature-endpoint",
+    endpoint: ApiEndpoints.FEATURE_NAME,
     params,
-    // optional: version: "v2"
   });
 };
 ```
@@ -47,6 +50,13 @@ export const useFeature = () => {
   });
 };
 ```
+
+## Authentication
+The project uses cookie-based authentication. The `httpService` is configured with `withCredentials: true` by default.
+
+- **Login**: Successfully calling the login API will set the authentication cookies in the browser automatically. No manual storage in `localStorage` is required.
+- **Authenticated Requests**: All subsequent requests will automatically include the session cookies.
+- **Logout**: Calling the logout API will clear the session cookies on the server side. No manual cleanup in the frontend is needed.
 
 ## Step 4: Integrate in Components
 Use the hook in your component. Use `isLoading`, `isError`, and `data` to handle UI states.
