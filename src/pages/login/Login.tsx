@@ -1,11 +1,22 @@
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Utensils, Mail, Lock } from "lucide-react";
 import { useLogin } from "./hooks/useAuth";
+import { useNavigate } from "react-router";
 
 const Login = () => {
+    const navigate = useNavigate();
     const { mutate, isPending } = useLogin();
+
+    useEffect(() => {
+        const isLoggedIn = localStorage.getItem("isLoggedIn");
+        if (isLoggedIn === "true") {
+            navigate("/");
+        }
+    }, [navigate]);
+
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             email: "",

@@ -4,10 +4,6 @@ export const setupInterceptors = (instance: AxiosInstance) => {
   // Request Interceptor
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const token = localStorage.getItem("token");
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
       return config;
     },
     (error) => {
@@ -22,9 +18,8 @@ export const setupInterceptors = (instance: AxiosInstance) => {
     },
     (error) => {
       if (error.response?.status === 401) {
-        localStorage.removeItem("token");
-        
         // Only redirect if not already on the login page to avoid refresh loops
+        localStorage.removeItem("isLoggedIn");
         if (window.location.pathname !== "/login") {
           console.warn("Unauthorized, redirecting to login...");
           window.location.href = "/login";
