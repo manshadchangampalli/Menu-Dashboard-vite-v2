@@ -1,9 +1,13 @@
 import { ChevronRight, Download, Plus, TrendingUp } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import BranchesTable from "../../components/branches/BranchesTable";
-import { MOCK_BRANCHES } from "./branches.config";
+import { MOCK_BRANCHES } from "./config/branches.config";
+import { useState } from "react";
+import BranchCreatePanel from "../../components/branches/BranchCreatePanel";
 
 const Branches = () => {
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
+
     return (
         <main className="flex-1 overflow-y-auto p-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
@@ -21,7 +25,10 @@ const Branches = () => {
                         <Download className="size-[18px]" />
                         Export List
                     </Button>
-                    <Button className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm">
+                    <Button
+                        className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
+                        onClick={() => setIsPanelOpen(true)}
+                    >
                         <Plus className="size-[18px]" />
                         New Branch
                     </Button>
@@ -31,6 +38,12 @@ const Branches = () => {
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
                 <BranchesTable data={MOCK_BRANCHES} />
             </div>
+
+            {/* Panel integration */}
+            <BranchCreatePanel
+                open={isPanelOpen}
+                onClose={() => setIsPanelOpen(false)}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="bg-white border border-app-border p-5 rounded-lg shadow-sm">

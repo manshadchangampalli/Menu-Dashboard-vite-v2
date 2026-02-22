@@ -1,7 +1,7 @@
 import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
-import type { Branch } from "../../pages/branches/branches.type";
+import { type Branch, BranchStatus, BranchType } from "../../pages/branches/service/branches.type";
 import { Edit2, MoreVertical, Store, Building, ShoppingBag, Moon } from "lucide-react";
 
 interface BranchesTableProps {
@@ -18,8 +18,9 @@ const BranchesTable = ({ data }: BranchesTableProps) => {
     };
 
 
-    const getBranchIcon = (type: string) => {
+    const getBranchIcon = (type: string | BranchType) => {
         switch (type) {
+            case BranchType.MAIN_HQ:
             case "Main HQ":
                 return <Store className="size-5 text-app-text" />;
             case "Suburban":
@@ -78,21 +79,24 @@ const BranchesTable = ({ data }: BranchesTableProps) => {
         {
             header: "Status",
             accessorKey: "status",
-            cell: (branch) => (
-                <div className="flex items-center gap-3">
-                    <Switch
-                        checked={branch.status === "Open"}
-                        onCheckedChange={() => { }}
-                        onClick={(e) => e.stopPropagation()}
-                    />
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${branch.status === "Open"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                        : "bg-gray-100 text-app-muted border-app-border"
-                        }`}>
-                        {branch.status}
-                    </span>
-                </div>
-            )
+            cell: (branch) => {
+                const isActive = branch.status === "Open" || branch.status === BranchStatus.ACTIVE;
+                return (
+                    <div className="flex items-center gap-3">
+                        <Switch
+                            checked={isActive}
+                            onCheckedChange={() => { }}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${isActive
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            : "bg-gray-100 text-app-muted border-app-border"
+                            }`}>
+                            {branch.status}
+                        </span>
+                    </div>
+                );
+            }
         },
         {
             header: "Actions",

@@ -1,4 +1,4 @@
-import type { Branch } from "./branches.type";
+import type { Branch } from "../service/branches.type";
 
 export const MOCK_BRANCHES: Branch[] = [
     {

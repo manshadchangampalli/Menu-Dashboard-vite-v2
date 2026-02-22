@@ -26,16 +26,16 @@ This project follows strict naming + structure rules to keep the codebase consis
 
 - All screen / route components must be under:
 
-\`\`\`
+```
 
 pages/
 
-\`\`\`
+```
 
-- Each route must be a folder with an \`index.tsx\`
+- Each route must be a folder with an `index.tsx`
 
 ✅
-\`\`\`
+```
 
 pages/
 login/
@@ -43,15 +43,15 @@ index.tsx
 dashboard/
 index.tsx
 
-\`\`\`
+```
 
 ❌
-\`\`\`
+```
 
 pages/
 dashboard.tsx
 
-\`\`\`
+```
 
 ---
 
@@ -59,44 +59,44 @@ dashboard.tsx
 
 - Every component must have its own folder (snake_case)
 - The component file inside must be PascalCase
-- Each component folder must have an \`index.ts\` for export
+- Each component folder must have an `index.ts` for export
 
 ✅
-\`\`\`
+```
 
 components/
 user-card/
 UserCard.tsx
 index.ts
 
-\`\`\`
+```
 
-Example \`index.ts\`:
-\`\`\`ts
+Example `index.ts`:
+```ts
 export { default } from "./UserCard";
-\`\`\`
+```
 
 ---
 
 ## File Naming Rules
 
-* Config files: \`name.config.ts\`
-* Type files: \`name.type.ts\`
-* API files: \`name.api.ts\`
+* Config files: `name.config.ts`
+* Type files: `name.type.ts`
+* API files: `name.api.ts`
 
 ✅ Examples:
 
-\`\`\`
+```
 env.config.ts
 auth.type.ts
 user.api.ts
-\`\`\`
+```
 
 ---
 
 ## Recommended Structure
 
-\`\`\`
+```
 src/
   pages/
     login/
@@ -118,16 +118,16 @@ src/
 
   config/
     env.config.ts
-\`\`\`
+```
 
 ---
 
 
 # Recommended Way to Create Components
 
-\`\`\`
+```
 maximum create small compoenents then we can resuse it anywhere else . example use profile should be using lot of places . so do maximum items reusabel . and check if anything that i can use previously generated component then reuse that 
 
 Responsiveness:
 Resize the window to ensure the panel looks good on different screen sizes (though it's primarily a desktop feature based on the design).
-\`\`\`
+```
