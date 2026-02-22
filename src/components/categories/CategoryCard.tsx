@@ -1,7 +1,8 @@
 import { Edit2, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
-import type { Category } from "../../pages/categories/categories.type";
+import type { Category } from "../../pages/categories/service/categories.type";
+import { getCategoryIcon } from "../../pages/categories/service/categories.type";
 
 interface CategoryCardProps {
     category: Category;
@@ -11,7 +12,7 @@ interface CategoryCardProps {
 }
 
 const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCardProps) => {
-    const Icon = category.icon;
+    const Icon = getCategoryIcon(category.icon);
 
     return (
         <div className="bg-white border border-app-border rounded-xl p-6 shadow-sm hover:border-app-text transition-all group flex flex-col justify-between min-h-[180px]">
@@ -25,7 +26,7 @@ const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCa
                             variant="ghost"
                             size="icon"
                             className="size-8 text-app-muted hover:text-app-text rounded-md"
-                            onClick={() => onEdit?.(category.id)}
+                            onClick={() => onEdit?.(category._id)}
                         >
                             <Edit2 className="size-4" />
                         </Button>
@@ -33,7 +34,11 @@ const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCa
                             variant="ghost"
                             size="icon"
                             className="size-8 text-app-muted hover:text-red-600 rounded-md"
-                            onClick={() => onDelete?.(category.id)}
+                            onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete the category "${category.name}"?`)) {
+                                    onDelete?.(category._id);
+                                }
+                            }}
                         >
                             <Trash2 className="size-4" />
                         </Button>
@@ -44,9 +49,9 @@ const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCa
             </div>
             <div className="mt-6 flex items-center justify-between border-t border-app-border pt-4">
                 <span className="text-xs font-bold uppercase tracking-wider text-app-muted">Availability</span>
-                <Switch 
-                    checked={category.isActive} 
-                    onCheckedChange={(checked) => onToggleStatus?.(category.id, checked)}
+                <Switch
+                    checked={category.isActive}
+                    onCheckedChange={(checked) => onToggleStatus?.(category._id, checked)}
                 />
             </div>
         </div>
