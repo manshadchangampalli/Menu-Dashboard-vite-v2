@@ -21,3 +21,10 @@ export const deleteBranch = (id: string) => {
     endpoint: `${ApiEndpoints.DELETE_BRANCH}/${id}`,
   });
 };
+
+export const updateBranch = (id: string, data: Partial<CreateBranchRequest>) => {
+  return httpService.patch<BranchData>({
+    endpoint: `${ApiEndpoints.UPDATE_BRANCH}/${id}`,
+    data,
+  });
+};

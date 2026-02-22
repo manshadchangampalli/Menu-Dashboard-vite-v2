@@ -5,18 +5,52 @@ import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { FormSection } from "../ui/FormSection";
 import { X, Save, MapPin, Clock, Users } from "lucide-react";
-import { useCreateBranch } from "../../pages/branches/hooks/useBranches";
-import { type CreateBranchRequest, DayOfWeek } from "../../pages/branches/service/branches.type";
+import { useCreateBranch, useUpdateBranch } from "../../pages/branches/hooks/useBranches";
+import { type CreateBranchRequest, type BranchData, DayOfWeek } from "../../pages/branches/service/branches.type";
 import { BRANCH_TYPE_OPTIONS, CITY_OPTIONS } from "../../pages/branches/config/branches.config";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface BranchCreatePanelProps {
     open: boolean;
     onClose: () => void;
+    isEdit?: boolean;
+    initialData?: BranchData | null;
 }
 
-const BranchCreatePanel = ({ open, onClose }: BranchCreatePanelProps) => {
-    const { mutate: createBranch, isPending } = useCreateBranch();
+const DEFAULT_VALUES: Partial<CreateBranchRequest> = {
+    address_detail: {
+        country: "UAE",
+        city: "",
+        state: "", // Added to match type
+        zip_code: "",
+        street: "",
+        map_location_url: "",
+        coordinates: { lat: 0, lng: 0 }
+    },
+    operating_hours: [
+        {
+            day: DayOfWeek.MONDAY,
+            open_time: "09:00",
+            close_time: "22:00",
+            is_closed: false,
+        },
+    ],
+    occupancy_stats: {
+        capacity: undefined as any,
+    },
+    organization_id: "69948af4435dccf179e3e939",
+    manager_id: "69948af4435dccf179e3e939",
+    name: "",
+    email: "",
+    phone: "",
+};
+
+const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreatePanelProps) => {
+    const { mutate: createBranch, isPending: isCreating } = useCreateBranch();
+    const { mutate: updateBranch, isPending: isUpdating } = useUpdateBranch();
+
+    const isPending = isCreating || isUpdating;
 
     const {
         control,
@@ -24,45 +58,45 @@ const BranchCreatePanel = ({ open, onClose }: BranchCreatePanelProps) => {
         reset,
         formState: { errors },
     } = useForm<CreateBranchRequest>({
-        defaultValues: {
-            address_detail: {
-                country: "UAE",
-                city: "",
-                zip_code: "",
-                street: "",
-                map_location_url: "",
-                coordinates: { lat: 0, lng: 0 }
-            },
-            operating_hours: [
-                {
-                    day: DayOfWeek.MONDAY,
-                    open_time: "09:00",
-                    close_time: "22:00",
-                    is_closed: false,
-                },
-            ],
-            occupancy_stats: {
-                capacity: undefined,
-            },
-            organization_id: "69948af4435dccf179e3e939",
-            manager_id: "69948af4435dccf179e3e939",
-            name: "",
-            email: "",
-            phone: "",
-        } as any,
+        defaultValues: DEFAULT_VALUES as CreateBranchRequest,
     });
 
+    useEffect(() => {
+        if (open) {
+            if (isEdit && initialData) {
+                reset(initialData as any);
+            } else {
+                reset(DEFAULT_VALUES as CreateBranchRequest);
+            }
+        }
+    }, [open, isEdit, initialData, reset]);
+
     const onSubmit = (data: CreateBranchRequest) => {
-        createBranch(data, {
-            onSuccess: () => {
-                toast.success("Branch created successfully!");
-                reset();
-                onClose();
-            },
-            onError: (error: any) => {
-                toast.error(error?.message || "Failed to create branch");
-            },
-        });
+        if (isEdit && initialData?._id) {
+            updateBranch(
+                { id: initialData._id, data },
+                {
+                    onSuccess: () => {
+                        toast.success("Branch updated successfully!");
+                        onClose();
+                    },
+                    onError: (error: any) => {
+                        toast.error(error?.message || "Failed to update branch");
+                    },
+                }
+            );
+        } else {
+            createBranch(data, {
+                onSuccess: () => {
+                    toast.success("Branch created successfully!");
+                    reset();
+                    onClose();
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to create branch");
+                },
+            });
+        }
     };
 
 
@@ -73,8 +107,10 @@ const BranchCreatePanel = ({ open, onClose }: BranchCreatePanelProps) => {
             title={
                 <div className="flex items-center justify-between w-full">
                     <div>
-                        <h2 className="text-lg font-bold text-app-text">Create New Branch</h2>
-                        <p className="text-xs text-app-muted mt-0.5">Fill in the details to add a new restaurant location.</p>
+                        <h2 className="text-lg font-bold text-app-text">{isEdit ? "Edit Branch" : "Create New Branch"}</h2>
+                        <p className="text-xs text-app-muted mt-0.5">
+                            {isEdit ? "Update the details of the restaurant location." : "Fill in the details to add a new restaurant location."}
+                        </p>
                     </div>
                     <button
                         onClick={onClose}
@@ -101,10 +137,10 @@ const BranchCreatePanel = ({ open, onClose }: BranchCreatePanelProps) => {
                         disabled={isPending}
                         type="submit"
                     >
-                        {isPending ? "Creating..." : (
+                        {isPending ? (isEdit ? "Updating..." : "Creating...") : (
                             <>
                                 <Save className="w-4 h-4 mr-2" />
-                                Create Branch
+                                {isEdit ? "Update Branch" : "Create Branch"}
                             </>
                         )}
                     </Button>
