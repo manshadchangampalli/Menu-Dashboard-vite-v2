@@ -5,14 +5,17 @@ import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { FormSection } from "../ui/FormSection";
 import { X, Save, Layers, Layout, Activity } from "lucide-react";
-import { useCreateCategory } from "../../pages/categories/hooks/useCategories";
-import { type CreateCategoryRequest, CategoryIcon } from "../../pages/categories/service/categories.type";
+import { useCreateCategory, useUpdateCategory } from "../../pages/categories/hooks/useCategories";
+import { type CreateCategoryRequest, CategoryIcon, type Category } from "../../pages/categories/service/categories.type";
 import { MOCK_MENUS } from "../../pages/menu/menu.config";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface CategoryCreatePanelProps {
     open: boolean;
     onClose: () => void;
+    categoryToEdit?: Category | null;
+    isEdit?: boolean;
 }
 
 const ICON_OPTIONS = [
@@ -37,8 +40,9 @@ const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
     itemCount: 0
 };
 
-const CategoryCreatePanel = ({ open, onClose }: CategoryCreatePanelProps) => {
-    const { mutate: createCategory, isPending } = useCreateCategory();
+const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: CategoryCreatePanelProps) => {
+    const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
+    const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
 
     const {
         control,
@@ -49,17 +53,50 @@ const CategoryCreatePanel = ({ open, onClose }: CategoryCreatePanelProps) => {
         defaultValues: DEFAULT_VALUES as CreateCategoryRequest,
     });
 
+    useEffect(() => {
+        if (isEdit && categoryToEdit) {
+            reset({
+                name: categoryToEdit.name,
+                organization_id: categoryToEdit.organization_id || "69948af4435dccf179e3e939",
+                icon: (typeof categoryToEdit.icon === 'string' ? categoryToEdit.icon : CategoryIcon.UTENSILS_CROSSED) as any,
+                isActive: categoryToEdit.isActive,
+                menuId: categoryToEdit.menuId || "",
+                itemCount: categoryToEdit.itemCount || 0
+            });
+        } else {
+            reset(DEFAULT_VALUES as CreateCategoryRequest);
+        }
+    }, [isEdit, categoryToEdit, reset]);
+
+    const isPending = isCreating || isUpdating;
+
     const onSubmit = (data: CreateCategoryRequest) => {
-        createCategory(data, {
-            onSuccess: () => {
-                toast.success("Category created successfully!");
-                reset();
-                onClose();
-            },
-            onError: (error: any) => {
-                toast.error(error?.message || "Failed to create category");
-            },
-        });
+        if (isEdit && categoryToEdit) {
+            updateCategory(
+                { id: categoryToEdit._id, data },
+                {
+                    onSuccess: () => {
+                        toast.success("Category updated successfully!");
+                        reset();
+                        onClose();
+                    },
+                    onError: (error: any) => {
+                        toast.error(error?.message || "Failed to update category");
+                    },
+                }
+            );
+        } else {
+            createCategory(data, {
+                onSuccess: () => {
+                    toast.success("Category created successfully!");
+                    reset();
+                    onClose();
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to create category");
+                },
+            });
+        }
     };
 
     return (
@@ -69,9 +106,9 @@ const CategoryCreatePanel = ({ open, onClose }: CategoryCreatePanelProps) => {
             title={
                 <div className="flex items-center justify-between w-full">
                     <div>
-                        <h2 className="text-lg font-bold text-app-text">Add New Category</h2>
+                        <h2 className="text-lg font-bold text-app-text">{isEdit ? "Edit Category" : "Add New Category"}</h2>
                         <p className="text-xs text-app-muted mt-0.5">
-                            Organize your menu by creating a new category.
+                            {isEdit ? "Update the details of your category." : "Organize your menu by creating a new category."}
                         </p>
                     </div>
                     <button
@@ -99,10 +136,10 @@ const CategoryCreatePanel = ({ open, onClose }: CategoryCreatePanelProps) => {
                         disabled={isPending}
                         type="submit"
                     >
-                        {isPending ? "Sharing..." : (
+                        {isPending ? (isEdit ? "Changing..." : "Sharing...") : (
                             <>
                                 <Save className="w-4 h-4 mr-2" />
-                                Create Category
+                                {isEdit ? "Update Category" : "Create Category"}
                             </>
                         )}
                     </Button>
