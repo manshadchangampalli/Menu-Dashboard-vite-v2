@@ -1,7 +1,6 @@
 import { ChevronRight, Download, Plus, TrendingUp } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import BranchesTable from "../../components/branches/BranchesTable";
-import { MOCK_BRANCHES } from "./config/branches.config";
 import { useState } from "react";
 import BranchCreatePanel from "../../components/branches/BranchCreatePanel";
 
@@ -36,7 +35,7 @@ const Branches = () => {
             </div>
 
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
-                <BranchesTable data={MOCK_BRANCHES} />
+                <BranchesTable />
             </div>
 
             {/* Panel integration */}

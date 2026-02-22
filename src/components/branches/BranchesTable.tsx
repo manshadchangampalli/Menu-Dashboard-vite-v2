@@ -4,27 +4,74 @@ import { Switch } from "../ui/switch";
 import { type Branch, BranchStatus, BranchType } from "../../pages/branches/service/branches.type";
 import { Edit2, MoreVertical, Store, Building, ShoppingBag, Moon } from "lucide-react";
 
-interface BranchesTableProps {
-    data: Branch[];
-}
-
 import { useNavigate } from "react-router";
+import { getBranches } from "../../pages/branches/service/branches.api";
+import { CustomSelect } from "../ui/CustomSelect";
+import { useTableFilters } from "../../hooks/useTableFilters";
 
-const BranchesTable = ({ data }: BranchesTableProps) => {
+const BranchesTable = () => {
     const navigate = useNavigate();
+    const { filters, setFilters } = useTableFilters({
+        limit: 10,
+        sortBy: "created_at",
+        sortOrder: "desc",
+        status: "all"
+    });
 
     const handleRowClick = (branch: Branch) => {
         navigate(`/branches/${branch.id}`);
     };
 
+    const fetchBranches = async (params: {
+        page: number;
+        pageSize: number;
+        search: string;
+        sort?: { column: keyof Branch; direction: "asc" | "desc" };
+    }) => {
+        // Sync URL parameters when table state changes
+        setFilters({
+            page: params.page,
+            limit: params.pageSize,
+            query: params.search,
+            sortBy: params.sort?.column as string,
+            sortOrder: params.sort?.direction,
+        });
+
+        const response = await getBranches({
+            page: params.page,
+            limit: params.pageSize,
+            query: params.search,
+            sortBy: params.sort?.column as string,
+            sortOrder: params.sort?.direction,
+            status: filters.status === "all" ? undefined : filters.status
+        });
+
+        const mappedData: Branch[] = response.data.map((item: any) => ({
+            id: item._id,
+            name: item.name,
+            type: item.branch_type,
+            address: item.address_detail.street,
+            district: `${item.address_detail.city}, ${item.address_detail.country}`,
+            managerName: "Manager Name", // Map correctly if API provides it
+            managerAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random`,
+            status: item.status,
+        }));
+
+        return {
+            data: mappedData,
+            total: (response as any).meta?.total || mappedData.length,
+            totalPages: (response as any).meta?.totalPages || 1,
+        };
+    };
 
     const getBranchIcon = (type: string | BranchType) => {
         switch (type) {
             case BranchType.MAIN_HQ:
             case "Main HQ":
+            case "STANDARD":
                 return <Store className="size-5 text-app-text" />;
             case "Suburban":
-                return <Store className="size-5 text-app-text" />; // Fallback or distinct if available
+                return <Store className="size-5 text-app-text" />;
             case "Seasonal":
                 return <Moon className="size-5 text-app-text" />;
             case "Delivery Hub":
@@ -128,10 +175,26 @@ const BranchesTable = ({ data }: BranchesTableProps) => {
     return (
         <DataTable
             columns={columns}
-            data={data}
+            fetchData={fetchBranches}
             searchKeys={["name", "address", "managerName"]}
             initialPageSize={10}
             onRowClick={handleRowClick}
+            actions={
+                <div className="flex items-center gap-2">
+                    <div className="w-40">
+                        <CustomSelect
+                            label=""
+                            value={filters.status}
+                            onValueChange={(value) => setFilters({ status: value })}
+                            options={[
+                                { label: "All Status", value: "all" },
+                                { label: "Active", value: "active" },
+                                { label: "Inactive", value: "inactive" },
+                            ]}
+                        />
+                    </div>
+                </div>
+            }
         />
     );
 };

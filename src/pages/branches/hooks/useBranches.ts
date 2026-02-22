@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createBranch } from "../service/branches.api";
-import type { CreateBranchRequest } from "../service/branches.type";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createBranch, getBranches } from "../service/branches.api";
+import type { CreateBranchRequest, GetBranchesRequest } from "../service/branches.type";
 
 export const useCreateBranch = () => {
   const queryClient = useQueryClient();
@@ -11,5 +11,12 @@ export const useCreateBranch = () => {
       // Invalidate branches list query if it exists
       queryClient.invalidateQueries({ queryKey: ["branches"] });
     },
+  });
+};
+
+export const useBranches = (params: GetBranchesRequest) => {
+  return useQuery({
+    queryKey: ["branches", params],
+    queryFn: () => getBranches(params),
   });
 };
