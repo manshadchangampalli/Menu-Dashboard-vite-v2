@@ -1,4 +1,4 @@
-import { BranchType, Emirate, type Branch } from "../service/branches.type";
+import { BranchType, City, CitySlug, type Branch } from "../service/branches.type";
 
 export const MOCK_BRANCHES: Branch[] = [
     {
@@ -49,11 +49,11 @@ export const BRANCH_TYPE_OPTIONS = [
 ];
 
 export const CITY_OPTIONS = [
-    { label: "Abu Dhabi", value: Emirate.ABU_DHABI },
-    { label: "Dubai", value: Emirate.DUBAI },
-    { label: "Sharjah", value: Emirate.SHARJAH },
-    { label: "Ajman", value: Emirate.AJMAN },
-    { label: "Umm Al Quwain", value: Emirate.UMM_AL_QUWAIN },
-    { label: "Ras Al Khaimah", value: Emirate.RAS_AL_KHAIMAH },
-    { label: "Fujairah", value: Emirate.FUJAIRAH },
+    { label: City.ABU_DHABI, value: CitySlug.ABU_DHABI },
+    { label: City.DUBAI, value: CitySlug.DUBAI },
+    { label: City.SHARJAH, value: CitySlug.SHARJAH },
+    { label: City.AJMAN, value: CitySlug.AJMAN },
+    { label: City.UMM_AL_QUWAIN, value: CitySlug.UMM_AL_QUWAIN },
+    { label: City.RAS_AL_KHAIMAH, value: CitySlug.RAS_AL_KHAIMAH },
+    { label: City.FUJAIRAH, value: CitySlug.FUJAIRAH },
 ];

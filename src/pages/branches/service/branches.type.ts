@@ -18,14 +18,24 @@ export enum DayOfWeek {
   SUNDAY = 'Sunday'
 }
 
-export enum Emirate {
-  ABU_DHABI = 'abu_dhabi',
-  DUBAI = 'dubai',
-  SHARJAH = 'sharjah',
-  AJMAN = 'ajman',
-  UMM_AL_QUWAIN = 'umm_al_quwain',
-  RAS_AL_KHAIMAH = 'ras_al_khaimah',
-  FUJAIRAH = 'fujairah'
+export enum City {
+    DUBAI = 'Dubai',
+    ABU_DHABI = 'Abu Dhabi',
+    SHARJAH = 'Sharjah',
+    AJMAN = 'Ajman',
+    UMM_AL_QUWAIN = 'Umm Al Quwain',
+    RAS_AL_KHAIMAH = 'Ras Al Khaimah',
+    FUJAIRAH = 'Fujairah'
+}
+
+export enum CitySlug {
+    DUBAI = 'dubai',
+    ABU_DHABI = 'abu-dhabi',
+    SHARJAH = 'sharjah',
+    AJMAN = 'ajman',
+    UMM_AL_QUWAIN = 'umm-al-quwain',
+    RAS_AL_KHAIMAH = 'ras-al-khaimah',
+    FUJAIRAH = 'fujairah'
 }
 
 export interface Coordinates {
@@ -36,6 +46,7 @@ export interface Coordinates {
 export interface AddressDetail {
   street: string;
   city: string;
+  citySlug?: CitySlug;
   state: string;
   zip_code: string;
   country: string;
