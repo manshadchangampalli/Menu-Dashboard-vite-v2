@@ -1,11 +1,26 @@
-import { ChevronRight, Download, Plus, TrendingUp } from "lucide-react";
+import { ChevronRight, Download, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import BranchesTable from "../../components/branches/BranchesTable";
 import { useState } from "react";
 import BranchCreatePanel from "../../components/branches/BranchCreatePanel";
+import { type BranchData } from "./service/branches.type";
 
 const Branches = () => {
     const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [selectedBranch, setSelectedBranch] = useState<BranchData | null>(null);
+    const [isEdit, setIsEdit] = useState(false);
+
+    const handleCreateClick = () => {
+        setSelectedBranch(null);
+        setIsEdit(false);
+        setIsPanelOpen(true);
+    };
+
+    const handleEditClick = (branch: BranchData) => {
+        setSelectedBranch(branch);
+        setIsEdit(true);
+        setIsPanelOpen(true);
+    };
 
     return (
         <main className="flex-1 overflow-y-auto p-8">
@@ -26,21 +41,24 @@ const Branches = () => {
                     </Button>
                     <Button
                         className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
-                        onClick={() => setIsPanelOpen(true)}
+                        onClick={handleCreateClick}
                     >
                         <Plus className="size-[18px]" />
                         New Branch
                     </Button>
                 </div>
             </div>
-
-            
-                <BranchesTable />
-
+            <BranchesTable onEdit={handleEditClick} />
             {/* Panel integration */}
             <BranchCreatePanel
                 open={isPanelOpen}
-                onClose={() => setIsPanelOpen(false)}
+                isEdit={isEdit}
+                initialData={selectedBranch}
+                onClose={() => {
+                    setIsPanelOpen(false);
+                    setSelectedBranch(null);
+                    setIsEdit(false);
+                }}
             />
 
 

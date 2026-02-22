@@ -2,7 +2,8 @@ import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { type Branch, type BranchData, BranchStatus, BranchType } from "../../pages/branches/service/branches.type";
-import { Edit2, Store, Building, ShoppingBag, Moon, Trash2, TrendingUp } from "lucide-react";
+import { Edit2, Store, Building, ShoppingBag, Moon, Trash2 } from "lucide-react";
+import { BranchStats } from "./BranchStats";
 
 import { useNavigate } from "react-router";
 import { useState } from "react";
@@ -10,15 +11,22 @@ import { getBranches } from "../../pages/branches/service/branches.api";
 import { CustomSelect } from "../ui/CustomSelect";
 import { useTableFilters } from "../../hooks/useTableFilters";
 import { ConfirmDialog } from "../ui/confirm-dialog";
-import { useDeleteBranch } from "../../pages/branches/hooks/useBranches";
+import { useDeleteBranch, useUpdateBranch } from "../../pages/branches/hooks/useBranches";
 import { toast } from "sonner";
 import type { ApiResponse } from "@/services/http";
 
-const BranchesTable = () => {
+interface BranchesTableProps {
+    onEdit?: (branch: BranchData) => void;
+}
+
+const BranchesTable = ({ onEdit }: BranchesTableProps) => {
     const [branchData, setBranchData] = useState<ApiResponse<BranchData[]>>();
     const navigate = useNavigate();
     const [branchToDelete, setBranchToDelete] = useState<Branch | null>(null);
+    const [branchToToggle, setBranchToToggle] = useState<Branch | null>(null);
     const { mutate: deleteBranch, isPending: isDeleting } = useDeleteBranch();
+    const { mutate: updateBranch, isPending: isUpdating } = useUpdateBranch();
+
 
     const { filters, setFilters } = useTableFilters({
         limit: 10,
@@ -92,6 +100,24 @@ const BranchesTable = () => {
         });
     };
 
+    const handleStatusToggle = () => {
+        if (!branchToToggle) return;
+        const newStatus = branchToToggle.status === BranchStatus.ACTIVE ? BranchStatus.INACTIVE : BranchStatus.ACTIVE;
+
+        updateBranch(
+            { id: branchToToggle.id, data: { status: newStatus } },
+            {
+                onSuccess: () => {
+                    toast.success(`Branch ${newStatus === BranchStatus.ACTIVE ? "activated" : "deactivated"} successfully`);
+                    setBranchToToggle(null);
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to update status");
+                }
+            }
+        );
+    };
+
     const handleRowClick = (branch: Branch) => {
         navigate(`/branches/${branch.id}`);
     };
@@ -161,12 +187,14 @@ const BranchesTable = () => {
             header: "Status",
             accessorKey: "status",
             cell: (branch) => {
-                const isActive = branch.status === "Open" || branch.status === BranchStatus.ACTIVE;
+                const isActive = branch.status === BranchStatus.ACTIVE;
                 return (
                     <div className="flex items-center gap-3">
                         <Switch
                             checked={isActive}
-                            onCheckedChange={() => { }}
+                            onCheckedChange={() => {
+                                setBranchToToggle(branch);
+                            }}
                             onClick={(e) => e.stopPropagation()}
                         />
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${isActive
@@ -189,7 +217,13 @@ const BranchesTable = () => {
                         variant="ghost"
                         size="icon"
                         className="size-8 text-app-muted hover:text-app-text hover:bg-app-bg"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            const originalBranch = branchData?.data.find(b => b._id === branch.id);
+                            if (originalBranch && onEdit) {
+                                onEdit(originalBranch);
+                            }
+                        }}
                     >
                         <Edit2 className="size-4" />
                     </Button>
@@ -247,26 +281,21 @@ const BranchesTable = () => {
                 variant="destructive"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                <div className="bg-white border border-app-border p-5 rounded-lg shadow-sm">
-                    <h3 className="text-app-muted text-[10px] font-bold uppercase tracking-wider mb-1">Total Branches</h3>
-                    <div className="flex items-end justify-between">
-                        <p className="text-2xl font-bold text-app-text">{branchData?.meta?.totalWithoutFilter}</p>
-                        <span className="text-emerald-600 text-xs font-bold flex items-center gap-1">
-                            <TrendingUp className="size-3.5" />
-                            +2 this year
-                        </span>
-                    </div>
-                </div>
-                <div className="bg-white border border-app-border p-5 rounded-lg shadow-sm">
-                    <h3 className="text-app-muted text-[10px] font-bold uppercase tracking-wider mb-1">Active Now</h3>
-                    <div className="flex items-end justify-between">
-                        <p className="text-2xl font-bold text-app-text">{branchData?.meta?.totalActive}</p>
-                        <span className="text-app-muted text-xs font-bold">75% capacity</span>
-                    </div>
-                </div>
+            <ConfirmDialog
+                open={!!branchToToggle}
+                onOpenChange={(open) => !open && setBranchToToggle(null)}
+                title={branchToToggle?.status === BranchStatus.ACTIVE ? "Deactivate Branch" : "Activate Branch"}
+                description={`Are you sure you want to ${branchToToggle?.status === BranchStatus.ACTIVE ? "deactivate" : "activate"} "${branchToToggle?.name}"?`}
+                confirmText={isUpdating ? "Updating..." : "Confirm"}
+                cancelText="Cancel"
+                onConfirm={handleStatusToggle}
+                variant={branchToToggle?.status === BranchStatus.ACTIVE ? "destructive" : "default"}
+            />
 
-            </div>
+            <BranchStats
+                totalWithoutFilter={branchData?.meta?.totalWithoutFilter}
+                totalActive={branchData?.meta?.totalActive}
+            />
         </>
     );
 };
