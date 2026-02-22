@@ -28,3 +28,10 @@ export const updateBranch = (id: string, data: Partial<CreateBranchRequest>) => 
     data,
   });
 };
+
+export const downloadBranches = () => {
+  return httpService.get({
+    endpoint: ApiEndpoints.DOWNLOAD_BRANCHES,
+    responseType: "blob",
+  });
+};
