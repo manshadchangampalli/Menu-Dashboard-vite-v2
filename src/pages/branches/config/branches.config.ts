@@ -1,4 +1,4 @@
-import type { Branch } from "../service/branches.type";
+import { BranchType, Emirate, type Branch } from "../service/branches.type";
 
 export const MOCK_BRANCHES: Branch[] = [
     {
@@ -38,7 +38,22 @@ export const MOCK_BRANCHES: Branch[] = [
         address: "22 Pier Way, Seattle, WA",
         district: "Waterfront",
         managerName: "Elena Vassili",
-        managerAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBXq0Nhgbg4tayZZgXZqHkfyaULdtTqyRactB8f6UgchvQW-oYJroR036ymeCLfq4x_Q45-ITr6pW1EkLDMDXCALBnVxUjn_2xUQFFmZURPpP6Okxrrhrp3u1FXqLy-cpnMgxlEfrdxcmqc2fVYMQ8xDJ0NI2FNkTA8in1V4g7qOelNZfEsb8jK0HD9ely-2WK2saCTb54EpXtjgA6rpzUXzgZOGahHYfH69a2pyYkF-g3ffDFMtPC7O4FBt9h9a6qAoV7V2XEOl5k",
+        managerAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBXq0Nhgbg4tayZZgXZqHkfyaULdtTqyRactB8f6UgchvQW-oYJroR036ymeCLfq4x_Q45-ITr6pW1EkLDMDXCALBnVxUjn_2xUQFFmZURPpP6OkXrrhrp3u1FXqLy-cpnMgxlEfrdxcmqc2fVYMQ8xDJ0NI2FNkTA8in1V4g7qOelNZfEsb8jK0HD9ely-2WK2saCTb54EpXtjgA6rpzUXzgZOGahHYfH69a2pyYkF-g3ffDFMtPC7O4FBt9h9a6qAoV7V2XEOl5k",
         status: "Open"
     }
+];
+
+export const BRANCH_TYPE_OPTIONS = [
+    { label: "Standard", value: BranchType.STANDARD },
+    { label: "Main HQ", value: BranchType.MAIN_HQ },
+];
+
+export const CITY_OPTIONS = [
+    { label: "Abu Dhabi", value: Emirate.ABU_DHABI },
+    { label: "Dubai", value: Emirate.DUBAI },
+    { label: "Sharjah", value: Emirate.SHARJAH },
+    { label: "Ajman", value: Emirate.AJMAN },
+    { label: "Umm Al Quwain", value: Emirate.UMM_AL_QUWAIN },
+    { label: "Ras Al Khaimah", value: Emirate.RAS_AL_KHAIMAH },
+    { label: "Fujairah", value: Emirate.FUJAIRAH },
 ];

@@ -31,8 +31,8 @@ const CustomSelect = ({
   disabled,
 }: CustomSelectProps) => {
   return (
-    <div className={cn("space-y-1.5 flex flex-col", containerClassName)}>
-      <label className="text-xs font-bold text-app-muted uppercase ml-1">
+    <div className={cn("flex flex-col gap-1", containerClassName)}>
+      <label className="text-xs font-bold text-app-muted uppercase">
         {label}
       </label>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
@@ -45,7 +45,7 @@ const CustomSelect = ({
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper" className="z-110">
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
@@ -54,7 +54,7 @@ const CustomSelect = ({
         </SelectContent>
       </Select>
       {error && (
-        <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">
+        <p className="text-[10px] text-red-500 font-bold mt-1">
           {error}
         </p>
       )}
