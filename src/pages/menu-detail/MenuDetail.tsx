@@ -3,9 +3,9 @@ import { useParams, useNavigate } from "react-router";
 import { ChevronRight, ChevronDown, ChevronUp, Clock, Edit2, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { MOCK_MENUS } from "../menu/menu.config";
-import { MOCK_CATEGORIES } from "../categories/categories.config";
+import { MOCK_CATEGORIES } from "../categories/config/categories.config";
 import { MOCK_MENU_ITEMS } from "../menu-items/menuItems.config";
-import type { Category } from "../categories/categories.type";
+import { type Category, getCategoryIcon } from "../categories/service/categories.type";
 import type { MenuItem } from "../menu-items/menuItems.type";
 import { Switch } from "../../components/ui/switch";
 
@@ -15,7 +15,7 @@ const MenuDetail = () => {
     const menu = MOCK_MENUS.find(m => m.id === id);
 
     const categories = useMemo(() => {
-        if (!menu) return [];
+        if (!menu) return []; 
         return MOCK_CATEGORIES.filter(c => c.menuId === menu.id);
     }, [menu]);
 
@@ -131,7 +131,7 @@ const MenuDetail = () => {
                     <div className="space-y-4">
                         {categories.map((category) => (
                             <CategorySection
-                                key={category.id}
+                                key={category._id}
                                 category={category}
                                 items={menuItems[category.name] || []}
                             />
@@ -152,6 +152,7 @@ const MenuDetail = () => {
 // Sub-component for Category Accordion
 const CategorySection = ({ category, items }: { category: Category, items: MenuItem[] }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const Icon = getCategoryIcon(category.icon);
 
     // Filter items to only show first 5 if not enhanced, but for now show all
 
@@ -163,7 +164,7 @@ const CategorySection = ({ category, items }: { category: Category, items: MenuI
             >
                 <div className="flex items-center gap-4">
                     <div className={`p-2 rounded-md ${isOpen ? 'bg-app-text text-white' : 'bg-app-bg text-app-text'}`}>
-                        <category.icon className="size-5" />
+                        <Icon className="size-5" />
                     </div>
                     <div>
                         <h4 className="text-sm font-bold text-app-text">{category.name}</h4>

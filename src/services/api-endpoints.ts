@@ -7,6 +7,9 @@ export const ApiEndpoints = {
   UPDATE_BRANCH: "branches",
   GET_BRANCH: "branches",
   DOWNLOAD_BRANCHES: "branches/download",
+  CREATE_CATEGORY: "category/create",
+  GET_CATEGORIES: "category/get-all",
+  DELETE_CATEGORY: "category",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];

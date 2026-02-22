@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { ChevronRight, Plus, ListFilter } from "lucide-react";
+import { ChevronRight, Plus, ListFilter, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import CategoryCard from "../../components/categories/CategoryCard";
-import { MOCK_CATEGORIES } from "./categories.config";
-import type { Category } from "./categories.type";
+import CategoryCreatePanel from "../../components/categories/CategoryCreatePanel";
+import { useCategories, useDeleteCategory } from "./hooks/useCategories";
+import type { Category } from "./service/categories.type";
+import { toast } from "sonner";
 
 const Categories = () => {
-    // In a real app, this would come from an API
-    const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
+    const { data: categories, isLoading, error } = useCategories();
+    const { mutate: deleteCategory } = useDeleteCategory();
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
 
     const handleToggleStatus = (id: string, status: boolean) => {
-        setCategories(prev => prev.map(cat => 
-            cat.id === id ? { ...cat, isActive: status } : cat
-        ));
+        // Toggle logic will be handled by a separate update mutation eventually
+        console.log("Toggle status", id, status);
     };
 
     const handleEdit = (id: string) => {
@@ -21,13 +23,18 @@ const Categories = () => {
     };
 
     const handleDelete = (id: string) => {
-        console.log("Delete category", id);
-        // Implement delete logic/confirmation here
+        deleteCategory(id, {
+            onSuccess: () => {
+                toast.success("Category deleted successfully");
+            },
+            onError: (error: any) => {
+                toast.error(error?.message || "Failed to delete category");
+            }
+        });
     };
 
     const handleAdd = () => {
-        console.log("Add new category");
-        // Implement add logic/modal here
+        setIsPanelOpen(true);
     };
 
     return (
@@ -47,7 +54,7 @@ const Categories = () => {
                         <ListFilter className="size-[18px]" />
                         Reorder
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleAdd}
                         className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
                     >
@@ -58,27 +65,46 @@ const Categories = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {categories.map((category) => (
-                    <CategoryCard 
-                        key={category.id} 
-                        category={category}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onToggleStatus={handleToggleStatus}
-                    />
-                ))}
-                
-                {/* Add New Category Card */}
-                <button 
-                    onClick={handleAdd}
-                    className="border-2 border-dashed border-app-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:border-app-text hover:bg-white transition-all group min-h-[180px]"
-                >
-                    <div className="size-10 rounded-full bg-app-bg flex items-center justify-center text-app-muted group-hover:text-app-text group-hover:scale-110 transition-transform">
-                        <Plus className="size-6" />
+                {isLoading ? (
+                    <div className="col-span-full h-64 flex flex-col items-center justify-center text-app-muted">
+                        <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                        <p className="font-medium">Loading categories...</p>
                     </div>
-                    <span className="text-sm font-bold text-app-muted group-hover:text-app-text">Add New Category</span>
-                </button>
+                ) : error ? (
+                    <div className="col-span-full h-64 flex flex-col items-center justify-center text-red-500">
+                        <p className="font-bold text-lg">Failed to load categories</p>
+                        <p className="text-sm">Please try again later</p>
+                    </div>
+                ) : (
+                    <>
+                        {categories?.map((category: Category) => (
+                            <CategoryCard
+                                key={category._id}
+                                category={category}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onToggleStatus={handleToggleStatus}
+                            />
+                        ))}
+
+                        {/* Add New Category Card */}
+                        <button
+                            onClick={handleAdd}
+                            className="border-2 border-dashed border-app-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:border-app-text hover:bg-white transition-all group min-h-[180px]"
+                        >
+                            <div className="size-10 rounded-full bg-app-bg flex items-center justify-center text-app-muted group-hover:text-app-text group-hover:scale-110 transition-transform">
+                                <Plus className="size-6" />
+                            </div>
+                            <span className="text-sm font-bold text-app-muted group-hover:text-app-text">Add New Category</span>
+                        </button>
+                    </>
+                )}
             </div>
+
+            <CategoryCreatePanel
+                open={isPanelOpen}
+                onClose={() => setIsPanelOpen(false)}
+            />
         </main>
     );
 };

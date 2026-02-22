@@ -1,9 +1,9 @@
 import { UtensilsCrossed, Utensils, Martini, CakeSlice, Star, Baby } from "lucide-react";
-import type { Category } from "./categories.type";
+import type { Category } from "../service/categories.type";
 
 export const MOCK_CATEGORIES: Category[] = [
     {
-        id: "1",
+        _id: "1",
         name: "Appetizers",
         itemCount: 12,
         icon: UtensilsCrossed,
@@ -11,7 +11,7 @@ export const MOCK_CATEGORIES: Category[] = [
         menuId: "1" // Main Menu
     },
     {
-        id: "2",
+        _id: "2",
         name: "Main Course",
         itemCount: 24,
         icon: Utensils,
@@ -19,7 +19,7 @@ export const MOCK_CATEGORIES: Category[] = [
         menuId: "1" // Main Menu
     },
     {
-        id: "3",
+        _id: "3",
         name: "Beverages",
         itemCount: 18,
         icon: Martini,
@@ -27,7 +27,7 @@ export const MOCK_CATEGORIES: Category[] = [
         menuId: "2" // Breakfast Menu
     },
     {
-        id: "4",
+        _id: "4",
         name: "Desserts",
         itemCount: 8,
         icon: CakeSlice,
@@ -35,7 +35,7 @@ export const MOCK_CATEGORIES: Category[] = [
         menuId: "1" // Main Menu
     },
     {
-        id: "5",
+        _id: "5",
         name: "Daily Specials",
         itemCount: 0,
         icon: Star,
@@ -43,7 +43,7 @@ export const MOCK_CATEGORIES: Category[] = [
         menuId: "3" // Ramadan Special
     },
     {
-        id: "6",
+        _id: "6",
         name: "Kids Menu",
         itemCount: 6,
         icon: Baby,

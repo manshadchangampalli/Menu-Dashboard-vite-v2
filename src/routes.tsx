@@ -6,7 +6,7 @@ import Orders from "./pages/orders/Orders";
 import Reservations from "./pages/reservations/Reservations";
 import MenuItemList from "./pages/menu-items/MenuItemList";
 import Menu from "./pages/menu/Menu";
-import MenuDetail from "./pages/menu-detail/MenuDetail";
+import MenuDetail from "./pages/menu-detail/MenuDetail"; 
 import Categories from "./pages/categories/Categories";
 import Branches from "./pages/branches/Branches";
 import StaffMembers from "./pages/staff/Staff";
