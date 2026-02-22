@@ -78,21 +78,25 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
         };
     };
 
+    const refetchBranches = () => {
+        fetchBranches({
+            page: filters.page,
+            pageSize: filters.limit,
+            search: filters.query,
+            sort: {
+                column: filters.sortBy as keyof Branch,
+                direction: filters.sortOrder as "asc" | "desc",
+            },
+        });
+    };
+
     const handleDelete = () => {
         if (!branchToDelete) return;
         deleteBranch(branchToDelete.id, {
             onSuccess: () => {
                 toast.success("Branch deleted successfully");
                 setBranchToDelete(null);
-                fetchBranches({
-                    page: filters.page,
-                    pageSize: filters.limit,
-                    search: filters.query,
-                    sort: {
-                        column: filters.sortBy as keyof Branch,
-                        direction: filters.sortOrder as "asc" | "desc",
-                    },
-                });
+                refetchBranches()
             },
             onError: () => {
                 toast.error("Failed to delete branch");
@@ -110,6 +114,7 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
                 onSuccess: () => {
                     toast.success(`Branch ${newStatus === BranchStatus.ACTIVE ? "activated" : "deactivated"} successfully`);
                     setBranchToToggle(null);
+                    refetchBranches()
                 },
                 onError: (error: any) => {
                     toast.error(error?.message || "Failed to update status");
