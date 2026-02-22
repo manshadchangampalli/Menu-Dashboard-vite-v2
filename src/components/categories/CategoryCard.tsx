@@ -3,16 +3,32 @@ import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import type { Category } from "../../pages/categories/service/categories.type";
 import { getCategoryIcon } from "../../pages/categories/service/categories.type";
+import { useUpdateCategory } from "../../pages/categories/hooks/useCategories";
+import { toast } from "sonner";
 
 interface CategoryCardProps {
     category: Category;
     onEdit?: (id: string) => void;
     onDelete?: (id: string) => void;
-    onToggleStatus?: (id: string, status: boolean) => void;
 }
 
-const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCardProps) => {
+const CategoryCard = ({ category, onEdit, onDelete }: CategoryCardProps) => {
     const Icon = getCategoryIcon(category.icon);
+    const { mutate: updateCategory, isPending: isToggling } = useUpdateCategory();
+
+    const handleToggleStatus = (checked: boolean) => {
+        updateCategory(
+            { id: category._id, data: { isActive: checked } },
+            {
+                onSuccess: () => {
+                    toast.success(`Category ${checked ? "activated" : "deactivated"} successfully`);
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to update category status");
+                },
+            }
+        );
+    };
 
     return (
         <div className="bg-white border border-app-border rounded-xl p-6 shadow-sm hover:border-app-text transition-all group flex flex-col justify-between min-h-[180px]">
@@ -34,11 +50,7 @@ const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCa
                             variant="ghost"
                             size="icon"
                             className="size-8 text-app-muted hover:text-red-600 rounded-md"
-                            onClick={() => {
-                                if (window.confirm(`Are you sure you want to delete the category "${category.name}"?`)) {
-                                    onDelete?.(category._id);
-                                }
-                            }}
+                            onClick={() => onDelete?.(category._id)}
                         >
                             <Trash2 className="size-4" />
                         </Button>
@@ -51,7 +63,8 @@ const CategoryCard = ({ category, onEdit, onDelete, onToggleStatus }: CategoryCa
                 <span className="text-xs font-bold uppercase tracking-wider text-app-muted">Availability</span>
                 <Switch
                     checked={category.isActive}
-                    onCheckedChange={(checked) => onToggleStatus?.(category._id, checked)}
+                    onCheckedChange={handleToggleStatus}
+                    disabled={isToggling}
                 />
             </div>
         </div>

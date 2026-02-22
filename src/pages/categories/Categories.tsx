@@ -6,26 +6,37 @@ import CategoryCreatePanel from "../../components/categories/CategoryCreatePanel
 import { useCategories, useDeleteCategory } from "./hooks/useCategories";
 import type { Category } from "./service/categories.type";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ui/confirm-dialog";
 
 const Categories = () => {
     const { data: categories, isLoading, error } = useCategories();
-    const { mutate: deleteCategory } = useDeleteCategory();
+    const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory();
     const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-    const handleToggleStatus = (id: string, status: boolean) => {
-        // Toggle logic will be handled by a separate update mutation eventually
-        console.log("Toggle status", id, status);
+
+    const handleEdit = (id: string | Category) => {
+        const category = typeof id === 'string' ? categories?.find(c => c._id === id) : id;
+        if (category) {
+            setSelectedCategory(category);
+            setIsPanelOpen(true);
+        }
     };
 
-    const handleEdit = (id: string) => {
-        console.log("Edit category", id);
-        // Implement edit logic/modal here
+    const handleDelete = (id: string | Category) => {
+        const category = typeof id === 'string' ? categories?.find(c => c._id === id) : id;
+        if (category) {
+            setCategoryToDelete(category);
+        }
     };
 
-    const handleDelete = (id: string) => {
-        deleteCategory(id, {
+    const confirmDelete = () => {
+        if (!categoryToDelete) return;
+        deleteCategory(categoryToDelete._id, {
             onSuccess: () => {
                 toast.success("Category deleted successfully");
+                setCategoryToDelete(null);
             },
             onError: (error: any) => {
                 toast.error(error?.message || "Failed to delete category");
@@ -34,6 +45,7 @@ const Categories = () => {
     };
 
     const handleAdd = () => {
+        setSelectedCategory(null);
         setIsPanelOpen(true);
     };
 
@@ -83,7 +95,6 @@ const Categories = () => {
                                 category={category}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
-                                onToggleStatus={handleToggleStatus}
                             />
                         ))}
 
@@ -103,7 +114,23 @@ const Categories = () => {
 
             <CategoryCreatePanel
                 open={isPanelOpen}
-                onClose={() => setIsPanelOpen(false)}
+                onClose={() => {
+                    setIsPanelOpen(false);
+                    setSelectedCategory(null);
+                }}
+                categoryToEdit={selectedCategory}
+                isEdit={!!selectedCategory}
+            />
+
+            <ConfirmDialog
+                open={!!categoryToDelete}
+                onOpenChange={(open) => !open && setCategoryToDelete(null)}
+                title="Delete Category"
+                description={`Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone.`}
+                confirmText={isDeleting ? "Deleting..." : "Delete"}
+                cancelText="Cancel"
+                onConfirm={confirmDelete}
+                variant="destructive"
             />
         </main>
     );

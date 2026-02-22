@@ -20,3 +20,10 @@ export const deleteCategory = (id: string) => {
     endpoint: `${ApiEndpoints.DELETE_CATEGORY}/${id}`,
   });
 };
+
+export const updateCategory = (id: string, data: Partial<CreateCategoryRequest>) => {
+  return httpService.patch<Category>({
+    endpoint: `${ApiEndpoints.DELETE_CATEGORY}/${id}`,
+    data,
+  });
+};
