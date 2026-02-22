@@ -22,6 +22,7 @@ const DEFAULT_VALUES: Partial<CreateBranchRequest> = {
     address_detail: {
         country: "UAE",
         city: "",
+        citySlug: undefined,
         state: "", // Added to match type
         zip_code: "",
         street: "",
@@ -56,6 +57,7 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
         control,
         handleSubmit,
         reset,
+        setValue,
         formState: { errors },
     } = useForm<CreateBranchRequest>({
         defaultValues: DEFAULT_VALUES as CreateBranchRequest,
@@ -69,7 +71,7 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
                     ...initialData,
                     address_detail: {
                         ...(initialData.address_detail || {}),
-                        city: initialData.address_detail?.city?.toLowerCase()?.replace(/\s+/g, "_") || ""
+                        citySlug: initialData.address_detail?.citySlug
                     },
                     branch_type: initialData.branch_type?.toLowerCase() || ""
                 };
@@ -222,7 +224,7 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
                     />
                     <div className="grid grid-cols-2 gap-4">
                         <Controller
-                            name="address_detail.city"
+                            name="address_detail.citySlug"
                             control={control}
                             rules={{ required: "City is required" }}
                             render={({ field }) => (
@@ -230,9 +232,16 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
                                     label="City / Emirate"
                                     options={CITY_OPTIONS}
                                     value={field.value}
-                                    onValueChange={field.onChange}
+                                    onValueChange={(val) => {
+                                        field.onChange(val);
+                                        // Also sync the readable city name
+                                        const selectedOption = CITY_OPTIONS.find(opt => opt.value === val);
+                                        if (selectedOption) {
+                                            setValue("address_detail.city", selectedOption.label);
+                                        }
+                                    }}
                                     placeholder="Select city"
-                                    error={errors.address_detail?.city?.message}
+                                    error={errors.address_detail?.citySlug?.message}
                                 />
                             )}
                         />
