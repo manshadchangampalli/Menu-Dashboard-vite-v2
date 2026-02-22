@@ -64,7 +64,16 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
     useEffect(() => {
         if (open) {
             if (isEdit && initialData) {
-                reset(initialData as any);
+                // Normalize data for form (handle case sensitivity and spaces for enums)
+                const normalizedData = {
+                    ...initialData,
+                    address_detail: {
+                        ...(initialData.address_detail || {}),
+                        city: initialData.address_detail?.city?.toLowerCase()?.replace(/\s+/g, "_") || ""
+                    },
+                    branch_type: initialData.branch_type?.toLowerCase() || ""
+                };
+                reset(normalizedData as any);
             } else {
                 reset(DEFAULT_VALUES as CreateBranchRequest);
             }
