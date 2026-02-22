@@ -86,3 +86,21 @@ export interface Branch {
   managerAvatar: string;
   status: "Open" | "Closed" | "active" | "inactive" | BranchStatus;
 }
+
+export interface GetBranchesRequest {
+  query?: string;
+  page?: number;
+  limit?: number;
+  organization_id?: string;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface GetBranchesResponse {
+  timestamp: string;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
