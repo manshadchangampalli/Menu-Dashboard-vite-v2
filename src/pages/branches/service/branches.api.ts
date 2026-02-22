@@ -15,3 +15,9 @@ export const getBranches = (params: GetBranchesRequest) => {
     params,
   });
 };
+
+export const deleteBranch = (id: string) => {
+  return httpService.delete({
+    endpoint: `${ApiEndpoints.DELETE_BRANCH}/${id}`,
+  });
+};

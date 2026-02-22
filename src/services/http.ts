@@ -8,6 +8,14 @@ export interface ApiResponse<T = any> {
   message?: string;
   status: number;
   success: boolean;
+  meta: {
+    timestamp: string;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    [key: string]: any;
+}
 }
 
 export interface RequestConfig {

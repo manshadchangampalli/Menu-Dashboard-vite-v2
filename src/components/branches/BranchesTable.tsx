@@ -1,26 +1,31 @@
 import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
-import { type Branch, BranchStatus, BranchType } from "../../pages/branches/service/branches.type";
-import { Edit2, MoreVertical, Store, Building, ShoppingBag, Moon } from "lucide-react";
+import { type Branch, type BranchData, BranchStatus, BranchType } from "../../pages/branches/service/branches.type";
+import { Edit2, Store, Building, ShoppingBag, Moon, Trash2, TrendingUp } from "lucide-react";
 
 import { useNavigate } from "react-router";
+import { useState } from "react";
 import { getBranches } from "../../pages/branches/service/branches.api";
 import { CustomSelect } from "../ui/CustomSelect";
 import { useTableFilters } from "../../hooks/useTableFilters";
+import { ConfirmDialog } from "../ui/confirm-dialog";
+import { useDeleteBranch } from "../../pages/branches/hooks/useBranches";
+import { toast } from "sonner";
+import type { ApiResponse } from "@/services/http";
 
 const BranchesTable = () => {
+    const [branchData, setBranchData] = useState<ApiResponse<BranchData[]>>();
     const navigate = useNavigate();
+    const [branchToDelete, setBranchToDelete] = useState<Branch | null>(null);
+    const { mutate: deleteBranch, isPending: isDeleting } = useDeleteBranch();
+
     const { filters, setFilters } = useTableFilters({
         limit: 10,
         sortBy: "created_at",
         sortOrder: "desc",
         status: "all"
     });
-
-    const handleRowClick = (branch: Branch) => {
-        navigate(`/branches/${branch.id}`);
-    };
 
     const fetchBranches = async (params: {
         page: number;
@@ -45,7 +50,8 @@ const BranchesTable = () => {
             sortOrder: params.sort?.direction,
             status: filters.status === "all" ? undefined : filters.status
         });
-
+        console.log("🚀 ~ fetchBranches ~ response:", response)
+        setBranchData(response);
         const mappedData: Branch[] = response.data.map((item: any) => ({
             id: item._id,
             name: item.name,
@@ -63,6 +69,34 @@ const BranchesTable = () => {
             totalPages: (response as any).meta?.totalPages || 1,
         };
     };
+
+    const handleDelete = () => {
+        if (!branchToDelete) return;
+        deleteBranch(branchToDelete.id, {
+            onSuccess: () => {
+                toast.success("Branch deleted successfully");
+                setBranchToDelete(null);
+                fetchBranches({
+                    page: filters.page,
+                    pageSize: filters.limit,
+                    search: filters.query,
+                    sort: {
+                        column: filters.sortBy as keyof Branch,
+                        direction: filters.sortOrder as "asc" | "desc",
+                    },
+                });
+            },
+            onError: () => {
+                toast.error("Failed to delete branch");
+            }
+        });
+    };
+
+    const handleRowClick = (branch: Branch) => {
+        navigate(`/branches/${branch.id}`);
+    };
+
+
 
     const getBranchIcon = (type: string | BranchType) => {
         switch (type) {
@@ -149,7 +183,7 @@ const BranchesTable = () => {
             header: "Actions",
             accessorKey: "id",
             className: "text-right",
-            cell: (_) => (
+            cell: (branch) => (
                 <div className="flex items-center gap-2">
                     <Button
                         variant="ghost"
@@ -162,10 +196,13 @@ const BranchesTable = () => {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 text-app-muted hover:text-app-text hover:bg-app-bg"
-                        onClick={(e) => e.stopPropagation()}
+                        className="size-8 text-app-muted hover:text-red-500 hover:bg-red-50 transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setBranchToDelete(branch);
+                        }}
                     >
-                        <MoreVertical className="size-4" />
+                        <Trash2 className="size-4" />
                     </Button>
                 </div>
             )
@@ -173,29 +210,64 @@ const BranchesTable = () => {
     ];
 
     return (
-        <DataTable
-            columns={columns}
-            fetchData={fetchBranches}
-            searchKeys={["name", "address", "managerName"]}
-            initialPageSize={10}
-            onRowClick={handleRowClick}
-            actions={
-                <div className="flex items-center gap-2">
-                    <div className="w-40">
-                        <CustomSelect
-                            label=""
-                            value={filters.status}
-                            onValueChange={(value) => setFilters({ status: value })}
-                            options={[
-                                { label: "All Status", value: "all" },
-                                { label: "Active", value: "active" },
-                                { label: "Inactive", value: "inactive" },
-                            ]}
-                        />
+        <>
+            <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
+                <DataTable
+                    columns={columns}
+                    fetchData={fetchBranches}
+                    searchKeys={["name", "address", "managerName"]}
+                    initialPageSize={10}
+                    onRowClick={handleRowClick}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <div className="w-40">
+                                <CustomSelect
+                                    label=""
+                                    value={filters.status}
+                                    onValueChange={(value) => setFilters({ status: value })}
+                                    options={[
+                                        { label: "All Status", value: "all" },
+                                        { label: "Active", value: "active" },
+                                        { label: "Inactive", value: "inactive" },
+                                    ]}
+                                />
+                            </div>
+                        </div>
+                    }
+                />
+            </div>
+            <ConfirmDialog
+                open={!!branchToDelete}
+                onOpenChange={(open) => !open && setBranchToDelete(null)}
+                title="Delete Branch"
+                description={`Are you sure you want to delete "${branchToDelete?.name}"? This action cannot be undone.`}
+                confirmText={isDeleting ? "Deleting..." : "Delete"}
+                cancelText="Cancel"
+                onConfirm={handleDelete}
+                variant="destructive"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div className="bg-white border border-app-border p-5 rounded-lg shadow-sm">
+                    <h3 className="text-app-muted text-[10px] font-bold uppercase tracking-wider mb-1">Total Branches</h3>
+                    <div className="flex items-end justify-between">
+                        <p className="text-2xl font-bold text-app-text">{branchData?.meta?.totalWithoutFilter}</p>
+                        <span className="text-emerald-600 text-xs font-bold flex items-center gap-1">
+                            <TrendingUp className="size-3.5" />
+                            +2 this year
+                        </span>
                     </div>
                 </div>
-            }
-        />
+                <div className="bg-white border border-app-border p-5 rounded-lg shadow-sm">
+                    <h3 className="text-app-muted text-[10px] font-bold uppercase tracking-wider mb-1">Active Now</h3>
+                    <div className="flex items-end justify-between">
+                        <p className="text-2xl font-bold text-app-text">{branchData?.meta?.totalActive}</p>
+                        <span className="text-app-muted text-xs font-bold">75% capacity</span>
+                    </div>
+                </div>
+
+            </div>
+        </>
     );
 };
 
