@@ -4,11 +4,15 @@ import BranchesTable from "../../components/branches/BranchesTable";
 import { useState } from "react";
 import BranchCreatePanel from "../../components/branches/BranchCreatePanel";
 import { type BranchData } from "./service/branches.type";
+import { useDownloadBranches } from "./hooks/useBranches";
+import { toast } from "sonner";
 
 const Branches = () => {
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState<BranchData | null>(null);
     const [isEdit, setIsEdit] = useState(false);
+    
+    const { mutate: downloadBranches, isPending: isExporting } = useDownloadBranches();
 
     const handleCreateClick = () => {
         setSelectedBranch(null);
@@ -20,6 +24,25 @@ const Branches = () => {
         setSelectedBranch(branch);
         setIsEdit(true);
         setIsPanelOpen(true);
+    };
+
+    const handleExport = () => {
+        downloadBranches(undefined, {
+            onSuccess: (blob) => {
+                const url = window.URL.createObjectURL(new Blob([blob as any]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `branches-export-${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode?.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                toast.success("Branches list exported successfully");
+            },
+            onError: (error: any) => {
+                toast.error(error?.message || "Failed to export branches list");
+            }
+        });
     };
 
     return (
@@ -35,9 +58,14 @@ const Branches = () => {
                     <p className="text-app-muted mt-1 font-medium text-sm">Manage and monitor all restaurant locations from a central hub.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="flex items-center gap-2 h-9 border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm">
+                    <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 h-9 border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm"
+                        onClick={handleExport}
+                        disabled={isExporting}
+                    >
                         <Download className="size-[18px]" />
-                        Export List
+                        {isExporting ? "Exporting..." : "Export List"}
                     </Button>
                     <Button
                         className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
