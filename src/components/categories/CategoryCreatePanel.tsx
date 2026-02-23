@@ -7,7 +7,6 @@ import { FormSection } from "../ui/FormSection";
 import { X, Save, Layers, Layout, Activity } from "lucide-react";
 import { useCreateCategory, useUpdateCategory } from "../../pages/categories/hooks/useCategories";
 import { type CreateCategoryRequest, CategoryIcon, type Category } from "../../pages/categories/service/categories.type";
-import { MOCK_MENUS } from "../../pages/menu/menu.config";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -26,10 +25,6 @@ const ICON_OPTIONS = [
     { label: "Ice Cream", value: CategoryIcon.ICE_CREAM },
 ];
 
-const MENU_OPTIONS = MOCK_MENUS.map(menu => ({
-    label: menu.name,
-    value: menu.id
-}));
 
 const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
     name: "",
@@ -199,7 +194,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                     </div>
                 </FormSection>
 
-                <FormSection title="Menu Mapping" icon={Layout}>
+                {/* <FormSection title="Menu Mapping" icon={Layout}>
                     <Controller
                         name="menuId"
                         control={control}
@@ -215,7 +210,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                             />
                         )}
                     />
-                </FormSection>
+                </FormSection> */}
 
                 <FormSection title="Initial Statistics" icon={Activity}>
                     <Controller

@@ -1,22 +1,72 @@
 import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
-import type { Menu } from "../../pages/menu/menu.type";
+import { type Menu, MenuStatus } from "../../pages/menu/service/menu.type";
 import { Edit2, Trash2, Clock } from "lucide-react";
+import { getMenus } from "../../pages/menu/service/menu.api";
+import { useTableFilters } from "../../hooks/useTableFilters";
+
+import { MENU_CONFIG } from "../../pages/menu/config/menu.config";
 
 interface MenuTableProps {
-    data: Menu[];
     onRowClick?: (item: Menu) => void;
 }
 
-const MenuTable = ({ data, onRowClick }: MenuTableProps) => {
+const MenuTable = ({ onRowClick }: MenuTableProps) => {
+
+    const { filters, setFilters } = useTableFilters({
+        limit: MENU_CONFIG.PAGINATION.DEFAULT_PAGE_SIZE,
+        sortBy: "created_at",
+        sortOrder: "desc",
+        status: "all"
+    });
 
     const formatDate = (dateString: string) => {
+        if (!dateString) return "-";
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
         });
+    };
+
+    const fetchMenus = async (params: {
+        page: number;
+        pageSize: number;
+        search: string;
+        sort?: { column: string | number | symbol; direction: "asc" | "desc" };
+    }) => {
+        // Sync filters if they changed from table (DataTable component handles internal state)
+        // Usually DataTable setPage/setPageSize calls this fetchFn
+        setFilters({
+            page: params.page,
+            limit: params.pageSize,
+            query: params.search,
+            sortBy: params.sort?.column as string,
+            sortOrder: params.sort?.direction,
+        });
+
+        const response = await getMenus({
+            page: params.page,
+            limit: params.pageSize,
+            query: params.search,
+            sortBy: params.sort?.column as string,
+            sortOrder: params.sort?.direction,
+            status: filters.status === "all" ? undefined : filters.status,
+        });
+
+        // Map data if needed (API returns _id, DataTable might expect id in some cases, 
+        // but here we can just use the item directly in cell renders)
+        const mappedData: any[] = response.data.map((item) => ({
+            ...item,
+            id: item._id, // Map _id to id for consistency if DataTable or other components use 'id'
+        }));
+
+        return {
+            data: mappedData,
+            total: (response as any).meta?.total || mappedData.length,
+            totalPages: (response as any).meta?.totalPages || 1,
+        };
     };
 
     const columns: Column<Menu>[] = [
@@ -38,12 +88,12 @@ const MenuTable = ({ data, onRowClick }: MenuTableProps) => {
             cell: (item) => (
                 <div className="flex items-center gap-3">
                     <Switch
-                        checked={item.status === 'active'}
-                        onCheckedChange={(checked) => console.log(`Toggle status ${item.id}`, checked)}
+                        checked={item.status === MenuStatus.ACTIVE}
+                        onCheckedChange={(checked) => console.log(`Toggle status ${item._id}`, checked)}
                         onClick={(e) => e.stopPropagation()}
                     />
-                    <span className={`text-xs font-semibold ${item.status === 'active' ? "text-emerald-600" : "text-app-muted"}`}>
-                        {item.status === 'active' ? "Active" : "Inactive"}
+                    <span className={`text-xs font-semibold ${item.status === MenuStatus.ACTIVE ? "text-emerald-600" : "text-app-muted"}`}>
+                        {item.status === MenuStatus.ACTIVE ? "Active" : "Inactive"}
                     </span>
                 </div>
             )
@@ -59,14 +109,12 @@ const MenuTable = ({ data, onRowClick }: MenuTableProps) => {
         },
         {
             header: "Availability",
-            accessorKey: "availability",
-            cell: (item) => item.availability ? (
+            accessorKey: "start_time",
+            cell: (item) => (
                 <div className="flex items-center gap-1.5 text-xs text-app-muted">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>{item.availability.startTime} - {item.availability.endTime}</span>
+                    <span>{item.start_time} - {item.end_time}</span>
                 </div>
-            ) : (
-                <span className="text-xs text-app-muted">-</span>
             )
         },
         {
@@ -85,16 +133,16 @@ const MenuTable = ({ data, onRowClick }: MenuTableProps) => {
         },
         {
             header: "Last Updated",
-            accessorKey: "updatedAt",
+            accessorKey: "updated_at",
             cell: (item) => (
                 <span className="text-xs text-app-muted font-medium">
-                    {formatDate(item.updatedAt)}
+                    {formatDate(item.updated_at)}
                 </span>
             )
         },
         {
             header: "Actions",
-            accessorKey: "id",
+            accessorKey: "_id",
             className: "text-right",
             cell: (_) => (
                 <div className="flex items-center justify-center gap-1">
@@ -122,7 +170,7 @@ const MenuTable = ({ data, onRowClick }: MenuTableProps) => {
     return (
         <DataTable
             columns={columns}
-            data={data}
+            fetchData={fetchMenus}
             searchKeys={["name"]}
             initialPageSize={10}
             onRowClick={onRowClick}
