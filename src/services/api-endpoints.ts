@@ -10,6 +10,8 @@ export const ApiEndpoints = {
   CREATE_CATEGORY: "category/create",
   GET_CATEGORIES: "category/get-all",
   DELETE_CATEGORY: "category",
+  CREATE_MENU: "menu/create",
+  GET_MENUS: "menu/get-all",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];

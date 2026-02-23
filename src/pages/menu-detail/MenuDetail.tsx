@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
 import { ChevronRight, ChevronDown, ChevronUp, Clock, Edit2, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { MOCK_MENUS } from "../menu/menu.config";
 import { MOCK_CATEGORIES } from "../categories/config/categories.config";
 import { MOCK_MENU_ITEMS } from "../menu-items/menuItems.config";
 import { type Category, getCategoryIcon } from "../categories/service/categories.type";
@@ -12,10 +11,10 @@ import { Switch } from "../../components/ui/switch";
 const MenuDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const menu = MOCK_MENUS.find(m => m.id === id);
+    const menu = [{ id: "1", name: "Menu 1", description: "Description 1", createdAt: "2023-01-01", updatedAt: "2023-01-01", status: "active", type: "breakfast", availability: { startTime: "08:00", endTime: "12:00" } }].find(m => m.id === id);
 
     const categories = useMemo(() => {
-        if (!menu) return []; 
+        if (!menu) return [];
         return MOCK_CATEGORIES.filter(c => c.menuId === menu.id);
     }, [menu]);
 

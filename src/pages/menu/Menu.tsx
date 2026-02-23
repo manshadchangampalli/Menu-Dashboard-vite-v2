@@ -1,11 +1,13 @@
 import { ChevronRight, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import MenuTable from "../../components/menu/MenuTable";
-import { MOCK_MENUS } from "./menu.config";
 import { useNavigate } from "react-router";
+import { useState } from "react";
+import MenuCreatePanel from "../../components/menus/MenuCreatePanel";
 
 const Menu = () => {
     const navigate = useNavigate();
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     return (
         <main className="flex-1 overflow-y-auto p-8">
@@ -22,17 +24,24 @@ const Menu = () => {
                     <p className="text-app-muted mt-1 font-medium">Manage your different menus (Breakfast, Lunch, Dinner, etc.)</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm">
+                    <Button
+                        onClick={() => setIsCreateOpen(true)}
+                        className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
+                    >
                         <Plus className="size-[18px]" />
                         Create Menu
                     </Button>
                 </div>
             </div>
 
+            <MenuCreatePanel
+                open={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
+            />
+
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
-                <MenuTable 
-                    data={MOCK_MENUS} 
-                    onRowClick={(menu) => navigate(`/menu/${menu.id}`)}
+                <MenuTable
+                    onRowClick={(menu) => navigate(`/menu/${menu._id}`)}
                 />
             </div>
         </main>
