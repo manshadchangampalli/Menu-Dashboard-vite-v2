@@ -4,11 +4,12 @@ import { Button } from "../ui/button";
 import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { FormSection } from "../ui/FormSection";
-import { X, Save, Layers, Layout, Activity } from "lucide-react";
+import { X, Save, Layers, Layout, Activity, Loader2 } from "lucide-react";
 import { useCreateCategory, useUpdateCategory } from "../../pages/categories/hooks/useCategories";
+import { useMenus } from "../../pages/menu/hooks/useMenu";
 import { type CreateCategoryRequest, CategoryIcon, type Category } from "../../pages/categories/service/categories.type";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 interface CategoryCreatePanelProps {
     open: boolean;
@@ -38,6 +39,15 @@ const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
 const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: CategoryCreatePanelProps) => {
     const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
     const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
+    const { data: menusResponse, isLoading: isLoadingMenus } = useMenus({ limit: 100, page: 1 });
+
+    const menuOptions = useMemo(() => {
+        if (!menusResponse?.data) return [];
+        return menusResponse.data.map((menu: any) => ({
+            label: menu.name,
+            value: menu._id
+        }));
+    }, [menusResponse]);
 
     const {
         control,
@@ -194,23 +204,31 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                     </div>
                 </FormSection>
 
-                {/* <FormSection title="Menu Mapping" icon={Layout}>
+                <FormSection title="Menu Mapping" icon={Layout}>
                     <Controller
                         name="menuId"
                         control={control}
                         rules={{ required: "Menu assignment is required" }}
                         render={({ field }) => (
-                            <CustomSelect
-                                label="Assign to Menu"
-                                options={MENU_OPTIONS}
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                placeholder="Select a menu"
-                                error={errors.menuId?.message}
-                            />
+                            <div className="relative">
+                                <CustomSelect
+                                    label="Assign to Menu"
+                                    options={menuOptions}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={isLoadingMenus ? "Loading menus..." : "Select a menu"}
+                                    error={errors.menuId?.message}
+                                    disabled={isLoadingMenus}
+                                />
+                                {isLoadingMenus && (
+                                    <div className="absolute right-9 top-9">
+                                        <Loader2 className="w-4 h-4 animate-spin text-app-muted" />
+                                    </div>
+                                )}
+                            </div>
                         )}
                     />
-                </FormSection> */}
+                </FormSection>
 
                 <FormSection title="Initial Statistics" icon={Activity}>
                     <Controller
