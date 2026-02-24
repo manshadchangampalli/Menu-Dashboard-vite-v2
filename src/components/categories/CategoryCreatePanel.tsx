@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
+import { useSearchParams } from "react-router";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
 import { CustomInput } from "../ui/CustomInput";
@@ -37,6 +38,7 @@ const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
 };
 
 const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: CategoryCreatePanelProps) => {
+    const [searchParams] = useSearchParams();
     const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
     const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
     const { data: menusResponse, isLoading: isLoadingMenus } = useMenus({ limit: 100, page: 1 });
@@ -69,9 +71,13 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                 itemCount: categoryToEdit.itemCount || 0
             });
         } else {
-            reset(DEFAULT_VALUES as CreateCategoryRequest);
+            const menuIdFromUrl = searchParams.get("menuId");
+            reset({
+                ...DEFAULT_VALUES,
+                menuId: menuIdFromUrl || ""
+            } as CreateCategoryRequest);
         }
-    }, [isEdit, categoryToEdit, reset]);
+    }, [isEdit, categoryToEdit, reset, searchParams]);
 
     const isPending = isCreating || isUpdating;
 

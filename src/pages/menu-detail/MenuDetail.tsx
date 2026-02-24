@@ -1,15 +1,15 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ChevronRight, ChevronDown, ChevronUp, Clock, Edit2, Plus, Loader2 } from "lucide-react";
+import { ChevronRight, Clock, Edit2, Plus, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { MOCK_CATEGORIES } from "../categories/config/categories.config";
-import { MOCK_MENU_ITEMS } from "../menu-items/menuItems.config";
 import { type Category, getCategoryIcon } from "../categories/service/categories.type";
-import type { MenuItem } from "../menu-items/menuItems.type";
 import { Switch } from "../../components/ui/switch";
 import { useMenu } from "../menu/hooks/useMenu";
 import { MenuStatus } from "../menu/service/menu.type";
 import MenuCreatePanel from "../../components/menus/MenuCreatePanel";
+import { useUpdateCategory } from "../categories/hooks/useCategories";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MenuDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -19,21 +19,26 @@ const MenuDetail = () => {
     const menu = response?.data;
 
     const categories = useMemo(() => {
-        if (!menu) return [];
-        return MOCK_CATEGORIES.filter(c => c.menuId === menu._id);
+        return menu?.categories || [];
     }, [menu]);
 
-    const menuItems = useMemo(() => {
-        // Group items by category name for faster lookup
-        const itemsByCategory: Record<string, MenuItem[]> = {};
-        MOCK_MENU_ITEMS.forEach(item => {
-            if (!itemsByCategory[item.category]) {
-                itemsByCategory[item.category] = [];
+    const queryClient = useQueryClient();
+    const { mutate: updateCategoryStatus } = useUpdateCategory();
+
+    const handleToggleStatus = (categoryId: string, currentStatus: boolean) => {
+        updateCategoryStatus({
+            id: categoryId,
+            data: { isActive: !currentStatus }
+        }, {
+            onSuccess: () => {
+                toast.success(`Category ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+                queryClient.invalidateQueries({ queryKey: ["menu", id] });
+            },
+            onError: (error: any) => {
+                toast.error(error?.message || "Failed to update category status");
             }
-            itemsByCategory[item.category].push(item);
         });
-        return itemsByCategory;
-    }, []);
+    };
 
     if (isLoading) {
         return (
@@ -144,7 +149,11 @@ const MenuDetail = () => {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-bold text-app-text">Menu Categories</h3>
-                        <Button size="sm" className="gap-2 bg-app-text text-white hover:bg-app-text/90">
+                        <Button 
+                            size="sm" 
+                            className="gap-2 bg-app-text text-white hover:bg-app-text/90"
+                            onClick={() => navigate(`/categories?menuId=${id}&openCreateCategory=true`)}
+                        >
                             <Plus className="w-4 h-4" />
                             Add Category
                         </Button>
@@ -155,7 +164,7 @@ const MenuDetail = () => {
                             <CategorySection
                                 key={category._id}
                                 category={category}
-                                items={menuItems[category.name] || []}
+                                onToggleStatus={handleToggleStatus}
                             />
                         ))}
                         {categories.length === 0 && (
@@ -176,78 +185,38 @@ const MenuDetail = () => {
         </main>
     );
 };
-// Sub-component for Category Accordion
-const CategorySection = ({ category, items }: { category: Category, items: MenuItem[] }) => {
-    const [isOpen, setIsOpen] = useState(false);
+// Sub-component for Category
+const CategorySection = ({ category, onToggleStatus }: { 
+    category: Category, 
+    onToggleStatus: (id: string, current: boolean) => void 
+}) => {
     const Icon = getCategoryIcon(category.icon);
-
-    // Filter items to only show first 5 if not enhanced, but for now show all
 
     return (
         <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden">
-            <div
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => setIsOpen(!isOpen)}
-            >
+            <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-md ${isOpen ? 'bg-app-text text-white' : 'bg-app-bg text-app-text'}`}>
+                    <div className="p-2 rounded-md bg-app-bg text-app-text">
                         <Icon className="size-5" />
                     </div>
                     <div>
                         <h4 className="text-sm font-bold text-app-text">{category.name}</h4>
-                        <p className="text-xs text-app-muted font-medium">{items.length} Items</p>
+                        <p className="text-xs text-app-muted font-medium">{category.itemCount || 0} Items</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-2">
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${category.isActive ? 'text-emerald-600' : 'text-app-muted'}`}>
                             {category.isActive ? 'Active' : 'Inactive'}
                         </span>
-                        <Switch checked={category.isActive} onCheckedChange={() => { }} className="scale-75" />
+                        <Switch 
+                            checked={category.isActive} 
+                            onCheckedChange={() => onToggleStatus(category._id, category.isActive)} 
+                            className="scale-75" 
+                        />
                     </div>
-                    {isOpen ? <ChevronUp className="w-5 h-5 text-app-muted" /> : <ChevronDown className="w-5 h-5 text-app-muted" />}
                 </div>
             </div>
-
-            {isOpen && (
-                <div className="border-t border-app-border bg-gray-50/50 p-4">
-                    {items.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-1">
-                            {items.map(item => (
-                                <div key={item.id} className="flex items-center justify-between p-3 bg-white rounded border border-app-border hover:border-app-text/30 transition-colors group">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-10 rounded border border-app-border bg-gray-100 overflow-hidden shrink-0">
-                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold text-app-text">{item.name}</div>
-                                            <div className="text-xs text-app-text font-semibold">
-                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <Switch checked={item.inStock} onCheckedChange={() => { }} className="scale-75" />
-                                        <Button variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Edit2 className="size-3.5" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-4 text-xs text-app-muted font-medium">
-                            No items in this category.
-                        </div>
-                    )}
-                    <div className="mt-4 pt-3 border-t border-app-border flex justify-center">
-                        <Button variant="ghost" size="sm" className="text-xs font-bold text-app-text h-8 gap-1.5">
-                            <Plus className="size-3.5" />
-                            Add Item to {category.name}
-                        </Button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

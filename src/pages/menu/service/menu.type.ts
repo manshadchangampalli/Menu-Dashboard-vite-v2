@@ -1,3 +1,5 @@
+import type { Category } from "../../categories/service/categories.type";
+
 export enum MenuType {
   DINE_IN = 'DINE-IN',
   DELIVERY = 'DELIVERY',
@@ -37,6 +39,7 @@ export interface Menu {
   itemCount: number;
   created_at: string;
   updated_at: string;
+  categories?: Category[];
   __v?: number;
 }
 
