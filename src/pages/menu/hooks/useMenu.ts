@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createMenu, deleteMenu, getMenus, updateMenu } from "../service/menu.api";
+import { createMenu, deleteMenu, getMenu, getMenus, updateMenu } from "../service/menu.api";
 import type { CreateMenuRequest, GetMenusRequest } from "../service/menu.type";
 
 export const useCreateMenu = () => {
@@ -37,5 +37,13 @@ export const useDeleteMenu = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["menus"] });
         },
+    });
+};
+
+export const useMenu = (id?: string) => {
+    return useQuery({
+        queryKey: ["menu", id],
+        queryFn: () => getMenu(id!),
+        enabled: !!id,
     });
 };
