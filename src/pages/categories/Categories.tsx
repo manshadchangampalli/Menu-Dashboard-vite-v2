@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronRight, Plus, ListFilter, Loader2 } from "lucide-react";
+import { useSearchParams } from "react-router";
 import { Button } from "../../components/ui/button";
 import CategoryCard from "../../components/categories/CategoryCard";
 import CategoryCreatePanel from "../../components/categories/CategoryCreatePanel";
@@ -9,11 +10,19 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "../../components/ui/confirm-dialog";
 
 const Categories = () => {
+    const [searchParams] = useSearchParams();
     const { data: categories, isLoading, error } = useCategories();
     const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory();
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+
+    useEffect(() => {
+        const openCreate = searchParams.get("openCreateCategory");
+        if (openCreate === "true") {
+            setIsPanelOpen(true)
+        }
+    }, [searchParams]);
 
 
     const handleEdit = (id: string | Category) => {
