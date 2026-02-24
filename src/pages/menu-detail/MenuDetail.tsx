@@ -1,21 +1,24 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ChevronRight, ChevronDown, ChevronUp, Clock, Edit2, Plus } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Clock, Edit2, Plus, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { MOCK_CATEGORIES } from "../categories/config/categories.config";
 import { MOCK_MENU_ITEMS } from "../menu-items/menuItems.config";
 import { type Category, getCategoryIcon } from "../categories/service/categories.type";
 import type { MenuItem } from "../menu-items/menuItems.type";
 import { Switch } from "../../components/ui/switch";
+import { useMenu } from "../menu/hooks/useMenu";
+import { MenuStatus } from "../menu/service/menu.type";
 
 const MenuDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const menu = [{ id: "1", name: "Menu 1", description: "Description 1", createdAt: "2023-01-01", updatedAt: "2023-01-01", status: "active", type: "breakfast", availability: { startTime: "08:00", endTime: "12:00" } }].find(m => m.id === id);
+    const { data: response, isLoading, isError } = useMenu(id);
+    const menu = response?.data;
 
     const categories = useMemo(() => {
         if (!menu) return [];
-        return MOCK_CATEGORIES.filter(c => c.menuId === menu.id);
+        return MOCK_CATEGORIES.filter(c => c.menuId === menu._id);
     }, [menu]);
 
     const menuItems = useMemo(() => {
@@ -30,16 +33,32 @@ const MenuDetail = () => {
         return itemsByCategory;
     }, []);
 
-    if (!menu) {
+    if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center h-full">
-                <h2 className="text-xl font-bold text-app-text">Menu Not Found</h2>
-                <Button variant="link" onClick={() => navigate("/menu")}>Back to Menus</Button>
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] gap-4">
+                <Loader2 className="w-8 h-8 animate-spin text-app-text" />
+                <p className="text-sm font-bold text-app-muted uppercase tracking-widest">Loading menu details...</p>
             </div>
         );
     }
 
-    const formatDate = (dateString: string) => {
+    if (isError || !menu) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center px-4">
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
+                    <ChevronRight className="w-8 h-8 text-red-500 rotate-90" />
+                </div>
+                <h2 className="text-2xl font-bold text-app-text mb-2">Menu Not Found</h2>
+                <p className="text-app-muted font-medium mb-8 max-w-xs">We couldn't find the menu you're looking for or there was an error loading it.</p>
+                <Button variant="outline" className="font-bold gap-2" onClick={() => navigate("/menu")}>
+                    Back to Menus
+                </Button>
+            </div>
+        );
+    }
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "-";
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -68,17 +87,17 @@ const MenuDetail = () => {
                             </div>
 
                             <div className="flex flex-wrap gap-3">
-                                <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${menu.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${menu.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                                    {menu.status === 'active' ? 'Active' : 'Inactive'}
+                                <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${menu.status === MenuStatus.ACTIVE ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${menu.status === MenuStatus.ACTIVE ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                                    {menu.status === MenuStatus.ACTIVE ? 'Active' : 'Inactive'}
                                 </div>
                                 <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border border-app-border bg-white text-app-text uppercase tracking-wider">
                                     {menu.type}
                                 </div>
-                                {menu.availability && (
+                                {menu.start_time && (
                                     <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-app-border bg-white text-app-text">
                                         <Clock className="w-3.5 h-3.5 mr-1.5 text-app-muted" />
-                                        {menu.availability.startTime} - {menu.availability.endTime}
+                                        {menu.start_time} - {menu.end_time}
                                     </div>
                                 )}
                             </div>
@@ -101,19 +120,21 @@ const MenuDetail = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-white p-4 rounded-lg border border-app-border shadow-sm">
                         <div className="text-[10px] font-bold text-app-muted uppercase tracking-wider mb-1">Categories</div>
-                        <div className="text-2xl font-bold text-app-text">{categories.length}</div>
+                        <div className="text-2xl font-bold text-app-text">{menu.categoryCount || 0}</div>
                     </div>
                     <div className="bg-white p-4 rounded-lg border border-app-border shadow-sm">
                         <div className="text-[10px] font-bold text-app-muted uppercase tracking-wider mb-1">Total Items</div>
-                        <div className="text-2xl font-bold text-app-text">{categories.reduce((acc, cat) => acc + (menuItems[cat.name]?.length || 0), 0)}</div>
+                        <div className="text-2xl font-bold text-app-text">{menu.itemCount || 0}</div>
                     </div>
                     <div className="bg-white p-4 rounded-lg border border-app-border shadow-sm">
                         <div className="text-[10px] font-bold text-app-muted uppercase tracking-wider mb-1">Created</div>
-                        <div className="text-sm font-bold text-app-text">{formatDate(menu.createdAt)}</div>
+                        <div className="text-sm font-bold text-app-text">
+                            {formatDate(menu.created_at || menu.updated_at)}
+                        </div>
                     </div>
                     <div className="bg-white p-4 rounded-lg border border-app-border shadow-sm">
                         <div className="text-[10px] font-bold text-app-muted uppercase tracking-wider mb-1">Last Updated</div>
-                        <div className="text-sm font-bold text-app-text">{formatDate(menu.updatedAt)}</div>
+                        <div className="text-sm font-bold text-app-text">{formatDate(menu.updated_at)}</div>
                     </div>
                 </div>
 
@@ -147,7 +168,6 @@ const MenuDetail = () => {
         </main>
     );
 };
-
 // Sub-component for Category Accordion
 const CategorySection = ({ category, items }: { category: Category, items: MenuItem[] }) => {
     const [isOpen, setIsOpen] = useState(false);

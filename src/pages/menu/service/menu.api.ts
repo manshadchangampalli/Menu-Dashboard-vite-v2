@@ -28,3 +28,9 @@ export const deleteMenu = (id: string) => {
     endpoint: `${ApiEndpoints.DELETE_MENU}/${id}`,
   });
 };
+
+export const getMenu = (id: string) => {
+  return httpService.get<Menu>({
+    endpoint: `${ApiEndpoints.GET_MENU}/${id}`,
+  });
+};
