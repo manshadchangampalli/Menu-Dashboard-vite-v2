@@ -9,10 +9,12 @@ import type { MenuItem } from "../menu-items/menuItems.type";
 import { Switch } from "../../components/ui/switch";
 import { useMenu } from "../menu/hooks/useMenu";
 import { MenuStatus } from "../menu/service/menu.type";
+import MenuCreatePanel from "../../components/menus/MenuCreatePanel";
 
 const MenuDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const { data: response, isLoading, isError } = useMenu(id);
     const menu = response?.data;
 
@@ -104,7 +106,7 @@ const MenuDetail = () => {
                         </div>
 
                         <div className="flex items-center gap-3 shrink-0">
-                            <Button variant="outline" className="gap-2 font-semibold">
+                            <Button variant="outline" className="gap-2 font-semibold" onClick={() => setIsEditOpen(true)}>
                                 <Edit2 className="w-4 h-4" />
                                 Edit Details
                             </Button>
@@ -165,6 +167,12 @@ const MenuDetail = () => {
                     </div>
                 </div>
             </div>
+
+            <MenuCreatePanel
+                open={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                initialData={menu}
+            />
         </main>
     );
 };
