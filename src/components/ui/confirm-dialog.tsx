@@ -21,6 +21,7 @@ interface ConfirmDialogProps {
     onCancel?: () => void;
     footerButtons?: ReactNode;
     variant?: VariantProps<typeof buttonVariants>["variant"];
+    isLoading?: boolean;
 }
 
 export const ConfirmDialog = ({
@@ -33,7 +34,8 @@ export const ConfirmDialog = ({
     onConfirm,
     onCancel,
     footerButtons,
-    variant = "default"
+    variant = "default",
+    isLoading = false
 }: ConfirmDialogProps) => {
 
     const handleCancel = () => {
@@ -47,7 +49,10 @@ export const ConfirmDialog = ({
         if (onConfirm) {
             onConfirm();
         }
-        onOpenChange(false);
+        // Don't close immediately if loading is handled externally
+        if (!isLoading) {
+            onOpenChange(false);
+        }
     };
 
     return (
@@ -67,11 +72,11 @@ export const ConfirmDialog = ({
                         footerButtons
                     ) : (
                         <>
-                            <Button variant="outline" onClick={handleCancel}>
+                            <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
                                 {cancelText}
                             </Button>
-                            <Button variant={variant} onClick={handleConfirm}>
-                                {confirmText}
+                            <Button variant={variant} onClick={handleConfirm} disabled={isLoading}>
+                                {isLoading ? "Processing..." : confirmText}
                             </Button>
                         </>
                     )}

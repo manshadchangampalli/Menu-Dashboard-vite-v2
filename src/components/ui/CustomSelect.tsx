@@ -35,7 +35,7 @@ const CustomSelect = ({
       <label className="text-xs font-bold text-app-muted uppercase">
         {label}
       </label>
-      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+      <Select key={value} value={value} onValueChange={onValueChange} disabled={disabled}>
         <SelectTrigger
           className={cn(
             "w-full h-10 border-app-border bg-white text-sm font-medium focus:ring-1 focus:ring-app-text",

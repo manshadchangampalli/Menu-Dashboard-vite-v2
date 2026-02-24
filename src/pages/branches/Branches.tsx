@@ -1,18 +1,38 @@
 import { ChevronRight, Download, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import BranchesTable from "../../components/branches/BranchesTable";
+import { useNavigate } from "react-router";
 import { useState } from "react";
+import BranchesTable from "../../components/branches/BranchesTable";
 import BranchCreatePanel from "../../components/branches/BranchCreatePanel";
 import { type BranchData } from "./service/branches.type";
 import { useDownloadBranches } from "./hooks/useBranches";
 import { toast } from "sonner";
+import { useTableQuery } from "../../hooks/useTableFilters";
+import { getBranches } from "./service/branches.api";
 
 const Branches = () => {
+    const navigate = useNavigate();
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState<BranchData | null>(null);
     const [isEdit, setIsEdit] = useState(false);
-    
+
     const { mutate: downloadBranches, isPending: isExporting } = useDownloadBranches();
+
+    const {
+        data: response,
+        isLoading,
+        filters,
+        setFilters
+    } = useTableQuery(
+        "branches",
+        getBranches,
+        {
+            limit: 10,
+            sortBy: "created_at",
+            sortOrder: "desc",
+            status: "all"
+        }
+    );
 
     const handleCreateClick = () => {
         setSelectedBranch(null);
@@ -58,8 +78,8 @@ const Branches = () => {
                     <p className="text-app-muted mt-1 font-medium text-sm">Manage and monitor all restaurant locations from a central hub.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         className="flex items-center gap-2 h-9 border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm"
                         onClick={handleExport}
                         disabled={isExporting}
@@ -76,7 +96,20 @@ const Branches = () => {
                     </Button>
                 </div>
             </div>
-            <BranchesTable onEdit={handleEditClick} />
+
+            <BranchesTable
+                data={response?.data || []}
+                loading={isLoading}
+                total={response?.meta?.total || 0}
+                totalPages={response?.meta?.totalPages || 1}
+                page={filters.page}
+                onPageChange={(page) => setFilters({ page })}
+                onEdit={handleEditClick}
+                onRowClick={(branch) => navigate(`/branches/${branch.id}`)}
+                meta={response?.meta}
+                filters={filters}
+                onFilterChange={setFilters}
+            />
             {/* Panel integration */}
             <BranchCreatePanel
                 open={isPanelOpen}

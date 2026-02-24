@@ -46,6 +46,9 @@ export const MOCK_BRANCHES: Branch[] = [
 export const BRANCH_TYPE_OPTIONS = [
     { label: "Standard", value: BranchType.STANDARD },
     { label: "Main HQ", value: BranchType.MAIN_HQ },
+    { label: "Suburban", value: BranchType.SUBURBAN },
+    { label: "Seasonal", value: BranchType.SEASONAL },
+    { label: "Delivery Hub", value: BranchType.DELIVERY_HUB },
 ];
 
 export const CITY_OPTIONS = [

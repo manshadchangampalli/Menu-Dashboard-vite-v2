@@ -5,7 +5,10 @@ export enum BranchStatus {
 
 export enum BranchType {
   MAIN_HQ = 'main_hq',
-  STANDARD = 'standard'
+  STANDARD = 'standard',
+  SUBURBAN = 'suburban',
+  SEASONAL = 'seasonal',
+  DELIVERY_HUB = 'delivery_hub'
 }
 
 export enum DayOfWeek {

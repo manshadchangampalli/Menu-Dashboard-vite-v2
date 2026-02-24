@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
@@ -5,13 +6,14 @@ import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { FormSection } from "../ui/FormSection";
 import { X, Save, Layout, Clock, Activity, FileText } from "lucide-react";
-import { useCreateMenu } from "../../pages/menu/hooks/useMenu";
-import { MenuType, MenuStatus, type CreateMenuRequest } from "../../pages/menu/service/menu.type";
+import { useCreateMenu, useUpdateMenu } from "../../pages/menu/hooks/useMenu";
+import { type Menu, MenuType, MenuStatus, type CreateMenuRequest } from "../../pages/menu/service/menu.type";
 import { toast } from "sonner";
 
 interface MenuCreatePanelProps {
     open: boolean;
     onClose: () => void;
+    initialData?: Menu;
 }
 
 const TYPE_OPTIONS = [
@@ -27,7 +29,7 @@ const STATUS_OPTIONS = [
 
 const DEFAULT_VALUES: CreateMenuRequest = {
     name: "",
-    type: MenuType.BOTH,
+    type: MenuType.DELIVERY,
     description: "",
     start_time: "11:00",
     end_time: "23:00",
@@ -38,8 +40,11 @@ const DEFAULT_VALUES: CreateMenuRequest = {
     itemCount: 0
 };
 
-const MenuCreatePanel = ({ open, onClose }: MenuCreatePanelProps) => {
-    const { mutate: createMenu, isPending } = useCreateMenu();
+const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) => {
+    const isEdit = !!initialData;
+    const { mutate: createMenu, isPending: isCreating } = useCreateMenu();
+    const { mutate: updateMenu, isPending: isUpdating } = useUpdateMenu();
+    const isPending = isCreating || isUpdating;
 
     const {
         control,
@@ -50,17 +55,52 @@ const MenuCreatePanel = ({ open, onClose }: MenuCreatePanelProps) => {
         defaultValues: DEFAULT_VALUES,
     });
 
-    const onSubmit = (data: CreateMenuRequest) => {
-        createMenu(data, {
-            onSuccess: () => {
-                toast.success("Menu created successfully!");
+    useEffect(() => {
+        if (open) {
+            if (initialData) {
+                // Determine the correct menu type value, handling potential casing or character mismatches
+                const normalizedType = (initialData.type as string)?.toUpperCase().replace('_', '-') as MenuType;
+                
+                reset({
+                    ...initialData,
+                    type: normalizedType,
+                    description: initialData.description || "",
+                    isActive: initialData.status === MenuStatus.ACTIVE,
+                    categoryCount: initialData.categoryCount || 0,
+                    itemCount: initialData.itemCount || 0
+                });
+            } else {
                 reset(DEFAULT_VALUES);
-                onClose();
-            },
-            onError: (error: any) => {
-                toast.error(error?.message || "Failed to create menu");
-            },
-        });
+            }
+        }
+    }, [open, initialData, reset]);
+
+    const onSubmit = (data: CreateMenuRequest) => {
+        if (isEdit && initialData?._id) {
+            updateMenu(
+                { id: initialData._id, data },
+                {
+                    onSuccess: () => {
+                        toast.success("Menu updated successfully!");
+                        onClose();
+                    },
+                    onError: (error: any) => {
+                        toast.error(error?.message || "Failed to update menu");
+                    },
+                }
+            );
+        } else {
+            createMenu(data, {
+                onSuccess: () => {
+                    toast.success("Menu created successfully!");
+                    reset(DEFAULT_VALUES);
+                    onClose();
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to create menu");
+                },
+            });
+        }
     };
 
     return (
@@ -70,9 +110,11 @@ const MenuCreatePanel = ({ open, onClose }: MenuCreatePanelProps) => {
             title={
                 <div className="flex items-center justify-between w-full">
                     <div>
-                        <h2 className="text-lg font-bold text-app-text">Add New Menu</h2>
+                        <h2 className="text-lg font-bold text-app-text">
+                            {isEdit ? "Edit Menu" : "Add New Menu"}
+                        </h2>
                         <p className="text-xs text-app-muted mt-0.5">
-                            Create a new menu offering for your customers.
+                            {isEdit ? "Update your existing menu offering." : "Create a new menu offering for your customers."}
                         </p>
                     </div>
                     <button

@@ -15,3 +15,16 @@ export const getMenus = (params: GetMenusRequest) => {
     params,
   });
 };
+
+export const updateMenu = (id: string, data: Partial<CreateMenuRequest>) => {
+  return httpService.patch<Menu>({
+    endpoint: `${ApiEndpoints.UPDATE_MENU}/${id}`,
+    data,
+  });
+};
+
+export const deleteMenu = (id: string) => {
+  return httpService.delete<void>({
+    endpoint: `${ApiEndpoints.DELETE_MENU}/${id}`,
+  });
+};

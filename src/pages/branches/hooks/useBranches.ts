@@ -39,7 +39,6 @@ export const useUpdateBranch = () => {
     mutationFn: ({ id, data }: { id: string; data: Partial<CreateBranchRequest> }) =>
       updateBranch(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["branches"] });
       queryClient.invalidateQueries({ queryKey: ["branch", variables.id] });
     },
   });

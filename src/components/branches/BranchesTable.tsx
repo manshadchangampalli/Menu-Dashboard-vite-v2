@@ -1,94 +1,49 @@
+import { useMemo, useState } from "react";
 import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { type Branch, type BranchData, BranchStatus, BranchType } from "../../pages/branches/service/branches.type";
 import { Edit2, Store, Building, ShoppingBag, Moon, Trash2 } from "lucide-react";
 import { BranchStats } from "./BranchStats";
-
-import { useNavigate } from "react-router";
-import { useState } from "react";
-import { getBranches } from "../../pages/branches/service/branches.api";
 import { CustomSelect } from "../ui/CustomSelect";
-import { useTableFilters } from "../../hooks/useTableFilters";
+import { type TableFilters } from "../../hooks/useTableFilters";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { useDeleteBranch, useUpdateBranch } from "../../pages/branches/hooks/useBranches";
 import { toast } from "sonner";
-import type { ApiResponse } from "@/services/http";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface BranchesTableProps {
+    data: BranchData[];
+    loading?: boolean;
+    total?: number;
+    totalPages?: number;
+    page?: number;
+    onPageChange?: (page: number) => void;
     onEdit?: (branch: BranchData) => void;
+    onRowClick?: (branch: Branch) => void;
+    meta?: any;
+    filters: TableFilters;
+    onFilterChange: (newFilters: Partial<TableFilters>) => void;
 }
 
-const BranchesTable = ({ onEdit }: BranchesTableProps) => {
-    const [branchData, setBranchData] = useState<ApiResponse<BranchData[]>>();
-    const navigate = useNavigate();
+const BranchesTable = ({
+    data,
+    loading,
+    total,
+    totalPages,
+    page,
+    onPageChange,
+    onEdit,
+    onRowClick,
+    meta,
+    filters,
+    onFilterChange
+}: BranchesTableProps) => {
+    const queryClient = useQueryClient();
     const [branchToDelete, setBranchToDelete] = useState<Branch | null>(null);
     const [branchToToggle, setBranchToToggle] = useState<Branch | null>(null);
     const { mutate: deleteBranch, isPending: isDeleting } = useDeleteBranch();
     const { mutate: updateBranch, isPending: isUpdating } = useUpdateBranch();
-
-
-    const { filters, setFilters } = useTableFilters({
-        limit: 10,
-        sortBy: "created_at",
-        sortOrder: "desc",
-        status: "all"
-    });
-
-    const fetchBranches = async (params: {
-        page: number;
-        pageSize: number;
-        search: string;
-        sort?: { column: keyof Branch; direction: "asc" | "desc" };
-    }) => {
-        // Sync URL parameters when table state changes
-        setFilters({
-            page: params.page,
-            limit: params.pageSize,
-            query: params.search,
-            sortBy: params.sort?.column as string,
-            sortOrder: params.sort?.direction,
-        });
-
-        const response = await getBranches({
-            page: params.page,
-            limit: params.pageSize,
-            query: params.search,
-            sortBy: params.sort?.column as string,
-            sortOrder: params.sort?.direction,
-            status: filters.status === "all" ? undefined : filters.status
-        });
-        console.log("🚀 ~ fetchBranches ~ response:", response)
-        setBranchData(response);
-        const mappedData: Branch[] = response.data.map((item: any) => ({
-            id: item._id,
-            name: item.name,
-            type: item.branch_type,
-            address: item.address_detail.street,
-            district: `${item.address_detail.city}, ${item.address_detail.country}`,
-            managerName: "Manager Name", // Map correctly if API provides it
-            managerAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random`,
-            status: item.status,
-        }));
-
-        return {
-            data: mappedData,
-            total: (response as any).meta?.total || mappedData.length,
-            totalPages: (response as any).meta?.totalPages || 1,
-        };
-    };
-
-    const refetchBranches = () => {
-        fetchBranches({
-            page: filters.page,
-            pageSize: filters.limit,
-            search: filters.query,
-            sort: {
-                column: filters.sortBy as keyof Branch,
-                direction: filters.sortOrder as "asc" | "desc",
-            },
-        });
-    };
 
     const handleDelete = () => {
         if (!branchToDelete) return;
@@ -96,7 +51,6 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
             onSuccess: () => {
                 toast.success("Branch deleted successfully");
                 setBranchToDelete(null);
-                refetchBranches()
             },
             onError: () => {
                 toast.error("Failed to delete branch");
@@ -113,18 +67,32 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
             {
                 onSuccess: () => {
                     toast.success(`Branch ${newStatus === BranchStatus.ACTIVE ? "activated" : "deactivated"} successfully`);
+
+                    // Optimistically update the cache without an API re-fetch
+                    queryClient.setQueryData(["branches", filters], (oldResponse: any) => {
+                        if (!oldResponse) return oldResponse;
+
+                        return {
+                            ...oldResponse,
+                            data: oldResponse.data.map((b: any) =>
+                                b._id === branchToToggle.id ? { ...b, status: newStatus } : b
+                            ),
+                            meta: {
+                                ...oldResponse.meta,
+                                totalActive: newStatus === BranchStatus.ACTIVE
+                                    ? (oldResponse.meta?.totalActive || 0) + 1
+                                    : (oldResponse.meta?.totalActive || 0) - 1
+                            }
+                        };
+                    });
+
                     setBranchToToggle(null);
-                    refetchBranches()
                 },
                 onError: (error: any) => {
                     toast.error(error?.message || "Failed to update status");
                 }
             }
         );
-    };
-
-    const handleRowClick = (branch: Branch) => {
-        navigate(`/branches/${branch.id}`);
     };
 
 
@@ -224,9 +192,9 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
                         className="size-8 text-app-muted hover:text-app-text hover:bg-app-bg"
                         onClick={(e) => {
                             e.stopPropagation();
-                            const originalBranch = branchData?.data.find(b => b._id === branch.id);
-                            if (originalBranch && onEdit) {
-                                onEdit(originalBranch);
+                            const fullData = data.find(d => d._id === branch.id);
+                            if (fullData && onEdit) {
+                                onEdit(fullData);
                             }
                         }}
                     >
@@ -248,22 +216,39 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
         }
     ];
 
+    const mappedData = useMemo(() => {
+        return data.map((item: any) => ({
+            id: item._id,
+            name: item.name,
+            type: item.branch_type,
+            address: item.address_detail.street,
+            district: `${item.address_detail.city}, ${item.address_detail.country}`,
+            managerName: "Manager Name", // Map correctly if API provides it
+            managerAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random`,
+            status: item.status,
+        }));
+    }, [data]);
+
     return (
         <>
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
                 <DataTable
                     columns={columns}
-                    fetchData={fetchBranches}
+                    data={mappedData}
+                    loading={loading}
+                    total={total}
+                    totalPages={totalPages}
+                    page={page}
+                    onPageChange={onPageChange}
                     searchKeys={["name", "address", "managerName"]}
-                    initialPageSize={10}
-                    onRowClick={handleRowClick}
+                    onRowClick={onRowClick}
                     actions={
                         <div className="flex items-center gap-2">
                             <div className="w-40">
                                 <CustomSelect
                                     label=""
                                     value={filters.status}
-                                    onValueChange={(value) => setFilters({ status: value })}
+                                    onValueChange={(value) => onFilterChange({ status: value })}
                                     options={[
                                         { label: "All Status", value: "all" },
                                         { label: "Active", value: "active" },
@@ -275,6 +260,7 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
                     }
                 />
             </div>
+            {/* Dialogs and Stats follow... */}
             <ConfirmDialog
                 open={!!branchToDelete}
                 onOpenChange={(open) => !open && setBranchToDelete(null)}
@@ -298,8 +284,8 @@ const BranchesTable = ({ onEdit }: BranchesTableProps) => {
             />
 
             <BranchStats
-                totalWithoutFilter={branchData?.meta?.totalWithoutFilter}
-                totalActive={branchData?.meta?.totalActive}
+                totalWithoutFilter={meta?.totalWithoutFilter}
+                totalActive={meta?.totalActive}
             />
         </>
     );
