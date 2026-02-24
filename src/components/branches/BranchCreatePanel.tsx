@@ -10,6 +10,7 @@ import { type CreateBranchRequest, type BranchData, DayOfWeek } from "../../page
 import { BRANCH_TYPE_OPTIONS, CITY_OPTIONS } from "../../pages/branches/config/branches.config";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface BranchCreatePanelProps {
     open: boolean;
@@ -50,7 +51,7 @@ const DEFAULT_VALUES: Partial<CreateBranchRequest> = {
 const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreatePanelProps) => {
     const { mutate: createBranch, isPending: isCreating } = useCreateBranch();
     const { mutate: updateBranch, isPending: isUpdating } = useUpdateBranch();
-
+    const queryClient = useQueryClient();
     const isPending = isCreating || isUpdating;
 
     const {
@@ -71,9 +72,9 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
                     ...initialData,
                     address_detail: {
                         ...(initialData.address_detail || {}),
-                        citySlug: initialData.address_detail?.citySlug
+                        citySlug: (initialData.address_detail?.citySlug as string)?.toLowerCase()
                     },
-                    branch_type: initialData.branch_type?.toLowerCase() || ""
+                    branch_type: (initialData.branch_type as string)?.toLowerCase() || ""
                 };
                 reset(normalizedData as any);
             } else {
@@ -89,6 +90,7 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
                 {
                     onSuccess: () => {
                         toast.success("Branch updated successfully!");
+                        queryClient.invalidateQueries({ queryKey: ["branches"] });
                         onClose();
                     },
                     onError: (error: any) => {
@@ -100,6 +102,7 @@ const BranchCreatePanel = ({ open, onClose, isEdit, initialData }: BranchCreateP
             createBranch(data, {
                 onSuccess: () => {
                     toast.success("Branch created successfully!");
+                    queryClient.invalidateQueries({ queryKey: ["branches"] });
                     reset();
                     onClose();
                 },

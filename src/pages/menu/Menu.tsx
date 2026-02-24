@@ -1,13 +1,33 @@
 import { ChevronRight, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import MenuTable from "../../components/menu/MenuTable";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import MenuTable from "../../components/menu/MenuTable";
 import MenuCreatePanel from "../../components/menus/MenuCreatePanel";
+import { useTableQuery } from "../../hooks/useTableFilters";
+import { getMenus } from "./service/menu.api";
+import { MENU_CONFIG } from "./config/menu.config";
+import type { Menu as MenuType } from "./service/menu.type";
 
 const Menu = () => {
     const navigate = useNavigate();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [selectedMenu, setSelectedMenu] = useState<MenuType | null>(null);
+
+    const {
+        data: response,
+        isLoading,
+        filters,
+        setFilters
+    } = useTableQuery(
+        "menus",
+        getMenus,
+        {
+            limit: MENU_CONFIG.PAGINATION.DEFAULT_PAGE_SIZE,
+            sortBy: "created_at",
+            sortOrder: "desc"
+        }
+    );
 
     return (
         <main className="flex-1 overflow-y-auto p-8">
@@ -35,13 +55,25 @@ const Menu = () => {
             </div>
 
             <MenuCreatePanel
-                open={isCreateOpen}
-                onClose={() => setIsCreateOpen(false)}
+                open={isCreateOpen || !!selectedMenu}
+                onClose={() => {
+                    setIsCreateOpen(false);
+                    setSelectedMenu(null);
+                }}
+                initialData={selectedMenu || undefined}
             />
 
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
                 <MenuTable
-                    onRowClick={(menu) => navigate(`/menu/${menu._id}`)}
+                    data={response?.data || []}
+                    loading={isLoading}
+                    total={response?.meta?.total || 0}
+                    totalPages={response?.meta?.totalPages || 1}
+                    page={filters.page}
+                    onPageChange={(page: number) => setFilters({ page })}
+                    onRowClick={(menu: MenuType) => navigate(`/menu/${menu._id}`)}
+                    onEdit={(menu: MenuType) => setSelectedMenu(menu)}
+                    filters={filters}
                 />
             </div>
         </main>

@@ -4,6 +4,7 @@ export enum MenuType {
   BOTH = 'BOTH',
 }
 
+
 export enum MenuStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',

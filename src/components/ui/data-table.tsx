@@ -32,6 +32,14 @@ interface DataTableProps<T> {
     actions?: React.ReactNode
     searchKeys?: (keyof T | string)[]
     onRowClick?: (item: T) => void
+    refreshTrigger?: any // Still useful for manual re-fetch if needed
+    
+    // Controlled props
+    loading?: boolean
+    total?: number
+    totalPages?: number
+    page?: number
+    onPageChange?: (page: number) => void
 }
 
 // Helper to access nested properties safely
@@ -48,15 +56,29 @@ export function DataTable<T extends { id: string | number }>({
     actions,
     searchKeys,
     onRowClick,
+    refreshTrigger,
+    loading: propsLoading,
+    total: propsTotal,
+    totalPages: propsTotalPages,
+    page: propsPage,
+    onPageChange: propsOnPageChange,
 }: DataTableProps<T>) {
-    const [data, setData] = React.useState<T[]>([])
-    const [loading, setLoading] = React.useState(true)
-    const [page, setPage] = React.useState(1)
+    const [internalData, setInternalData] = React.useState<T[]>([])
+    const [internalLoading, setInternalLoading] = React.useState(true)
+    const [internalPage, setInternalPage] = React.useState(1)
     const [pageSize] = React.useState(initialPageSize)
-    const [total, setTotal] = React.useState(0)
-    const [totalPages, setTotalPages] = React.useState(0)
+    const [internalTotal, setInternalTotal] = React.useState(0)
+    const [internalTotalPages, setInternalTotalPages] = React.useState(0)
     const [search, setSearch] = React.useState("")
     const [sort, setSort] = React.useState<{ column: keyof T; direction: 'asc' | 'desc' } | undefined>()
+
+    // Derived values: props take precedence over internal state
+    const isLoading = propsLoading ?? internalLoading
+    const page = propsPage ?? internalPage
+    const setPage = propsOnPageChange ?? setInternalPage
+    const data = initialData ?? internalData
+    const total = propsTotal ?? internalTotal
+    const totalPages = propsTotalPages ?? internalTotalPages
 
     // Debounce search
     const [debouncedSearch, setDebouncedSearch] = React.useState("")
@@ -69,10 +91,9 @@ export function DataTable<T extends { id: string | number }>({
     }, [search])
 
     const loadData = React.useCallback(async () => {
-        setLoading(true)
-        
-        // Check if we have client-side data provided
-        if (initialData) {
+        // Only load if not using purely external data
+        if (initialData && !fetchData) {
+            setInternalLoading(true)
             try {
                 let filtered = [...initialData];
 
@@ -106,19 +127,20 @@ export function DataTable<T extends { id: string | number }>({
                 const startIndex = (page - 1) * pageSize;
                 const paginatedData = filtered.slice(startIndex, startIndex + pageSize);
 
-                setData(paginatedData);
-                setTotal(totalItems);
-                setTotalPages(calculatedTotalPages);
+                setInternalData(paginatedData);
+                setInternalTotal(totalItems);
+                setInternalTotalPages(calculatedTotalPages);
             } catch (error) {
                 console.error("Error processing client-side data:", error);
             } finally {
-                setLoading(false);
+                setInternalLoading(false);
             }
             return;
         }
 
-        // Server-side fetching
+        // Server-side fetching (internal management)
         if (fetchData) {
+            setInternalLoading(true)
             try {
                 const result = await fetchData({
                     page,
@@ -126,16 +148,16 @@ export function DataTable<T extends { id: string | number }>({
                     search: debouncedSearch,
                     sort,
                 })
-                setData(result.data)
-                setTotal(result.total)
-                setTotalPages(result.totalPages)
+                setInternalData(result.data)
+                setInternalTotal(result.total)
+                setInternalTotalPages(result.totalPages)
             } catch (error) {
                 console.error("Failed to fetch data:", error)
             } finally {
-                setLoading(false)
+                setInternalLoading(false)
             }
         }
-    }, [fetchData, initialData, page, pageSize, debouncedSearch, sort, searchKeys])
+    }, [fetchData, initialData, page, pageSize, debouncedSearch, sort, searchKeys, refreshTrigger])
 
     React.useEffect(() => {
         loadData()
@@ -191,7 +213,7 @@ export function DataTable<T extends { id: string | number }>({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {loading ? (
+                        {isLoading ? (
                              <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
                                     Loading...

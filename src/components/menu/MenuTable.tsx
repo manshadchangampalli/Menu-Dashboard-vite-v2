@@ -1,25 +1,57 @@
+import { useMemo, useState } from "react";
 import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { type Menu, MenuStatus } from "../../pages/menu/service/menu.type";
 import { Edit2, Trash2, Clock } from "lucide-react";
-import { getMenus } from "../../pages/menu/service/menu.api";
-import { useTableFilters } from "../../hooks/useTableFilters";
-
-import { MENU_CONFIG } from "../../pages/menu/config/menu.config";
+import { useDeleteMenu, useUpdateMenu } from "../../pages/menu/hooks/useMenu";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { type TableFilters } from "../../hooks/useTableFilters";
+import { ConfirmDialog } from "../ui/confirm-dialog";
 
 interface MenuTableProps {
+    data: Menu[];
+    loading?: boolean;
+    total?: number;
+    totalPages?: number;
+    page?: number;
+    onPageChange?: (page: number) => void;
     onRowClick?: (item: Menu) => void;
+    onEdit?: (item: Menu) => void;
+    filters: TableFilters;
 }
 
-const MenuTable = ({ onRowClick }: MenuTableProps) => {
+const MenuTable = ({
+    data,
+    loading,
+    total,
+    totalPages,
+    page,
+    onPageChange,
+    onRowClick,
+    onEdit,
+    filters
+}: MenuTableProps) => {
+    const queryClient = useQueryClient();
+    const [menuToDelete, setMenuToDelete] = useState<Menu | null>(null);
+    const { mutate: updateMenu, isPending: isUpdating } = useUpdateMenu();
+    const { mutate: deleteMenu, isPending: isDeleting } = useDeleteMenu();
 
-    const { filters, setFilters } = useTableFilters({
-        limit: MENU_CONFIG.PAGINATION.DEFAULT_PAGE_SIZE,
-        sortBy: "created_at",
-        sortOrder: "desc",
-        status: "all"
-    });
+    const handleDelete = () => {
+        if (!menuToDelete) return;
+
+        deleteMenu(menuToDelete._id, {
+            onSuccess: () => {
+                toast.success("Menu deleted successfully");
+                setMenuToDelete(null);
+                // The query will be invalidated by the hook's onSuccess
+            },
+            onError: (error: any) => {
+                toast.error(error?.message || "Failed to delete menu");
+            }
+        });
+    };
 
     const formatDate = (dateString: string) => {
         if (!dateString) return "-";
@@ -30,43 +62,32 @@ const MenuTable = ({ onRowClick }: MenuTableProps) => {
         });
     };
 
-    const fetchMenus = async (params: {
-        page: number;
-        pageSize: number;
-        search: string;
-        sort?: { column: string | number | symbol; direction: "asc" | "desc" };
-    }) => {
-        // Sync filters if they changed from table (DataTable component handles internal state)
-        // Usually DataTable setPage/setPageSize calls this fetchFn
-        setFilters({
-            page: params.page,
-            limit: params.pageSize,
-            query: params.search,
-            sortBy: params.sort?.column as string,
-            sortOrder: params.sort?.direction,
-        });
+    const handleStatusToggle = (item: Menu, checked: boolean) => {
+        const newStatus = checked ? MenuStatus.ACTIVE : MenuStatus.INACTIVE;
 
-        const response = await getMenus({
-            page: params.page,
-            limit: params.pageSize,
-            query: params.search,
-            sortBy: params.sort?.column as string,
-            sortOrder: params.sort?.direction,
-            status: filters.status === "all" ? undefined : filters.status,
-        });
+        updateMenu(
+            { id: item._id, data: { status: newStatus } },
+            {
+                onSuccess: () => {
+                    toast.success(`Menu ${checked ? "activated" : "deactivated"} successfully`);
 
-        // Map data if needed (API returns _id, DataTable might expect id in some cases, 
-        // but here we can just use the item directly in cell renders)
-        const mappedData: any[] = response.data.map((item) => ({
-            ...item,
-            id: item._id, // Map _id to id for consistency if DataTable or other components use 'id'
-        }));
+                    // Optimistically update the cache without an API re-fetch
+                    queryClient.setQueryData(["menus", filters], (oldResponse: any) => {
+                        if (!oldResponse) return oldResponse;
 
-        return {
-            data: mappedData,
-            total: (response as any).meta?.total || mappedData.length,
-            totalPages: (response as any).meta?.totalPages || 1,
-        };
+                        return {
+                            ...oldResponse,
+                            data: oldResponse.data.map((m: any) =>
+                                m._id === item._id ? { ...m, status: newStatus } : m
+                            )
+                        };
+                    });
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to update status");
+                }
+            }
+        );
     };
 
     const columns: Column<Menu>[] = [
@@ -89,7 +110,8 @@ const MenuTable = ({ onRowClick }: MenuTableProps) => {
                 <div className="flex items-center gap-3">
                     <Switch
                         checked={item.status === MenuStatus.ACTIVE}
-                        onCheckedChange={(checked) => console.log(`Toggle status ${item._id}`, checked)}
+                        onCheckedChange={(checked) => handleStatusToggle(item, checked)}
+                        disabled={isUpdating}
                         onClick={(e) => e.stopPropagation()}
                     />
                     <span className={`text-xs font-semibold ${item.status === MenuStatus.ACTIVE ? "text-emerald-600" : "text-app-muted"}`}>
@@ -144,13 +166,16 @@ const MenuTable = ({ onRowClick }: MenuTableProps) => {
             header: "Actions",
             accessorKey: "_id",
             className: "text-right",
-            cell: (_) => (
+            cell: (item) => (
                 <div className="flex items-center justify-center gap-1">
                     <Button
                         variant="ghost"
                         size="icon"
                         className="size-8 text-app-muted hover:text-app-text hover:bg-app-accent"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit?.(item);
+                        }}
                     >
                         <Edit2 className="size-4" />
                     </Button>
@@ -158,7 +183,10 @@ const MenuTable = ({ onRowClick }: MenuTableProps) => {
                         variant="ghost"
                         size="icon"
                         className="size-8 text-app-muted hover:text-red-600 hover:bg-red-50"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setMenuToDelete(item);
+                        }}
                     >
                         <Trash2 className="size-4" />
                     </Button>
@@ -167,14 +195,38 @@ const MenuTable = ({ onRowClick }: MenuTableProps) => {
         }
     ];
 
+    const mappedData = useMemo(() => {
+        return data.map((item) => ({
+            ...item,
+            id: item._id,
+        }));
+    }, [data]);
+
     return (
-        <DataTable
-            columns={columns}
-            fetchData={fetchMenus}
-            searchKeys={["name"]}
-            initialPageSize={10}
-            onRowClick={onRowClick}
-        />
+        <>
+            <DataTable
+                columns={columns}
+                data={mappedData}
+                loading={loading}
+                total={total}
+                totalPages={totalPages}
+                page={page}
+                onPageChange={onPageChange}
+                searchKeys={["name"]}
+                onRowClick={onRowClick}
+            />
+
+            <ConfirmDialog
+                open={!!menuToDelete}
+                onOpenChange={(open) => !open && setMenuToDelete(null)}
+                title="Delete Menu"
+                description={`Are you sure you want to delete "${menuToDelete?.name}"? This action cannot be undone.`}
+                onConfirm={handleDelete}
+                confirmText="Delete"
+                variant="destructive"
+                isLoading={isDeleting}
+            />
+        </>
     );
 };
 

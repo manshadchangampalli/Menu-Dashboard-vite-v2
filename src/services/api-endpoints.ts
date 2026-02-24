@@ -12,6 +12,8 @@ export const ApiEndpoints = {
   DELETE_CATEGORY: "category",
   CREATE_MENU: "menu/create",
   GET_MENUS: "menu/get-all",
+  UPDATE_MENU: "menu",
+  DELETE_MENU: "menu",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];
