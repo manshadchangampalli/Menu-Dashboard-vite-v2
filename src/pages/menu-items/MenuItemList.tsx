@@ -1,13 +1,32 @@
 import { useState } from "react";
 import { ChevronRight, Download, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import MenuTable from "../../components/menu-items/MenuItemTable";
+import ProductsTable from "../../components/menu-items/ProductsTable";
 import MenuDetailPanel from "../../components/menu-items/MenuItemDetailPanel";
-import { MOCK_MENU_ITEMS } from "./menuItems.config";
-import type { MenuItem } from "./menuItems.type";
+import ProductCreatePanel from "../../components/products/ProductCreatePanel";
+import { useTableQuery } from "../../hooks/useTableFilters";
+import { getProducts } from "./service/products.api";
+import type { Product } from "./service/products.type";
 
 const MenuItemList = () => {
-    const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<Product | null>(null);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+    const {
+        data: response,
+        isLoading,
+        filters,
+        setFilters
+    } = useTableQuery(
+        "products",
+        getProducts,
+        {
+            limit: 10,
+            sortBy: "created_at",
+            sortOrder: "desc",
+            organization_id: "69948af4435dccf179e3e939"
+        }
+    );
 
     return (
         <main className="flex-1 overflow-y-auto p-8">
@@ -28,7 +47,10 @@ const MenuItemList = () => {
                         <Download className="size-[18px]" />
                         Export
                     </Button>
-                    <Button className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm">
+                    <Button
+                        onClick={() => setIsCreateOpen(true)}
+                        className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
+                    >
                         <Plus className="size-[18px]" />
                         Add Item
                     </Button>
@@ -36,19 +58,32 @@ const MenuItemList = () => {
             </div>
 
             <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
-                <MenuTable
-                    data={MOCK_MENU_ITEMS}
+                <ProductsTable
+                    data={response?.data ?? []}
+                    loading={isLoading}
+                    total={response?.meta?.total || 0}
+                    totalPages={response?.meta?.totalPages || 1}
+                    page={filters.page}
+                    onPageChange={(page) => setFilters({ page })}
                     onRowClick={(item) => setSelectedItem(item)}
+                    filters={filters}
+                    onFilterChange={setFilters}
                 />
             </div>
 
             <MenuDetailPanel
-                item={selectedItem}
+                item={selectedItem as any}
                 open={!!selectedItem}
                 onClose={() => setSelectedItem(null)}
+            />
+
+            <ProductCreatePanel
+                open={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
             />
         </main>
     );
 };
 
 export default MenuItemList;
+
