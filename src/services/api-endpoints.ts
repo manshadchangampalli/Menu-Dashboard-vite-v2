@@ -12,9 +12,12 @@ export const ApiEndpoints = {
   DELETE_CATEGORY: "category",
   CREATE_MENU: "menu/create",
   GET_MENUS: "menu/get-all",
+  GET_MENU: "menu",
   UPDATE_MENU: "menu",
   DELETE_MENU: "menu",
-  GET_MENU: "menu",
+  UPDATE_CATEGORY: "category",
+  CREATE_PRODUCT: "products",
+  GET_PRODUCTS: "products",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];
