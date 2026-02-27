@@ -1,11 +1,13 @@
+import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
 import { Accordion } from "../ui/accordion";
 import { X, Save } from "lucide-react";
-import { useCreateProduct } from "../../pages/menu-items/hooks/useProducts";
+import { useCreateProduct, useUpdateProduct } from "../../pages/menu-items/hooks/useProducts";
 import {
     type CreateProductRequest,
+    type Product,
     ProductType,
     SpiceLevel,
 } from "../../pages/menu-items/service/products.type";
@@ -23,6 +25,8 @@ import {
 interface ProductCreatePanelProps {
     open: boolean;
     onClose: () => void;
+    isEdit?: boolean;
+    initialData?: Product | null;
 }
 
 const DEFAULT_VALUES: Partial<CreateProductRequest> = {
@@ -45,8 +49,10 @@ const DEFAULT_VALUES: Partial<CreateProductRequest> = {
     organization_id: "69948af4435dccf179e3e939",
 };
 
-const ProductCreatePanel = ({ open, onClose }: ProductCreatePanelProps) => {
-    const { mutate: createProduct, isPending } = useCreateProduct();
+const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: ProductCreatePanelProps) => {
+    const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
+    const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
+    const isPending = isCreating || isUpdating;
 
     const {
         control,
@@ -59,6 +65,33 @@ const ProductCreatePanel = ({ open, onClose }: ProductCreatePanelProps) => {
     } = useForm<CreateProductRequest>({
         defaultValues: DEFAULT_VALUES as CreateProductRequest,
     });
+
+    // Prefill form when opening in edit mode
+    useEffect(() => {
+        if (open && isEdit && initialData) {
+            reset({
+                name: initialData.name,
+                slug: initialData.slug,
+                description: initialData.description,
+                sku: initialData.sku,
+                type: initialData.type,
+                spice_level: initialData.spice_level,
+                is_alcohol: initialData.is_alcohol,
+                is_featured: initialData.is_featured,
+                base_price: initialData.base_price,
+                base_tax_rate: initialData.base_tax_rate,
+                calories: initialData.calories,
+                nutritional_info: initialData.nutritional_info,
+                media: initialData.media ?? [],
+                tags: initialData.tags ?? [],
+                allergens: initialData.allergens ?? [],
+                is_active: initialData.is_active,
+                organization_id: initialData.organization_id,
+            });
+        } else if (!open) {
+            reset(DEFAULT_VALUES as CreateProductRequest);
+        }
+    }, [open, isEdit, initialData, reset]);
 
     const {
         fields: mediaFields,
@@ -91,16 +124,31 @@ const ProductCreatePanel = ({ open, onClose }: ProductCreatePanelProps) => {
     };
 
     const onSubmit = (data: CreateProductRequest) => {
-        createProduct(data, {
-            onSuccess: () => {
-                toast.success("Product created successfully!");
-                reset();
-                onClose();
-            },
-            onError: (error: any) => {
-                toast.error(error?.message || "Failed to create product");
-            },
-        });
+        if (isEdit && initialData?._id) {
+            updateProduct(
+                { id: initialData._id, data },
+                {
+                    onSuccess: () => {
+                        toast.success("Product updated successfully!");
+                        onClose();
+                    },
+                    onError: (error: any) => {
+                        toast.error(error?.message || "Failed to update product");
+                    },
+                }
+            );
+        } else {
+            createProduct(data, {
+                onSuccess: () => {
+                    toast.success("Product created successfully!");
+                    reset();
+                    onClose();
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to create product");
+                },
+            });
+        }
     };
 
     const handleClose = () => {
@@ -115,9 +163,13 @@ const ProductCreatePanel = ({ open, onClose }: ProductCreatePanelProps) => {
             title={
                 <div className="flex items-center justify-between w-full">
                     <div>
-                        <h2 className="text-lg font-bold text-app-text">Add New Product</h2>
+                        <h2 className="text-lg font-bold text-app-text">
+                            {isEdit ? "Edit Product" : "Add New Product"}
+                        </h2>
                         <p className="text-xs text-app-muted mt-0.5">
-                            Fill in each section to create a new menu item.
+                            {isEdit
+                                ? "Update the details below and save changes."
+                                : "Fill in each section to create a new menu item."}
                         </p>
                     </div>
                     <button
@@ -146,11 +198,11 @@ const ProductCreatePanel = ({ open, onClose }: ProductCreatePanelProps) => {
                         type="submit"
                     >
                         {isPending ? (
-                            "Creating..."
+                            isEdit ? "Saving..." : "Creating..."
                         ) : (
                             <>
                                 <Save className="w-4 h-4 mr-2" />
-                                Create Product
+                                {isEdit ? "Save Changes" : "Create Product"}
                             </>
                         )}
                     </Button>

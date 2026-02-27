@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
@@ -6,6 +6,10 @@ import { ProductType, type Product } from "../../pages/menu-items/service/produc
 import { Edit2, Trash2, Filter } from "lucide-react";
 import { CustomSelect } from "../ui/CustomSelect";
 import { type TableFilters } from "../../hooks/useTableFilters";
+import { ConfirmDialog } from "../ui/confirm-dialog";
+import { useUpdateProduct, useDeleteProduct } from "../../pages/menu-items/hooks/useProducts";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProductsTableProps {
     data: Product[];
@@ -32,6 +36,56 @@ const ProductsTable = ({
     filters,
     onFilterChange
 }: ProductsTableProps) => {
+    const queryClient = useQueryClient();
+    const [productToToggle, setProductToToggle] = useState<Product | null>(null);
+    const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+    const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
+    const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
+
+    const handleStatusToggle = () => {
+        if (!productToToggle) return;
+        const newStatus = !productToToggle.is_active;
+
+        updateProduct(
+            { id: productToToggle._id, data: { is_active: newStatus } },
+            {
+                onSuccess: () => {
+                    toast.success(`Product ${newStatus ? "activated" : "deactivated"} successfully`);
+
+                    // Optimistic cache update
+                    queryClient.setQueryData(["products", filters], (oldResponse: any) => {
+                        if (!oldResponse) return oldResponse;
+                        return {
+                            ...oldResponse,
+                            data: oldResponse.data.map((p: Product) =>
+                                p._id === productToToggle._id ? { ...p, is_active: newStatus } : p
+                            ),
+                        };
+                    });
+
+                    setProductToToggle(null);
+                },
+                onError: (error: any) => {
+                    toast.error(error?.message || "Failed to update status");
+                },
+            }
+        );
+    };
+
+    const handleDelete = () => {
+        if (!productToDelete) return;
+
+        deleteProduct(productToDelete._id, {
+            onSuccess: () => {
+                toast.success("Product deleted successfully");
+                setProductToDelete(null);
+            },
+            onError: (error: any) => {
+                toast.error(error?.message || "Failed to delete product");
+            },
+        });
+    };
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -108,7 +162,7 @@ const ProductsTable = ({
                 <div className="flex items-center gap-3">
                     <Switch
                         checked={product.is_active}
-                        onCheckedChange={(checked) => console.log(`Toggle ${product._id}`, checked)}
+                        onCheckedChange={() => setProductToToggle(product)}
                         onClick={(e) => e.stopPropagation()}
                     />
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${product.is_active ? "text-emerald-600" : "text-app-muted"}`}>
@@ -140,7 +194,7 @@ const ProductsTable = ({
                         className="size-8 text-app-muted hover:text-red-500 hover:bg-red-50"
                         onClick={(e) => {
                             e.stopPropagation();
-                            // Handle delete
+                            setProductToDelete(product);
                         }}
                     >
                         <Trash2 className="size-4" />
@@ -153,74 +207,100 @@ const ProductsTable = ({
     const mappedData = useMemo(() => {
         return data.map(item => ({
             ...item,
-            id: item._id // DataTable expects 'id' property
+            id: item._id
         }));
     }, [data]);
 
     return (
-        <DataTable
-            columns={columns}
-            data={mappedData}
-            loading={loading}
-            total={total}
-            totalPages={totalPages}
-            page={page}
-            onPageChange={onPageChange}
-            search={filters.query}
-            onSearchChange={(query) => onFilterChange({ query })}
-            sortBy={filters.sortBy}
-            sortOrder={filters.sortOrder}
-            onSortChange={(sortBy, sortOrder) => onFilterChange({ sortBy: sortOrder ? sortBy : undefined, sortOrder })}
-            onRowClick={onRowClick}
-            actions={
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-app-bg rounded-md border border-app-border mr-2 font-bold text-[10px] uppercase text-app-muted">
-                        <Filter className="size-3" />
-                        Filters
+        <>
+            <DataTable
+                columns={columns}
+                data={mappedData}
+                loading={loading}
+                total={total}
+                totalPages={totalPages}
+                page={page}
+                onPageChange={onPageChange}
+                search={filters.query}
+                onSearchChange={(query) => onFilterChange({ query })}
+                sortBy={filters.sortBy}
+                sortOrder={filters.sortOrder}
+                onSortChange={(sortBy, sortOrder) => onFilterChange({ sortBy: sortOrder ? sortBy : undefined, sortOrder })}
+                onRowClick={onRowClick}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-app-bg rounded-md border border-app-border mr-2 font-bold text-[10px] uppercase text-app-muted">
+                            <Filter className="size-3" />
+                            Filters
+                        </div>
+                        <div className="w-32">
+                            <CustomSelect
+                                label=""
+                                value={filters.type || "all"}
+                                onValueChange={(value) => onFilterChange({ type: value === "all" ? undefined : value })}
+                                options={[
+                                    { label: "All Types", value: "all" },
+                                    { label: "Veg", value: ProductType.VEG },
+                                    { label: "Non-Veg", value: ProductType.NON_VEG },
+                                    { label: "Vegan", value: ProductType.VEGAN },
+                                ]}
+                                placeholder="Type"
+                            />
+                        </div>
+                        <div className="w-32">
+                            <CustomSelect
+                                label=""
+                                value={filters.is_active === undefined ? "all" : String(filters.is_active)}
+                                onValueChange={(value) => onFilterChange({ is_active: value === "all" ? undefined : value === "true" })}
+                                options={[
+                                    { label: "All Status", value: "all" },
+                                    { label: "Active", value: "true" },
+                                    { label: "Inactive", value: "false" },
+                                ]}
+                                placeholder="Status"
+                            />
+                        </div>
+                        <div className="w-32">
+                            <CustomSelect
+                                label=""
+                                value={filters.is_featured === undefined ? "all" : String(filters.is_featured)}
+                                onValueChange={(value) => onFilterChange({ is_featured: value === "all" ? undefined : value === "true" })}
+                                options={[
+                                    { label: "All Featured", value: "all" },
+                                    { label: "Featured", value: "true" },
+                                    { label: "Standard", value: "false" },
+                                ]}
+                                placeholder="Featured"
+                            />
+                        </div>
                     </div>
-                    <div className="w-32">
-                        <CustomSelect
-                            label=""
-                            value={filters.type || "all"}
-                            onValueChange={(value) => onFilterChange({ type: value === "all" ? undefined : value })}
-                            options={[
-                                { label: "All Types", value: "all" },
-                                { label: "Veg", value: ProductType.VEG },
-                                { label: "Non-Veg", value: ProductType.NON_VEG },
-                                { label: "Vegan", value: ProductType.VEGAN },
-                            ]}
-                            placeholder="Type"
-                        />
-                    </div>
-                    <div className="w-32">
-                        <CustomSelect
-                            label=""
-                            value={filters.is_active === undefined ? "all" : String(filters.is_active)}
-                            onValueChange={(value) => onFilterChange({ is_active: value === "all" ? undefined : value === "true" })}
-                            options={[
-                                { label: "All Status", value: "all" },
-                                { label: "Active", value: "true" },
-                                { label: "Inactive", value: "false" },
-                            ]}
-                            placeholder="Status"
-                        />
-                    </div>
-                    <div className="w-32">
-                        <CustomSelect
-                            label=""
-                            value={filters.is_featured === undefined ? "all" : String(filters.is_featured)}
-                            onValueChange={(value) => onFilterChange({ is_featured: value === "all" ? undefined : value === "true" })}
-                            options={[
-                                { label: "All Featured", value: "all" },
-                                { label: "Featured", value: "true" },
-                                { label: "Standard", value: "false" },
-                            ]}
-                            placeholder="Featured"
-                        />
-                    </div>
-                </div>
-            }
-        />
+                }
+            />
+
+            {/* Toggle status confirm */}
+            <ConfirmDialog
+                open={!!productToToggle}
+                onOpenChange={(open) => !open && setProductToToggle(null)}
+                title={productToToggle?.is_active ? "Deactivate Product" : "Activate Product"}
+                description={`Are you sure you want to ${productToToggle?.is_active ? "deactivate" : "activate"} "${productToToggle?.name}"?`}
+                confirmText={isUpdating ? "Updating..." : "Confirm"}
+                cancelText="Cancel"
+                onConfirm={handleStatusToggle}
+                variant={productToToggle?.is_active ? "destructive" : "default"}
+            />
+
+            {/* Delete confirm */}
+            <ConfirmDialog
+                open={!!productToDelete}
+                onOpenChange={(open) => !open && setProductToDelete(null)}
+                title="Delete Product"
+                description={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+                confirmText={isDeleting ? "Deleting..." : "Delete"}
+                cancelText="Cancel"
+                onConfirm={handleDelete}
+                variant="destructive"
+            />
+        </>
     );
 };
 
