@@ -20,6 +20,7 @@ interface MenuTableProps {
     onRowClick?: (item: Menu) => void;
     onEdit?: (item: Menu) => void;
     filters: TableFilters;
+    onFilterChange: (newFilters: Partial<TableFilters>) => void;
 }
 
 const MenuTable = ({
@@ -31,7 +32,8 @@ const MenuTable = ({
     onPageChange,
     onRowClick,
     onEdit,
-    filters
+    filters,
+    onFilterChange
 }: MenuTableProps) => {
     const queryClient = useQueryClient();
     const [menuToDelete, setMenuToDelete] = useState<Menu | null>(null);
@@ -212,8 +214,25 @@ const MenuTable = ({
                 totalPages={totalPages}
                 page={page}
                 onPageChange={onPageChange}
-                searchKeys={["name"]}
+                search={filters.query}
+                onSearchChange={(query) => onFilterChange({ query })}
+                sortBy={filters.sortBy}
+                sortOrder={filters.sortOrder}
+                onSortChange={(sortBy, sortOrder) => onFilterChange({ sortBy: sortOrder ? sortBy : undefined, sortOrder })}
                 onRowClick={onRowClick}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <select
+                            className="h-9 rounded-md border border-app-border bg-white px-3 text-sm text-app-text font-medium focus:outline-none focus:ring-1 focus:ring-app-border"
+                            value={filters.status || "all"}
+                            onChange={(e) => onFilterChange({ status: e.target.value })}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                }
             />
 
             <ConfirmDialog

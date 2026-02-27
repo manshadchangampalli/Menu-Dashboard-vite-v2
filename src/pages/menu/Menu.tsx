@@ -74,6 +74,7 @@ const Menu = () => {
                     onRowClick={(menu: MenuType) => navigate(`/menu/${menu._id}`)}
                     onEdit={(menu: MenuType) => setSelectedMenu(menu)}
                     filters={filters}
+                    onFilterChange={setFilters}
                 />
             </div>
         </main>

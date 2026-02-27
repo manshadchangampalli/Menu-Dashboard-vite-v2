@@ -10,7 +10,7 @@ import {
 import { DataTablePagination } from "./data-table-pagination"
 import { Input } from "@/components/ui/input"
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, debounce } from "@/lib/utils"
 
 export interface Column<T> {
     header: string
@@ -40,6 +40,11 @@ interface DataTableProps<T> {
     totalPages?: number
     page?: number
     onPageChange?: (page: number) => void
+    search?: string
+    onSearchChange?: (query: string) => void
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
+    onSortChange?: (sortBy: string, sortOrder: 'asc' | 'desc' | undefined) => void
 }
 
 // Helper to access nested properties safely
@@ -62,6 +67,11 @@ export function DataTable<T extends { id: string | number }>({
     totalPages: propsTotalPages,
     page: propsPage,
     onPageChange: propsOnPageChange,
+    search: propsSearch,
+    onSearchChange: propsOnSearchChange,
+    sortBy: propsSortBy,
+    sortOrder: propsSortOrder,
+    onSortChange: propsOnSortChange,
 }: DataTableProps<T>) {
     const [internalData, setInternalData] = React.useState<T[]>([])
     const [internalLoading, setInternalLoading] = React.useState(true)
@@ -69,7 +79,7 @@ export function DataTable<T extends { id: string | number }>({
     const [pageSize] = React.useState(initialPageSize)
     const [internalTotal, setInternalTotal] = React.useState(0)
     const [internalTotalPages, setInternalTotalPages] = React.useState(0)
-    const [search, setSearch] = React.useState("")
+    const [internalSearch, setInternalSearch] = React.useState("")
     const [sort, setSort] = React.useState<{ column: keyof T; direction: 'asc' | 'desc' } | undefined>()
 
     // Derived values: props take precedence over internal state
@@ -79,16 +89,37 @@ export function DataTable<T extends { id: string | number }>({
     const data = initialData ?? internalData
     const total = propsTotal ?? internalTotal
     const totalPages = propsTotalPages ?? internalTotalPages
+    const [search, setSearch] = [propsSearch ?? internalSearch, propsOnSearchChange ?? setInternalSearch]
+    const [localSearch, setLocalSearch] = React.useState(search)
+    const [debouncedSearch, setDebouncedSearch] = React.useState(search)
 
-    // Debounce search
-    const [debouncedSearch, setDebouncedSearch] = React.useState("")
+    // Ref to avoid stable closure issues while keeping debounce stable
+    const setSearchRef = React.useRef(setSearch)
+
     React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(search)
-            setPage(1) // Reset to page 1 on search change
-        }, 500)
-        return () => clearTimeout(timer)
+        setSearchRef.current = setSearch
+    }, [setSearch])
+
+    // Sync local search with prop search (e.g. when URL changes)
+    React.useEffect(() => {
+        setLocalSearch(search)
+        setDebouncedSearch(search)
     }, [search])
+
+    const debouncedOnSearchChange = React.useMemo(
+        () => debounce((value: string) => {
+            setSearchRef.current(value)
+            setDebouncedSearch(value)
+            // Note: page reset is handled by setFilters in useTableFilters when query changes
+        }, 500),
+        [] // Keep it absolutely stable
+    )
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        setLocalSearch(value)
+        debouncedOnSearchChange(value)
+    }
 
     const loadData = React.useCallback(async () => {
         // Only load if not using purely external data
@@ -164,19 +195,39 @@ export function DataTable<T extends { id: string | number }>({
     }, [loadData])
 
     const handleSort = (columnKey: keyof T) => {
-        setSort(prev => {
-            if (prev?.column === columnKey) {
-                return prev.direction === 'asc'
-                    ? { column: columnKey, direction: 'desc' }
-                    : undefined
+        const colStr = String(columnKey)
+        if (propsOnSortChange) {
+            // Controlled (server-side) mode
+            if (propsSortBy === colStr) {
+                if (propsSortOrder === 'asc') {
+                    propsOnSortChange(colStr, 'desc')
+                } else if (propsSortOrder === 'desc') {
+                    propsOnSortChange(colStr, undefined)
+                } else {
+                    propsOnSortChange(colStr, 'asc')
+                }
+            } else {
+                propsOnSortChange(colStr, 'asc')
             }
-            return { column: columnKey, direction: 'asc' }
-        })
+        } else {
+            // Uncontrolled (client-side) mode
+            setSort(prev => {
+                if (prev?.column === columnKey) {
+                    return prev.direction === 'asc'
+                        ? { column: columnKey, direction: 'desc' }
+                        : undefined
+                }
+                return { column: columnKey, direction: 'asc' }
+            })
+        }
     }
 
     const renderSortIcon = (columnKey: keyof T) => {
-        if (sort?.column !== columnKey) return <ChevronsUpDown className="ml-2 h-4 w-4" />
-        return sort.direction === 'asc' ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />
+        const colStr = String(columnKey)
+        const activeSortBy = propsSortBy ?? (sort?.column ? String(sort.column) : undefined)
+        const activeSortOrder = propsSortOrder ?? sort?.direction
+        if (activeSortBy !== colStr || !activeSortOrder) return <ChevronsUpDown className="ml-2 h-4 w-4" />
+        return activeSortOrder === 'asc' ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />
     }
 
     return (
@@ -186,8 +237,8 @@ export function DataTable<T extends { id: string | number }>({
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        value={localSearch}
+                        onChange={handleSearchChange}
                         className="pl-9"
                     />
                 </div>

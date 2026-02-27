@@ -104,11 +104,12 @@ export const useTableQuery = <T>(
   const query = useQuery({
     queryKey: [queryKey, filters],
     queryFn: () => {
-      // Clean up common UI-only filter values like "all" before sending to API
-      const { status, ...otherFilters } = filters;
+      // Clean up UI-only filter values before sending to API
+      const { status, query: searchQuery, ...otherFilters } = filters;
       const apiParams = {
         ...otherFilters,
         ...(status !== "all" ? { status } : {}),
+        ...(searchQuery ? { query: searchQuery } : {}),
       } as TableFilters;
       
       return fetchFn(apiParams);

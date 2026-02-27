@@ -72,7 +72,7 @@ const MenuItemList = () => {
             </div>
 
             <MenuDetailPanel
-                item={selectedItem as any}
+                item={selectedItem}
                 open={!!selectedItem}
                 onClose={() => setSelectedItem(null)}
             />

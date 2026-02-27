@@ -14,6 +14,7 @@ import {
     AlertTriangle,
     Plus,
     Trash2,
+    Box
 } from "lucide-react";
 import {
     ProductType,
@@ -437,6 +438,11 @@ const MediaItem = ({ control, index, field, remove, register, errors }: MediaIte
                                 <div className="mt-2 rounded-lg border border-app-border overflow-hidden bg-app-bg h-32 flex items-center justify-center">
                                     {value.match(/\.(mp4|webm|ogg)$/) ? (
                                         <video src={value} className="max-h-full max-w-full object-contain" controls />
+                                    ) : value.match(/\.(glb|usdz)$/) ? (
+                                        <div className="flex flex-col items-center gap-2 text-app-muted">
+                                            <Box className="w-8 h-8" />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">3D Model Preview</span>
+                                        </div>
                                     ) : (
                                         <img
                                             src={value}
