@@ -240,7 +240,11 @@ const BranchesTable = ({
                     totalPages={totalPages}
                     page={page}
                     onPageChange={onPageChange}
-                    searchKeys={["name", "address", "managerName"]}
+                    search={filters.query}
+                    onSearchChange={(query) => onFilterChange({ query })}
+                    sortBy={filters.sortBy}
+                    sortOrder={filters.sortOrder}
+                    onSortChange={(sortBy, sortOrder) => onFilterChange({ sortBy: sortOrder ? sortBy : undefined, sortOrder })}
                     onRowClick={onRowClick}
                     actions={
                         <div className="flex items-center gap-2">

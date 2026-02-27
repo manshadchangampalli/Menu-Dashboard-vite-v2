@@ -88,14 +88,17 @@ const ProductsTable = ({
             cell: (product) => <span className="text-sm font-bold text-app-text">{formatPrice(product.base_price)}</span>
         },
         {
-            header: "Featured",
-            accessorKey: "is_featured",
+            header: "Slug",
+            accessorKey: "slug",
             cell: (product) => (
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${product.is_featured 
-                    ? "bg-amber-50 text-amber-700 border-amber-100" 
-                    : "bg-gray-50 text-gray-400 border-gray-100"}`}>
-                    {product.is_featured ? "Featured" : "Standard"}
-                </span>
+                <span className="text-xs font-mono text-app-muted">{product.slug}</span>
+            )
+        },
+        {
+            header: "SKU",
+            accessorKey: "sku",
+            cell: (product) => (
+                <span className="text-xs font-mono font-semibold text-app-text">{product.sku}</span>
             )
         },
         {
@@ -163,7 +166,11 @@ const ProductsTable = ({
             totalPages={totalPages}
             page={page}
             onPageChange={onPageChange}
-            searchKeys={["name", "sku", "description"]}
+            search={filters.query}
+            onSearchChange={(query) => onFilterChange({ query })}
+            sortBy={filters.sortBy}
+            sortOrder={filters.sortOrder}
+            onSortChange={(sortBy, sortOrder) => onFilterChange({ sortBy: sortOrder ? sortBy : undefined, sortOrder })}
             onRowClick={onRowClick}
             actions={
                 <div className="flex items-center gap-2">
