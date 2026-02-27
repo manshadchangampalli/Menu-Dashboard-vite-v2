@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createCategory, getCategories, deleteCategory, updateCategory } from "../service/categories.api";
+import { createCategory, getCategories, getCategory, deleteCategory, updateCategory } from "../service/categories.api";
 import type { CreateCategoryRequest } from "../service/categories.type";
 
 export const useCategories = () => {
@@ -9,6 +9,18 @@ export const useCategories = () => {
             const response = await getCategories();
             return response.data;
         },
+    });
+};
+
+export const useCategory = (id?: string) => {
+    return useQuery({
+        queryKey: ["category", id],
+        queryFn: async () => {
+            if (!id) return null;
+            const response = await getCategory(id);
+            return response.data;
+        },
+        enabled: !!id,
     });
 };
 
