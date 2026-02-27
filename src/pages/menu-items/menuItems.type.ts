@@ -1,22 +1,38 @@
-export type MenuType = string;
-
 export interface MenuItem {
-    id: string;
+  _id: string;
+  menu_item_uuid: string;
+  product_id: {
+    _id: string;
     name: string;
-    sku: string;
-    shortDescription: string;
-    longDescription: string;
-    category: "Appetizers" | "Main Course" | "Desserts" | "Beverages" | "Sides";
-    price: number;
-    offerPrice?: number;
-    image: string; // Keep for backward compatibility/thumbnail
-    images: string[];
-    videos?: { url: string; type: 'cooking' | 'promo' }[];
-    modelUrl?: string;
-    inStock: boolean;
-    rating?: number;
-    reviews?: number;
-    menuType: MenuType;
-    variants?: { name: string; price: number; stock: boolean }[];
-    attributes?: { name: string; value: string }[];
+    slug: string;
+    type: string;
+  };
+  menu_id: string;
+  category_id: string;
+  organization_id: string;
+  branch_id?: string;
+  base_price: number;
+  selling_price: number;
+  is_available: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  __v?: number;
+}
+
+export interface GetMenuItemsRequest {
+  menuId?: string;
+  categoryId?: string;
+  organization_id?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetMenuItemsResponse {
+  success: boolean;
+  data: MenuItem[];
+  meta: {
+    timestamp: string;
+  };
 }
