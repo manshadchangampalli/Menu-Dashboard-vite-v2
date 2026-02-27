@@ -4,14 +4,14 @@ import {
   Activity,
   Calendar,
   Utensils,
-  ListOrdered,
   Store,
   Users,
   BarChart2,
   Settings,
   LogOut,
   BookOpen,
-
+  Layers,
+  Package,
 } from "lucide-react";
 
 export const SIDEBAR_ITEMS = [
@@ -46,8 +46,14 @@ export const SIDEBAR_ITEMS = [
     id: "menu-items",
   },
   {
+    title: "Categories",
+    icon: Layers,
+    url: "/categories",
+    id: "categories",
+  },
+  {
     title: "Products",
-    icon: ListOrdered,
+    icon: Package,
     url: "/products",
     id: "products",
   },

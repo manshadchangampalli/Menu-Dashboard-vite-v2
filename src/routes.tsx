@@ -6,7 +6,7 @@ import Orders from "./pages/orders/Orders";
 import Reservations from "./pages/reservations/Reservations";
 import MenuItemList from "./pages/menu-items/MenuItemList";
 import Menu from "./pages/menu/Menu";
-import MenuDetail from "./pages/menu-detail/MenuDetail"; 
+import MenuDetail from "./pages/menu-detail/MenuDetail";
 import Categories from "./pages/categories/Categories";
 import Branches from "./pages/branches/Branches";
 import StaffMembers from "./pages/staff/Staff";
@@ -15,6 +15,7 @@ import Settings from "./pages/settings/Settings";
 import BranchDetail from "./pages/branch-detail/BranchDetail";
 import StaffDetail from "./pages/staff-detail/StaffDetail";
 import Login from "./pages/login/Login";
+import Products from "./pages/products/Products";
 
 export const router = createBrowserRouter([
     {
@@ -76,6 +77,10 @@ export const router = createBrowserRouter([
             {
                 path: "settings",
                 Component: Settings,
+            },
+            {
+                path: "products",
+                Component: Products,
             },
         ],
     },

@@ -10,6 +10,7 @@ import MenuCreatePanel from "../../components/menus/MenuCreatePanel";
 import { useUpdateCategory } from "../categories/hooks/useCategories";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMenuItems } from "../menu-items/hooks/useMenuItems";
 
 const MenuDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -149,8 +150,8 @@ const MenuDetail = () => {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-bold text-app-text">Menu Categories</h3>
-                        <Button 
-                            size="sm" 
+                        <Button
+                            size="sm"
                             className="gap-2 bg-app-text text-white hover:bg-app-text/90"
                             onClick={() => navigate(`/categories?menuId=${id}&openCreateCategory=true`)}
                         >
@@ -164,6 +165,7 @@ const MenuDetail = () => {
                             <CategorySection
                                 key={category._id}
                                 category={category}
+                                menuId={id!}
                                 onToggleStatus={handleToggleStatus}
                             />
                         ))}
@@ -186,15 +188,29 @@ const MenuDetail = () => {
     );
 };
 // Sub-component for Category
-const CategorySection = ({ category, onToggleStatus }: { 
-    category: Category, 
-    onToggleStatus: (id: string, current: boolean) => void 
+const CategorySection = ({ category, menuId, onToggleStatus }: {
+    category: Category,
+    menuId: string,
+    onToggleStatus: (id: string, current: boolean) => void
 }) => {
     const Icon = getCategoryIcon(category.icon);
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Fetch items for this specific category and menu
+    const { data: itemsResponse, isLoading } = useMenuItems({
+        menuId: menuId,
+        categoryId: category._id,
+        limit: 100 // Get all items for the section
+    });
+
+    const items = itemsResponse?.data || [];
 
     return (
-        <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between p-4">
+        <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden transition-all">
+            <div
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-app-bg/10 transition-colors"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
                 <div className="flex items-center gap-4">
                     <div className="p-2 rounded-md bg-app-bg text-app-text">
                         <Icon className="size-5" />
@@ -204,19 +220,66 @@ const CategorySection = ({ category, onToggleStatus }: {
                         <p className="text-xs text-app-muted font-medium">{category.itemCount || 0} Items</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${category.isActive ? 'text-emerald-600' : 'text-app-muted'}`}>
                             {category.isActive ? 'Active' : 'Inactive'}
                         </span>
-                        <Switch 
-                            checked={category.isActive} 
-                            onCheckedChange={() => onToggleStatus(category._id, category.isActive)} 
-                            className="scale-75" 
+                        <Switch
+                            checked={category.isActive}
+                            onCheckedChange={() => onToggleStatus(category._id, category.isActive)}
+                            className="scale-75"
                         />
                     </div>
+                    <ChevronRight className={`w-4 h-4 text-app-muted transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
                 </div>
             </div>
+
+            {isExpanded && (
+                <div className="border-t border-app-border bg-app-bg/20">
+                    <div className="p-0 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {isLoading ? (
+                            <div className="p-4 text-center text-[10px] font-bold text-app-muted uppercase tracking-widest">
+                                Loading items...
+                            </div>
+                        ) : items.length > 0 ? (
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-app-bg/40 border-b border-app-border">
+                                        <th className="px-6 py-2 text-[10px] font-bold text-app-muted uppercase tracking-wider">Item Name</th>
+                                        <th className="px-6 py-2 text-[10px] font-bold text-app-muted uppercase tracking-wider">Selling Price</th>
+                                        <th className="px-6 py-2 text-[10px] font-bold text-app-muted uppercase tracking-wider text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-app-border/50">
+                                    {items?.map((item: any) => (
+                                        <tr key={item._id} className="hover:bg-white/50 transition-colors">
+                                            <td className="px-6 py-3 font-bold text-xs text-app-text">
+                                                {item.product_id.name}
+                                            </td>
+                                            <td className="px-6 py-3 text-xs font-medium text-app-text">
+                                                {item.selling_price} AED
+                                            </td>
+                                            <td className="px-6 py-3 text-right">
+                                                <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${item.is_available ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                    {item.is_available ? 'AVAILABLE' : 'OOS'}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <div className="p-8 text-center bg-white/30">
+                                <p className="text-xs text-app-muted font-medium mb-3">No items assigned to this category yet.</p>
+                                <Button size="sm" variant="outline" className="text-[10px] font-bold h-7 uppercase tracking-wider h-8">
+                                    Assign Products
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

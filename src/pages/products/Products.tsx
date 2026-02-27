@@ -10,7 +10,7 @@ import type { Product } from "./service/products.type";
 import { useDownloadProducts } from "./hooks/useProducts";
 import { toast } from "sonner";
 
-const MenuItemList = () => {
+const Products = () => {
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -130,4 +130,4 @@ const MenuItemList = () => {
     );
 };
 
-export default MenuItemList;
+export default Products;

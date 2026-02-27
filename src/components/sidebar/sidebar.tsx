@@ -28,7 +28,7 @@ const Sidebar = () => {
     };
 
     const mainItems = SIDEBAR_ITEMS.filter(item => ["overview", "live-orders", "reservations"].includes(item.id));
-    const inventoryItems = SIDEBAR_ITEMS.filter(item => ["menus", "categories", "menu-items"].includes(item.id));
+    const inventoryItems = SIDEBAR_ITEMS.filter(item => ["menus", "categories", "menu-items", "products"].includes(item.id));
     const managementItems = SIDEBAR_ITEMS.filter(item => ["branches", "staff-members", "analytics"].includes(item.id));
     const footerItems = SIDEBAR_ITEMS.filter(item => ["settings", "logout"].includes(item.id));
 
