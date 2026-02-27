@@ -1,6 +1,6 @@
 import httpService from "@/services/http";
 import { ApiEndpoints } from "@/services/api-endpoints";
-import type { GetMenuItemsRequest, GetMenuItemsResponse, MenuItem } from "../menuItems.type";
+import type { GetMenuItemsRequest, MenuItem } from "../menuItems.type";
 
 export const getMenuItems = (params: GetMenuItemsRequest) => {
   return httpService.get<MenuItem[]>({
