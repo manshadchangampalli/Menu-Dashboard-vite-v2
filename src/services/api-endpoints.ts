@@ -18,6 +18,9 @@ export const ApiEndpoints = {
   UPDATE_CATEGORY: "category",
   CREATE_PRODUCT: "products",
   GET_PRODUCTS: "products",
+  UPDATE_PRODUCT: "products",
+  DELETE_PRODUCT: "products",
+  DOWNLOAD_PRODUCTS: "products/download",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];

@@ -2,15 +2,39 @@ import { useState } from "react";
 import { ChevronRight, Download, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import ProductsTable from "../../components/menu-items/ProductsTable";
-import MenuDetailPanel from "../../components/menu-items/MenuItemDetailPanel";
+import ProductDetailPanel from "../../components/menu-items/ProductDetailPanel";
 import ProductCreatePanel from "../../components/products/ProductCreatePanel";
 import { useTableQuery } from "../../hooks/useTableFilters";
 import { getProducts } from "./service/products.api";
 import type { Product } from "./service/products.type";
+import { useDownloadProducts } from "./hooks/useProducts";
+import { toast } from "sonner";
 
 const MenuItemList = () => {
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
+    const [productToEdit, setProductToEdit] = useState<Product | null>(null);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+    const { mutate: downloadProducts, isPending: isExporting } = useDownloadProducts();
+
+    const handleExport = () => {
+        downloadProducts(undefined, {
+            onSuccess: (blob) => {
+                const url = window.URL.createObjectURL(new Blob([blob as any]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `products-export-${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode?.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                toast.success("Products exported successfully");
+            },
+            onError: (error: any) => {
+                toast.error(error?.message || "Failed to export products");
+            }
+        });
+    };
 
     const {
         data: response,
@@ -28,6 +52,12 @@ const MenuItemList = () => {
         }
     );
 
+    const handleEdit = (product: Product) => {
+        setSelectedItem(null);   // close detail panel if open
+        setProductToEdit(product);
+        setIsCreateOpen(true);
+    };
+
     return (
         <main className="flex-1 overflow-y-auto p-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -37,18 +67,26 @@ const MenuItemList = () => {
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span>Inventory</span>
                         <ChevronRight className="w-3.5 h-3.5" />
-                        <span className="text-app-text">Menu Items</span>
+                        <span className="text-app-text">Products</span>
                     </div>
-                    <h2 className="text-3xl font-bold tracking-tight text-app-text">Menu Management</h2>
-                    <p className="text-app-muted mt-1 font-medium">Configure and manage your restaurant's digital catalog.</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-app-text">Products</h2>
+                    <p className="text-app-muted mt-1 font-medium">Configure and manage your restaurant's product catalog.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="flex items-center gap-2 h-9 border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm">
+                    <Button
+                        variant="outline"
+                        className="flex items-center gap-2 h-9 border-app-border bg-white font-semibold text-sm hover:bg-app-bg transition-colors shadow-sm"
+                        onClick={handleExport}
+                        disabled={isExporting}
+                    >
                         <Download className="size-[18px]" />
-                        Export
+                        {isExporting ? "Exporting..." : "Export"}
                     </Button>
                     <Button
-                        onClick={() => setIsCreateOpen(true)}
+                        onClick={() => {
+                            setProductToEdit(null);
+                            setIsCreateOpen(true);
+                        }}
                         className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
                     >
                         <Plus className="size-[18px]" />
@@ -66,24 +104,30 @@ const MenuItemList = () => {
                     page={filters.page}
                     onPageChange={(page) => setFilters({ page })}
                     onRowClick={(item) => setSelectedItem(item)}
+                    onEdit={handleEdit}
                     filters={filters}
                     onFilterChange={setFilters}
                 />
             </div>
 
-            <MenuDetailPanel
+            <ProductDetailPanel
                 item={selectedItem}
                 open={!!selectedItem}
                 onClose={() => setSelectedItem(null)}
+                onEdit={handleEdit}
             />
 
             <ProductCreatePanel
                 open={isCreateOpen}
-                onClose={() => setIsCreateOpen(false)}
+                onClose={() => {
+                    setIsCreateOpen(false);
+                    setProductToEdit(null);
+                }}
+                isEdit={!!productToEdit}
+                initialData={productToEdit}
             />
         </main>
     );
 };
 
 export default MenuItemList;
-

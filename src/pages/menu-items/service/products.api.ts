@@ -15,3 +15,24 @@ export const getProducts = (params: GetProductsRequest) => {
     params,
   });
 };
+
+export const updateProduct = (id: string, data: Partial<CreateProductRequest>) => {
+  return httpService.patch<Product>({
+    endpoint: `${ApiEndpoints.UPDATE_PRODUCT}/${id}`,
+    data,
+  });
+};
+
+export const deleteProduct = (id: string) => {
+  return httpService.delete<void>({
+    endpoint: `${ApiEndpoints.DELETE_PRODUCT}/${id}`,
+  });
+};
+
+export const downloadProducts = () => {
+  return httpService.get({
+    endpoint: ApiEndpoints.DOWNLOAD_PRODUCTS,
+    responseType: "blob",
+  });
+};
+
