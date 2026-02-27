@@ -40,7 +40,7 @@ export const SIDEBAR_ITEMS = [
     id: "menus",
   },
   {
-    title: "Menu Items",
+    title: "Products",
     icon: Utensils,
     url: "/menu-items",
     id: "menu-items",
