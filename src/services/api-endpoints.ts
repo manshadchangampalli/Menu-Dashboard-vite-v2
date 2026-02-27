@@ -9,6 +9,7 @@ export const ApiEndpoints = {
   DOWNLOAD_BRANCHES: "branches/download",
   CREATE_CATEGORY: "category/create",
   GET_CATEGORIES: "category/get-all",
+  GET_CATEGORY: "category",
   DELETE_CATEGORY: "category",
   CREATE_MENU: "menu/create",
   GET_MENUS: "menu/get-all",

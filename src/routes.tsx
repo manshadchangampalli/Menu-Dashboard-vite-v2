@@ -8,6 +8,7 @@ import MenuItemList from "./pages/menu-items/MenuItemList";
 import Menu from "./pages/menu/Menu";
 import MenuDetail from "./pages/menu-detail/MenuDetail";
 import Categories from "./pages/categories/Categories";
+import CategoryDetail from "./pages/categories/CategoryDetail";
 import Branches from "./pages/branches/Branches";
 import StaffMembers from "./pages/staff/Staff";
 import Analytics from "./pages/analytics/Analytics";
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
             {
                 path: "categories",
                 Component: Categories,
+            },
+            {
+                path: "categories/:id",
+                Component: CategoryDetail,
             },
             {
                 path: "branches",

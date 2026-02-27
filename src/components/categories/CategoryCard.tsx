@@ -34,7 +34,7 @@ const CategoryCard = ({ category, onEdit, onDelete }: CategoryCardProps) => {
 
     return (
         <div 
-            onClick={() => navigate(`/menu-items?categoryId=${category._id}`)}
+            onClick={() => navigate(`/categories/${category._id}`)}
             className="bg-white border border-app-border rounded-xl p-6 shadow-sm hover:border-app-text transition-all group flex flex-col justify-between min-h-[180px] cursor-pointer"
         >
             <div>

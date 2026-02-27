@@ -45,6 +45,7 @@ interface DataTableProps<T> {
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
     onSortChange?: (sortBy: string, sortOrder: 'asc' | 'desc' | undefined) => void
+    hideSearch?: boolean
 }
 
 // Helper to access nested properties safely
@@ -72,6 +73,7 @@ export function DataTable<T extends { id: string | number }>({
     sortBy: propsSortBy,
     sortOrder: propsSortOrder,
     onSortChange: propsOnSortChange,
+    hideSearch = false,
 }: DataTableProps<T>) {
     const [internalData, setInternalData] = React.useState<T[]>([])
     const [internalLoading, setInternalLoading] = React.useState(true)
@@ -233,15 +235,19 @@ export function DataTable<T extends { id: string | number }>({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-4">
-                <div className="relative max-w-sm flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search..."
-                        value={localSearch}
-                        onChange={handleSearchChange}
-                        className="pl-9"
-                    />
-                </div>
+                {!hideSearch ? (
+                    <div className="relative max-w-sm flex-1">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search..."
+                            value={localSearch}
+                            onChange={handleSearchChange}
+                            className="pl-9"
+                        />
+                    </div>
+                ) : (
+                    <div className="flex-1" />
+                )}
                 {actions}
             </div>
 

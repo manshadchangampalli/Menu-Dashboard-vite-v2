@@ -15,6 +15,12 @@ export const getCategories = () => {
   });
 };
 
+export const getCategory = (id: string) => {
+  return httpService.get<Category>({
+    endpoint: `${ApiEndpoints.GET_CATEGORY}/${id}`,
+  });
+};
+
 export const deleteCategory = (id: string) => {
   return httpService.delete<void>({
     endpoint: `${ApiEndpoints.DELETE_CATEGORY}/${id}`,
