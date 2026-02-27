@@ -40,16 +40,16 @@ export const SIDEBAR_ITEMS = [
     id: "menus",
   },
   {
-    title: "Products",
+    title: "Menu Items",
     icon: Utensils,
     url: "/menu-items",
     id: "menu-items",
   },
   {
-    title: "Categories",
+    title: "Products",
     icon: ListOrdered,
-    url: "/categories",
-    id: "categories",
+    url: "/products",
+    id: "products",
   },
   {
     title: "Branches",
