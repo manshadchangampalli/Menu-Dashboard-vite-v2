@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DataTable, type Column } from "../ui/data-table";
 import { Switch } from "../ui/switch";
 import type { MenuItem } from "../../pages/menu-items/menuItems.type";

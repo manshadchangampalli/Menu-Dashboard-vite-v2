@@ -8,11 +8,13 @@ import MenuItemsTable from "../../components/menu-items/MenuItemsTable";
 import { useTableQuery } from "../../hooks/useTableFilters";
 import { getMenuItems } from "../menu-items/service/menuItems.api";
 import CategoryCreatePanel from "../../components/categories/CategoryCreatePanel";
+import MenuItemCreatePanel from "../../components/menu-items/MenuItemCreatePanel";
 
 const CategoryDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isAddItemOpen, setIsAddItemOpen] = useState(false);
 
     const { data: category, isLoading: isCategoryLoading, isError } = useCategory(id);
 
@@ -91,13 +93,18 @@ const CategoryDetail = () => {
                 </div>
             </div>
 
-            {/* Content Section */}
             <div className="mx-auto px-8 py-8 space-y-8">
                 <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden p-4">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-bold text-app-text">Menu Items in this Category</h3>
+                        <Button
+                            onClick={() => setIsAddItemOpen(true)}
+                            className="bg-app-text text-white hover:bg-app-text/90 font-bold"
+                        >
+                            Add Item
+                        </Button>
                     </div>
-                    
+
                     <MenuItemsTable
                         data={itemsResponse?.data ?? []}
                         loading={isItemsLoading}
@@ -117,6 +124,14 @@ const CategoryDetail = () => {
                 onClose={() => setIsEditOpen(false)}
                 categoryToEdit={category}
                 isEdit={true}
+            />
+
+            <MenuItemCreatePanel
+                open={isAddItemOpen}
+                onClose={() => setIsAddItemOpen(false)}
+                categoryId={id!}
+                menuId={category.menuId || ""}
+                branchId={category.branch_id || ""}
             />
         </main>
     );
