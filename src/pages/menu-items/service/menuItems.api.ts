@@ -1,6 +1,6 @@
 import httpService from "@/services/http";
 import { ApiEndpoints } from "@/services/api-endpoints";
-import type { GetMenuItemsRequest, MenuItem } from "../menuItems.type";
+import type { GetMenuItemsRequest, MenuItem, CreateMenuItemRequest } from "../menuItems.type";
 
 export const getMenuItems = (params: GetMenuItemsRequest) => {
   return httpService.get<MenuItem[]>({
@@ -9,4 +9,9 @@ export const getMenuItems = (params: GetMenuItemsRequest) => {
   });
 };
 
-// We'll add create/update/delete here as needed
+export const createMenuItem = (data: CreateMenuItemRequest) => {
+  return httpService.post<MenuItem>({
+    endpoint: ApiEndpoints.CREATE_MENU_ITEM,
+    data,
+  });
+};
