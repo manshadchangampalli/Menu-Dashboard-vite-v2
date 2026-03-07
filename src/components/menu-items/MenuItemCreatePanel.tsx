@@ -28,9 +28,9 @@ const DEFAULT_VALUES: Partial<CreateMenuItemRequest> = {
 const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: MenuItemCreatePanelProps) => {
     const { mutate: createMenuItem, isPending: isCreating } = useCreateMenuItem();
     // const [productQuery, setProductQuery] = useState("");
-    
+
     // Fetch products for the dropdown
-    const { data: productsResponse, isLoading: isProductsLoading } = useProducts({ 
+    const { data: productsResponse, isLoading: isProductsLoading } = useProducts({
         // query: productQuery,
         limit: 100,
         organization_id: "69948af4435dccf179e3e939"
@@ -81,6 +81,10 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
     }, [selectedProductId, products, setValue]);
 
     const onSubmit = (data: CreateMenuItemRequest) => {
+        if (!branchId) {
+            toast.error("Branch ID is missing. Please ensure the category is associated with a branch.");
+            return;
+        }
         createMenuItem(data, {
             onSuccess: () => {
                 toast.success("Menu item added successfully!");

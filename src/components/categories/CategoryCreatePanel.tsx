@@ -8,6 +8,7 @@ import { FormSection } from "../ui/FormSection";
 import { X, Save, Layers, Layout, Activity, Loader2 } from "lucide-react";
 import { useCreateCategory, useUpdateCategory } from "../../pages/categories/hooks/useCategories";
 import { useMenus } from "../../pages/menu/hooks/useMenu";
+import { useBranches } from "../../pages/branches/hooks/useBranches";
 import { type CreateCategoryRequest, CategoryIcon, type Category } from "../../pages/categories/service/categories.type";
 import { toast } from "sonner";
 import { useEffect, useMemo } from "react";
@@ -34,6 +35,7 @@ const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
     icon: CategoryIcon.UTENSILS_CROSSED,
     isActive: true,
     menuId: "",
+    branch_id: "",
     itemCount: 0
 };
 
@@ -50,6 +52,15 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
             value: menu._id
         }));
     }, [menusResponse]);
+
+    const { data: branchesResponse, isLoading: isLoadingBranches } = useBranches({ limit: 100, page: 1 });
+    const branchOptions = useMemo(() => {
+        if (!branchesResponse?.data) return [];
+        return branchesResponse.data.map((branch: any) => ({
+            label: branch.name,
+            value: branch._id
+        }));
+    }, [branchesResponse]);
 
     const {
         control,
@@ -68,6 +79,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                 icon: (typeof categoryToEdit.icon === 'string' ? categoryToEdit.icon : CategoryIcon.UTENSILS_CROSSED) as any,
                 isActive: categoryToEdit.isActive,
                 menuId: categoryToEdit.menuId || "",
+                branch_id: categoryToEdit.branch_id || "",
                 itemCount: categoryToEdit.itemCount || 0
             });
         } else {
@@ -210,30 +222,56 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                     </div>
                 </FormSection>
 
-                <FormSection title="Menu Mapping" icon={Layout}>
-                    <Controller
-                        name="menuId"
-                        control={control}
-                        rules={{ required: "Menu assignment is required" }}
-                        render={({ field }) => (
-                            <div className="relative">
-                                <CustomSelect
-                                    label="Assign to Menu"
-                                    options={menuOptions}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder={isLoadingMenus ? "Loading menus..." : "Select a menu"}
-                                    error={errors.menuId?.message}
-                                    disabled={isLoadingMenus}
-                                />
-                                {isLoadingMenus && (
-                                    <div className="absolute right-9 top-9">
-                                        <Loader2 className="w-4 h-4 animate-spin text-app-muted" />
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    />
+                <FormSection title="Menu & Branch Mapping" icon={Layout}>
+                    <div className="grid grid-cols-1 gap-4">
+                        <Controller
+                            name="menuId"
+                            control={control}
+                            rules={{ required: "Menu assignment is required" }}
+                            render={({ field }) => (
+                                <div className="relative">
+                                    <CustomSelect
+                                        label="Assign to Menu"
+                                        options={menuOptions}
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder={isLoadingMenus ? "Loading menus..." : "Select a menu"}
+                                        error={errors.menuId?.message}
+                                        disabled={isLoadingMenus}
+                                    />
+                                    {isLoadingMenus && (
+                                        <div className="absolute right-9 top-9">
+                                            <Loader2 className="w-4 h-4 animate-spin text-app-muted" />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        />
+
+                        <Controller
+                            name="branch_id"
+                            control={control}
+                            rules={{ required: "Branch assignment is required" }}
+                            render={({ field }) => (
+                                <div className="relative">
+                                    <CustomSelect
+                                        label="Select Branch"
+                                        options={branchOptions}
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder={isLoadingBranches ? "Loading branches..." : "Select a branch"}
+                                        error={errors.branch_id?.message}
+                                        disabled={isLoadingBranches}
+                                    />
+                                    {isLoadingBranches && (
+                                        <div className="absolute right-9 top-9">
+                                            <Loader2 className="w-4 h-4 animate-spin text-app-muted" />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        />
+                    </div>
                 </FormSection>
 
                 <FormSection title="Initial Statistics" icon={Activity}>

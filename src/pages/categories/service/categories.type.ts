@@ -37,7 +37,7 @@ export interface CreateCategoryRequest {
     icon: string;
     isActive: boolean;
     menuId: string;
-    branch_id?: string;
+    branch_id: string;
     itemCount?: number;
 }
 
@@ -50,7 +50,7 @@ export interface Category {
     icon: string | LucideIcon;
     isActive: boolean;
     menuId?: string;
-    branch_id?: string;
+    branch_id: string;
     created_at?: string;
     updated_at?: string;
 }
