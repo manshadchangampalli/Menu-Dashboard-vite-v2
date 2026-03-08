@@ -5,17 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Utensils, Mail, Lock } from "lucide-react";
 import { useLogin } from "./hooks/useAuth";
 import { useNavigate } from "react-router";
+import { useAuthStore } from "@/store/auth/auth.store";
 
 const Login = () => {
     const navigate = useNavigate();
     const { mutate, isPending } = useLogin();
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
     useEffect(() => {
-        const isLoggedIn = localStorage.getItem("isLoggedIn");
-        if (isLoggedIn === "true") {
+        if (isLoggedIn) {
             navigate("/");
         }
-    }, [navigate]);
+    }, [isLoggedIn, navigate]);
 
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
