@@ -141,22 +141,6 @@ const BranchesTable = ({
             )
         },
         {
-            header: "Manager",
-            accessorKey: "managerName",
-            cell: (branch) => (
-                <div className="flex items-center gap-2">
-                    <div className="size-7 rounded-full bg-app-bg overflow-hidden border border-app-border">
-                        <img
-                            src={branch.managerAvatar}
-                            alt={branch.managerName}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                    <span className="text-sm font-medium text-app-text">{branch.managerName}</span>
-                </div>
-            )
-        },
-        {
             header: "Status",
             accessorKey: "status",
             cell: (branch) => {
@@ -223,8 +207,6 @@ const BranchesTable = ({
             type: item.branch_type,
             address: item.address_detail.street,
             district: `${item.address_detail.city}, ${item.address_detail.country}`,
-            managerName: "Manager Name", // Map correctly if API provides it
-            managerAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random`,
             status: item.status,
         }));
     }, [data]);

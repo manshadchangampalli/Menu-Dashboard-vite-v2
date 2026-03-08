@@ -24,6 +24,11 @@ export const ApiEndpoints = {
   DOWNLOAD_PRODUCTS: "products/download",
   GET_MENU_ITEMS: "menu-items",
   CREATE_MENU_ITEM: "menu-items",
+  GET_STAFF: "staff",
+  CREATE_STAFF: "staff",
+  UPDATE_STAFF: "staff",
+  DELETE_STAFF: "staff",
+  DOWNLOAD_STAFF: "staff/download",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];

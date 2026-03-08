@@ -1,6 +1,13 @@
-import type { StaffMember } from "./staff.type";
+import type { StaffData, StaffRole } from "./staff.type";
 
-export const MOCK_STAFF: StaffMember[] = [
+export const STAFF_ROLE_OPTIONS = [
+    { label: "Waiter", value: "WAITER" as StaffRole },
+    { label: "Chef", value: "CHEF" as StaffRole },
+    { label: "Cashier", value: "CASHIER" as StaffRole },
+    { label: "Manager", value: "MANAGER" as StaffRole },
+];
+
+export const MOCK_STAFF: any[] = [
     {
         id: "1",
         name: "Michael Chen",

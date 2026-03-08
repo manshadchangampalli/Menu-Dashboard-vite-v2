@@ -54,7 +54,7 @@ function getNestedValue(obj: any, path: string | keyof any): any {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
 }
 
-export function DataTable<T extends { id: string | number }>({
+export function DataTable<T extends { id?: string | number; _id?: string | number }>({
     columns,
     data: initialData,
     fetchData,
@@ -285,7 +285,7 @@ export function DataTable<T extends { id: string | number }>({
                         ) : (
                             data.map((item) => (
                                 <TableRow 
-                                    key={item.id}
+                                    key={String((item as any)._id ?? (item as any).id)}
                                     onClick={() => onRowClick?.(item)}
                                     className={cn(onRowClick && "cursor-pointer hover:bg-muted/50")}
                                 >
