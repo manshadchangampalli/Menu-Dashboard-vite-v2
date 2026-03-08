@@ -20,7 +20,7 @@ export interface CreateMenuRequest {
   end_time: string;
   status: MenuStatus;
   isActive: boolean;
-  organization_id: string;
+  organization_id?: string;
   categoryCount?: number;
   itemCount?: number;
 }

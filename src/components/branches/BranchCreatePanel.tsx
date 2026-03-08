@@ -41,7 +41,6 @@ const DEFAULT_VALUES: Partial<CreateBranchRequest> = {
     occupancy_stats: {
         capacity: undefined as any,
     },
-    organization_id: "69948af4435dccf179e3e939",
     manager_id: "69948af4435dccf179e3e939",
     name: "",
     email: "",

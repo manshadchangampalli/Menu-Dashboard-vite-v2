@@ -25,7 +25,7 @@ export interface CreateMenuItemRequest {
   product_id: string;
   menu_id: string;
   category_id: string;
-  organization_id: string;
+  organization_id?: string;
   base_price: number;
   selling_price: number;
   is_available: boolean;

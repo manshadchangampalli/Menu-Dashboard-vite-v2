@@ -33,7 +33,7 @@ export type CategoryIconName = keyof typeof CategoryIcon | string;
 
 export interface CreateCategoryRequest {
     name: string;
-    organization_id: string;
+    organization_id?: string;
     icon: string;
     isActive: boolean;
     menuId: string;

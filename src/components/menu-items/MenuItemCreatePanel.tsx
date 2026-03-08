@@ -33,7 +33,6 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
     const { data: productsResponse, isLoading: isProductsLoading } = useProducts({
         // query: productQuery,
         limit: 100,
-        organization_id: "69948af4435dccf179e3e939"
     });
 
     const products = productsResponse?.data || [];
@@ -51,7 +50,6 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
             category_id: categoryId,
             menu_id: menuId,
             branch_id: branchId,
-            organization_id: "69948af4435dccf179e3e939",
         } as CreateMenuItemRequest,
     });
 
@@ -64,7 +62,6 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                 category_id: categoryId,
                 menu_id: menuId,
                 branch_id: branchId,
-                organization_id: "69948af4435dccf179e3e939",
             } as CreateMenuItemRequest);
         }
     }, [open, reset, categoryId, menuId, branchId]);

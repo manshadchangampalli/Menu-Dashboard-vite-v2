@@ -29,7 +29,6 @@ const CategoryDetail = () => {
         {
             limit: 10,
             categoryId: id,
-            organization_id: "69948af4435dccf179e3e939"
         }
     );
 
