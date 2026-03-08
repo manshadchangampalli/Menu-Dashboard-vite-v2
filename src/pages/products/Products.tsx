@@ -48,7 +48,6 @@ const Products = () => {
             limit: 10,
             sortBy: "created_at",
             sortOrder: "desc",
-            organization_id: "69948af4435dccf179e3e939"
         }
     );
 

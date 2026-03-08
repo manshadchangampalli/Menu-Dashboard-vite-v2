@@ -31,7 +31,6 @@ const ICON_OPTIONS = [
 
 const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
     name: "",
-    organization_id: "69948af4435dccf179e3e939",
     icon: CategoryIcon.UTENSILS_CROSSED,
     isActive: true,
     menuId: "",
@@ -75,7 +74,6 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
         if (isEdit && categoryToEdit) {
             reset({
                 name: categoryToEdit.name,
-                organization_id: categoryToEdit.organization_id || "69948af4435dccf179e3e939",
                 icon: (typeof categoryToEdit.icon === 'string' ? categoryToEdit.icon : CategoryIcon.UTENSILS_CROSSED) as any,
                 isActive: categoryToEdit.isActive,
                 menuId: categoryToEdit.menuId || "",

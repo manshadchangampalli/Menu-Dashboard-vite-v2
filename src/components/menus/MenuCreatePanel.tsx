@@ -35,7 +35,6 @@ const DEFAULT_VALUES: CreateMenuRequest = {
     end_time: "23:00",
     status: MenuStatus.ACTIVE,
     isActive: true,
-    organization_id: "65d8f7a9e1b2c3d4e5f6a7b8", // Placeholder or from context if available
     categoryCount: 0,
     itemCount: 0
 };

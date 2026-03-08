@@ -20,7 +20,6 @@ const MenuItemList = () => {
             limit: 10,
             menuId,
             categoryId,
-            organization_id: "69948af4435dccf179e3e939"
         }
     );
 

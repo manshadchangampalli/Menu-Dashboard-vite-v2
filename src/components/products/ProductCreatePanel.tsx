@@ -46,7 +46,6 @@ const DEFAULT_VALUES: Partial<CreateProductRequest> = {
     tags: [],
     allergens: [],
     is_active: true,
-    organization_id: "69948af4435dccf179e3e939",
 };
 
 const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: ProductCreatePanelProps) => {
@@ -86,7 +85,6 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
                 tags: initialData.tags ?? [],
                 allergens: initialData.allergens ?? [],
                 is_active: initialData.is_active,
-                organization_id: initialData.organization_id,
             });
         } else if (!open) {
             reset(DEFAULT_VALUES as CreateProductRequest);

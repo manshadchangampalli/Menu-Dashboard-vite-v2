@@ -57,7 +57,7 @@ export interface CreateProductRequest {
   tags: string[];
   allergens: string[];
   is_active: boolean;
-  organization_id: string;
+  organization_id?: string;
 }
 
 export interface Product {

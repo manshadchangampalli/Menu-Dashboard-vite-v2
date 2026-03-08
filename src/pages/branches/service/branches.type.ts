@@ -74,7 +74,7 @@ export interface CreateBranchRequest {
   branch_type: BranchType | string;
   address_detail: AddressDetail;
   phone: string;
-  organization_id: string;
+  organization_id?: string;
   email: string;
   manager_id: string;
   operating_hours: OperatingHour[];
