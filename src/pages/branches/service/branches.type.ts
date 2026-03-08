@@ -96,8 +96,6 @@ export interface Branch {
   type: BranchType | string;
   address: string;
   district: string;
-  managerName: string;
-  managerAvatar: string;
   status: "Open" | "Closed" | "active" | "inactive" | BranchStatus;
 }
 
