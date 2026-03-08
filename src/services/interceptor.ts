@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/auth/auth.store";
 import type { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 export const setupInterceptors = (instance: AxiosInstance) => {
@@ -19,7 +20,7 @@ export const setupInterceptors = (instance: AxiosInstance) => {
     (error) => {
       if (error.response?.status === 401) {
         // Only redirect if not already on the login page to avoid refresh loops
-        localStorage.removeItem("isLoggedIn");
+        useAuthStore.getState().clearUser();
         if (window.location.pathname !== "/login") {
           console.warn("Unauthorized, redirecting to login...");
           window.location.href = "/login";
