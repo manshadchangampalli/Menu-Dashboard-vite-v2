@@ -21,6 +21,7 @@ export interface CreateMenuRequest {
   status: MenuStatus;
   isActive: boolean;
   organization_id?: string;
+  branch_id?: string;
   categoryCount?: number;
   itemCount?: number;
 }
@@ -35,6 +36,7 @@ export interface Menu {
   status: MenuStatus;
   isActive: boolean;
   organization_id: string;
+  branch_id?: string;
   categoryCount: number;
   itemCount: number;
   created_at: string;

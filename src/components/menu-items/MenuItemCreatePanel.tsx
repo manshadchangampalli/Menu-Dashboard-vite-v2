@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+// @ts-ignore
+import { useForm, useController } from "react-hook-form";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -9,6 +10,8 @@ import { useCreateMenuItem } from "../../pages/menu-items/hooks/useMenuItems";
 import { useProducts } from "../../pages/menu-items/hooks/useProducts";
 import type { CreateMenuItemRequest } from "../../pages/menu-items/menuItems.type";
 import { toast } from "sonner";
+import { useAuthStore } from "../../store/auth/auth.store";
+import { useBranches } from "../../pages/branches/hooks/useBranches";
 
 interface MenuItemCreatePanelProps {
     open: boolean;
@@ -23,15 +26,23 @@ const DEFAULT_VALUES: Partial<CreateMenuItemRequest> = {
     base_price: 0,
     selling_price: 0,
     is_available: true,
+    branch_id: ""
 };
 
 const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: MenuItemCreatePanelProps) => {
     const { mutate: createMenuItem, isPending: isCreating } = useCreateMenuItem();
-    // const [productQuery, setProductQuery] = useState("");
+
+    const user = useAuthStore((state) => state.user);
+    const isAdmin = user?.role === 'admin';
+
+    const { data: branchesResponse, isLoading: isLoadingBranches } = useBranches({ limit: 100 });
+    const branchOptions = useMemo(() => {
+        if (!branchesResponse?.data) return [];
+        return branchesResponse.data.map((b: { name: string; _id: string }) => ({ label: b.name, value: b._id }));
+    }, [branchesResponse]);
 
     // Fetch products for the dropdown
     const { data: productsResponse, isLoading: isProductsLoading } = useProducts({
-        // query: productQuery,
         limit: 100,
     });
 
@@ -39,6 +50,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
 
     const {
         register,
+        control,
         handleSubmit,
         reset,
         setValue,
@@ -53,6 +65,9 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
         } as CreateMenuItemRequest,
     });
 
+    const productIdController = useController({ name: "product_id", control, rules: { required: "Product is required" } });
+    const branchIdController = useController({ name: "branch_id", control, rules: { required: isAdmin ? "Branch is required" : false } });
+
     const selectedProductId = watch("product_id");
 
     useEffect(() => {
@@ -61,7 +76,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                 ...DEFAULT_VALUES,
                 category_id: categoryId,
                 menu_id: menuId,
-                branch_id: branchId,
+                branch_id: branchId || "",
             } as CreateMenuItemRequest);
         }
     }, [open, reset, categoryId, menuId, branchId]);
@@ -72,29 +87,36 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
             const product = products.find(p => p._id === selectedProductId);
             if (product) {
                 setValue("base_price", product.base_price);
-                setValue("selling_price", product.base_price); // Default selling price to base price
+                setValue("selling_price", product.base_price);
             }
         }
     }, [selectedProductId, products, setValue]);
 
     const onSubmit = (data: CreateMenuItemRequest) => {
-        if (!branchId) {
+        // If not admin, use the branchId from prop. If admin, it should be in data.branch_id from the dropdown
+        const finalData = {
+            ...data,
+            branch_id: isAdmin ? data.branch_id : branchId
+        };
+
+        if (!finalData.branch_id && !isAdmin) {
             toast.error("Branch ID is missing. Please ensure the category is associated with a branch.");
             return;
         }
-        createMenuItem(data, {
+
+        createMenuItem(finalData, {
             onSuccess: () => {
                 toast.success("Menu item added successfully!");
                 onClose();
                 reset();
             },
-            onError: (error: any) => {
-                toast.error(error?.message || "Failed to add menu item");
+            onError: (error) => {
+                toast.error((error as any)?.message || "Failed to add menu item");
             },
         });
     };
 
-    const productOptions = products.map(p => ({
+    const productOptions = products.map((p: { name: string; _id: string }) => ({
         label: p.name,
         value: p._id
     }));
@@ -112,6 +134,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                     <button
                         onClick={onClose}
                         className="size-8 rounded-full flex items-center justify-center text-app-muted hover:bg-app-accent hover:text-app-text transition-colors"
+                        type="button"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -123,6 +146,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                         variant="outline"
                         onClick={onClose}
                         className="flex-1 h-full font-bold border-app-border text-app-text hover:bg-app-bg text-base"
+                        type="button"
                     >
                         Cancel
                     </Button>
@@ -130,6 +154,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                         className="flex-1 h-full bg-app-text text-white hover:bg-app-text/90 font-bold shadow-sm text-base"
                         onClick={handleSubmit(onSubmit)}
                         disabled={isCreating}
+                        type="submit"
                     >
                         {isCreating ? "Adding..." : (
                             <>
@@ -147,11 +172,23 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                     label="Select Product"
                     placeholder={isProductsLoading ? "Loading products..." : "Search products..."}
                     options={productOptions}
-                    value={selectedProductId}
-                    onValueChange={(val) => setValue("product_id", val, { shouldValidate: true })}
+                    value={productIdController.field.value}
+                    onValueChange={productIdController.field.onChange}
                     error={errors.product_id?.message}
                     disabled={isProductsLoading}
                 />
+
+                {isAdmin && (
+                    <CustomSelect
+                        label="Select Branch"
+                        options={branchOptions}
+                        value={branchIdController.field.value}
+                        onValueChange={branchIdController.field.onChange}
+                        placeholder={isLoadingBranches ? "Loading branches..." : "Select a branch"}
+                        error={errors.branch_id?.message}
+                        disabled={isLoadingBranches}
+                    />
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
