@@ -29,7 +29,7 @@ export interface CreateMenuItemRequest {
   base_price: number;
   selling_price: number;
   is_available: boolean;
-  branch_id: string;
+  branch_id?: string;
 }
 
 export interface GetMenuItemsRequest {

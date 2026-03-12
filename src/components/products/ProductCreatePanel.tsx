@@ -12,6 +12,8 @@ import {
     SpiceLevel,
 } from "../../pages/menu-items/service/products.type";
 import { toast } from "sonner";
+import { useAuthStore } from "../../store/auth/auth.store";
+import { useBranches } from "../../pages/branches/hooks/useBranches";
 import {
     BasicInfoSection,
     PricingSection,
@@ -46,12 +48,20 @@ const DEFAULT_VALUES: Partial<CreateProductRequest> = {
     tags: [],
     allergens: [],
     is_active: true,
+    branch_id: "",
 };
 
 const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: ProductCreatePanelProps) => {
     const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
     const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
     const isPending = isCreating || isUpdating;
+
+    const user = useAuthStore((state) => state.user);
+    const isAdmin = user?.role === 'admin';
+
+    const { data: branchesResponse, isLoading: isLoadingBranches } = useBranches({ limit: 100 });
+    const branches = branchesResponse?.data || [];
+    const branchOptions = branches.map(b => ({ label: b.name, value: b._id || b.id }));
 
     const {
         control,
@@ -214,7 +224,14 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
                     defaultValue={["basic"]}
                     className="flex flex-col gap-3"
                 >
-                    <BasicInfoSection control={control} errors={errors} setValue={setValue} />
+                    <BasicInfoSection 
+                        control={control} 
+                        errors={errors} 
+                        setValue={setValue} 
+                        isAdmin={isAdmin}
+                        branchOptions={branchOptions}
+                        isLoadingBranches={isLoadingBranches}
+                    />
                     <PricingSection control={control} errors={errors} />
                     <DietarySection control={control} errors={errors} />
                     <NutritionalSection control={control} errors={errors} />

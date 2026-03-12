@@ -181,9 +181,12 @@ interface SectionProps {
     control: Control<CreateProductRequest>;
     errors: any;
     setValue?: any;
+    isAdmin?: boolean;
+    branchOptions?: { label: string; value: string }[];
+    isLoadingBranches?: boolean;
 }
 
-export const BasicInfoSection = ({ control, errors, setValue }: SectionProps) => {
+export const BasicInfoSection = ({ control, errors, setValue, isAdmin, branchOptions, isLoadingBranches }: SectionProps) => {
     const slugify = (text: string) => {
         return text
             .toLowerCase()
@@ -255,6 +258,19 @@ export const BasicInfoSection = ({ control, errors, setValue }: SectionProps) =>
                         placeholder="Select status"
                     />
                 </div>
+                {isAdmin && (
+                    <div className="pt-2">
+                        <FormSelect
+                            name="branch_id"
+                            control={control}
+                            label="Branch Assignment"
+                            options={branchOptions || []}
+                            rules={{ required: "Branch assignment is required" }}
+                            placeholder={isLoadingBranches ? "Loading branches..." : "Select a branch"}
+                            error={errors.branch_id?.message}
+                        />
+                    </div>
+                )}
             </div>
         </AccordionStep>
     );

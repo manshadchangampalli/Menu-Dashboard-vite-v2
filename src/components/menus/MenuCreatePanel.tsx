@@ -1,20 +1,17 @@
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+// @ts-ignore - Module resolution issue with react-hook-form
+import { useForm, useController } from "react-hook-form";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
 import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { FormSection } from "../ui/FormSection";
-import { X, Save, Layout, Clock, Activity, FileText } from "lucide-react";
+import { X, Save, Layout, Clock, Activity, FileText, MapPin } from "lucide-react";
 import { useCreateMenu, useUpdateMenu } from "../../pages/menu/hooks/useMenu";
 import { type Menu, MenuType, MenuStatus, type CreateMenuRequest } from "../../pages/menu/service/menu.type";
 import { toast } from "sonner";
-
-interface MenuCreatePanelProps {
-    open: boolean;
-    onClose: () => void;
-    initialData?: Menu;
-}
+import { useAuthStore } from "../../store/auth/auth.store";
+import { useBranches } from "../../pages/branches/hooks/useBranches";
 
 const TYPE_OPTIONS = [
     { label: "Dine-In", value: MenuType.DINE_IN },
@@ -27,6 +24,12 @@ const STATUS_OPTIONS = [
     { label: "Inactive", value: MenuStatus.INACTIVE },
 ];
 
+interface MenuCreatePanelProps {
+    open: boolean;
+    onClose: () => void;
+    initialData?: Menu;
+}
+
 const DEFAULT_VALUES: CreateMenuRequest = {
     name: "",
     type: MenuType.DELIVERY,
@@ -36,7 +39,8 @@ const DEFAULT_VALUES: CreateMenuRequest = {
     status: MenuStatus.ACTIVE,
     isActive: true,
     categoryCount: 0,
-    itemCount: 0
+    itemCount: 0,
+    branch_id: ""
 };
 
 const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) => {
@@ -44,6 +48,13 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
     const { mutate: createMenu, isPending: isCreating } = useCreateMenu();
     const { mutate: updateMenu, isPending: isUpdating } = useUpdateMenu();
     const isPending = isCreating || isUpdating;
+
+    const user = useAuthStore((state) => state.user);
+    const isAdmin = user?.role === 'admin';
+
+    const { data: branchesData } = useBranches({ limit: 100 });
+    const branches = branchesData?.data || [];
+    const branchOptions = branches.map(b => ({ label: b.name, value: b._id }));
 
     const {
         control,
@@ -54,19 +65,30 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
         defaultValues: DEFAULT_VALUES,
     });
 
+    const nameController = useController({ name: "name", control, rules: { required: "Menu name is required" } });
+    const typeController = useController({ name: "type", control, rules: { required: "Type is required" } });
+    const statusController = useController({ name: "status", control });
+    const descriptionController = useController({ name: "description", control });
+    const startTimeController = useController({ name: "start_time", control, rules: { required: "Start time is required" } });
+    const endTimeController = useController({ name: "end_time", control, rules: { required: "End time is required" } });
+    const categoryCountController = useController({ name: "categoryCount", control });
+    const itemCountController = useController({ name: "itemCount", control });
+    const branchIdController = useController({ name: "branch_id", control, rules: { required: isAdmin ? "Branch is required" : false } });
+
     useEffect(() => {
         if (open) {
             if (initialData) {
                 // Determine the correct menu type value, handling potential casing or character mismatches
                 const normalizedType = (initialData.type as string)?.toUpperCase().replace('_', '-') as MenuType;
-                
+
                 reset({
                     ...initialData,
                     type: normalizedType,
                     description: initialData.description || "",
                     isActive: initialData.status === MenuStatus.ACTIVE,
                     categoryCount: initialData.categoryCount || 0,
-                    itemCount: initialData.itemCount || 0
+                    itemCount: initialData.itemCount || 0,
+                    branch_id: initialData.branch_id || ""
                 });
             } else {
                 reset(DEFAULT_VALUES);
@@ -144,7 +166,7 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
                         {isPending ? "Creating..." : (
                             <>
                                 <Save className="w-4 h-4 mr-2" />
-                                Create Menu
+                                {isEdit ? "Save Changes" : "Create Menu"}
                             </>
                         )}
                     </Button>
@@ -154,135 +176,95 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
         >
             <form className="p-6 space-y-8" onSubmit={handleSubmit(onSubmit)}>
                 <FormSection title="Menu Details" icon={Layout}>
-                    <Controller
-                        name="name"
-                        control={control}
-                        rules={{ required: "Menu name is required" }}
-                        render={({ field }) => (
-                            <CustomInput
-                                {...field}
-                                label="Menu Name"
-                                placeholder="e.g. Main Menu"
-                                error={errors.name?.message}
-                            />
-                        )}
+                    <CustomInput
+                        {...nameController.field}
+                        label="Menu Name"
+                        placeholder="e.g. Main Menu"
+                        error={errors.name?.message}
                     />
 
                     <div className="grid grid-cols-2 gap-4">
-                        <Controller
-                            name="type"
-                            control={control}
-                            rules={{ required: "Type is required" }}
-                            render={({ field }) => (
-                                <CustomSelect
-                                    label="Menu Type"
-                                    options={TYPE_OPTIONS}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Select type"
-                                    error={errors.type?.message}
-                                />
-                            )}
+                        <CustomSelect
+                            label="Menu Type"
+                            options={TYPE_OPTIONS}
+                            value={typeController.field.value}
+                            onValueChange={typeController.field.onChange}
+                            placeholder="Select type"
+                            error={errors.type?.message}
                         />
 
-                        <Controller
-                            name="status"
-                            control={control}
-                            render={({ field }) => (
-                                <CustomSelect
-                                    label="Status"
-                                    options={STATUS_OPTIONS}
-                                    value={field.value}
-                                    onValueChange={(val) => {
-                                        field.onChange(val);
-                                        // Update isActive accordingly if needed, though usually handled by backend
-                                    }}
-                                    placeholder="Select status"
-                                />
-                            )}
+                        <CustomSelect
+                            label="Status"
+                            options={STATUS_OPTIONS}
+                            value={statusController.field.value}
+                            onValueChange={(val) => {
+                                statusController.field.onChange(val);
+                            }}
+                            placeholder="Select status"
                         />
                     </div>
                 </FormSection>
 
                 <FormSection title="Description" icon={FileText}>
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field }) => (
-                            <CustomInput
-                                {...field}
-                                label="Description"
-                                placeholder="Describe your menu offering..."
-                                error={errors.description?.message}
-                            />
-                        )}
+                    <CustomInput
+                        {...descriptionController.field}
+                        label="Description"
+                        placeholder="Describe your menu offering..."
+                        error={errors.description?.message}
                     />
                 </FormSection>
 
                 <FormSection title="Availability" icon={Clock}>
                     <div className="grid grid-cols-2 gap-4">
-                        <Controller
-                            name="start_time"
-                            control={control}
-                            rules={{ required: "Start time is required" }}
-                            render={({ field }) => (
-                                <CustomInput
-                                    {...field}
-                                    type="time"
-                                    label="Start Time"
-                                    error={errors.start_time?.message}
-                                />
-                            )}
+                        <CustomInput
+                            {...startTimeController.field}
+                            type="time"
+                            label="Start Time"
+                            error={errors.start_time?.message}
                         />
 
-                        <Controller
-                            name="end_time"
-                            control={control}
-                            rules={{ required: "End time is required" }}
-                            render={({ field }) => (
-                                <CustomInput
-                                    {...field}
-                                    type="time"
-                                    label="End Time"
-                                    error={errors.end_time?.message}
-                                />
-                            )}
+                        <CustomInput
+                            {...endTimeController.field}
+                            type="time"
+                            label="End Time"
+                            error={errors.end_time?.message}
                         />
                     </div>
                 </FormSection>
 
                 <FormSection title="Initial Statistics" icon={Activity}>
                     <div className="grid grid-cols-2 gap-4">
-                        <Controller
-                            name="categoryCount"
-                            control={control}
-                            render={({ field }) => (
-                                <CustomInput
-                                    {...field}
-                                    label="Category Count"
-                                    type="number"
-                                    placeholder="0"
-                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                                    error={errors.categoryCount?.message}
-                                />
-                            )}
+                        <CustomInput
+                            {...categoryCountController.field}
+                            label="Category Count"
+                            type="number"
+                            placeholder="0"
+                            onChange={(e) => categoryCountController.field.onChange(parseInt(e.target.value) || 0)}
+                            error={errors.categoryCount?.message}
                         />
-                        <Controller
-                            name="itemCount"
-                            control={control}
-                            render={({ field }) => (
-                                <CustomInput
-                                    {...field}
-                                    label="Item Count"
-                                    type="number"
-                                    placeholder="0"
-                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                                    error={errors.itemCount?.message}
-                                />
-                            )}
+                        <CustomInput
+                            {...itemCountController.field}
+                            label="Item Count"
+                            type="number"
+                            placeholder="0"
+                            onChange={(e) => itemCountController.field.onChange(parseInt(e.target.value) || 0)}
+                            error={errors.itemCount?.message}
                         />
                     </div>
                 </FormSection>
+
+                {isAdmin && (
+                    <FormSection title="Branch Assignment" icon={MapPin}>
+                        <CustomSelect
+                            label="Select Branch"
+                            options={branchOptions}
+                            value={branchIdController.field.value}
+                            onValueChange={branchIdController.field.onChange}
+                            placeholder="Select a branch"
+                            error={errors.branch_id?.message}
+                        />
+                    </FormSection>
+                )}
             </form>
         </SidePanel>
     );
