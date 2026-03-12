@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-// @ts-ignore
+// @ts-expect-error - Module resolution issue with react-hook-form
 import { useForm, useController } from "react-hook-form";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
@@ -46,7 +46,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
         limit: 100,
     });
 
-    const products = productsResponse?.data || [];
+    const products = useMemo(() => productsResponse?.data || [], [productsResponse]);
 
     const {
         register,
@@ -110,8 +110,8 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
                 onClose();
                 reset();
             },
-            onError: (error) => {
-                toast.error((error as any)?.message || "Failed to add menu item");
+            onError: (error: unknown) => {
+                toast.error((error as Error)?.message || "Failed to add menu item");
             },
         });
     };
