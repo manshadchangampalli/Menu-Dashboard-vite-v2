@@ -1,15 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { ChevronRight, History, Plus } from "lucide-react";
 import OrdersTable from "../../components/orders/OrdersTable";
-import OrderDetailPanel from "../../components/orders/OrderDetailPanel";
 import OrderCreatePanel from "../../components/orders/OrderCreatePanel";
-import ProcessOrderModal from "../../components/orders/ProcessOrderModal";
 import { Button } from "../../components/ui/button";
 import type { Order } from "./order.type";
 
 const Orders = () => {
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-    const [showProcessModal, setShowProcessModal] = useState(false);
+    const navigate = useNavigate();
     const [showCreatePanel, setShowCreatePanel] = useState(false);
 
     return (
@@ -29,7 +27,7 @@ const Orders = () => {
                         <History className="w-[18px] h-[18px]" />
                         Order History
                     </Button>
-                    <Button 
+                    <Button
                         className="bg-app-text text-white font-semibold hover:bg-app-text/90 shadow-sm"
                         onClick={() => setShowCreatePanel(true)}
                     >
@@ -40,21 +38,7 @@ const Orders = () => {
             </div>
 
             <OrdersTable
-                apiKey="mock-api-key"
-                onViewDetails={(order) => setSelectedOrder(order)}
-            />
-
-            <OrderDetailPanel
-                order={selectedOrder}
-                open={!!selectedOrder}
-                onClose={() => setSelectedOrder(null)}
-                onProcess={() => setShowProcessModal(true)}
-            />
-
-            <ProcessOrderModal
-                order={selectedOrder}
-                open={showProcessModal}
-                onOpenChange={setShowProcessModal}
+                onViewDetails={(order: Order) => navigate(`/orders/${order._id}`)}
             />
 
             <OrderCreatePanel
