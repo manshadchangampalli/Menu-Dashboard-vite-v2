@@ -1,40 +1,25 @@
 export interface OrderItem {
-    id: string;
+    menu_item_id: string;
     name: string;
     quantity: number;
-    price: number;
-    specialInstructions?: string;
-    addons?: string[];
-}
-
-export interface OrderTimelineStep {
-    status: string;
-    time: string;
-    completed: boolean;
+    unit_price: number;
+    total_price: number;
 }
 
 export interface Order {
-    id: string;
-    customer: {
-        name: string;
-        initials: string; 
-        email?: string;
-        phone?: string;
-        address?: string;
-        isRepeat?: boolean;
-    };
-    items: string; // Keep for table display
-    itemsDetail?: OrderItem[]; // For detailed view
-    total: string;
-    subtotal?: number;
-    tax?: number;
-    serviceFee?: number;
-    status: "Pending" | "Preparing" | "Ready" | "Delivered" | "Cancelled";
-    timestamp: string;
-    timeAgo: string;
-    paymentMethod?: string;
-    timeline?: OrderTimelineStep[];
-    kitchenNotes?: string;
-    tableNo?: string;
-    serverName?: string;
+    _id: string;
+    order_uuid: string;
+    organization_id: string;
+    branch_id: string;
+    customer_name: string;
+    customer_email?: string;
+    customer_phone?: string;
+    customer_address?: string;
+    items: OrderItem[];
+    total_amount: number;
+    status: "PENDING" | "PREPARING" | "READY" | "COMPLETED" | "CANCELLED";
+    created_at: string;
+    updated_at: string;
+    table_number?: string;
+    notes?: string;
 }
