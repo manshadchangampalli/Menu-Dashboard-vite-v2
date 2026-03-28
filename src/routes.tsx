@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router";
 import AppLayout from "./layout/AppLayout";
 import Overview from "./pages/overview/Overview";
 import Orders from "./pages/orders/Orders";
+import OrderDetail from "./pages/orders/OrderDetail";
 import Reservations from "./pages/reservations/Reservations";
 import MenuItemList from "./pages/menu-items/MenuItemList";
 import Menu from "./pages/menu/Menu";
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
             {
                 path: "orders",
                 Component: Orders,
+            },
+            {
+                path: "orders/:id",
+                Component: OrderDetail,
             },
             {
                 path: "reservations",
