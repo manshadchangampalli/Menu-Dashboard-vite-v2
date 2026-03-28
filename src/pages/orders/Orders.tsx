@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronRight, History, Plus } from "lucide-react";
 import OrdersTable from "../../components/orders/OrdersTable";
 import OrderDetailPanel from "../../components/orders/OrderDetailPanel";
+import OrderCreatePanel from "../../components/orders/OrderCreatePanel";
 import ProcessOrderModal from "../../components/orders/ProcessOrderModal";
 import { Button } from "../../components/ui/button";
 import type { Order } from "./order.type";
@@ -9,6 +10,7 @@ import type { Order } from "./order.type";
 const Orders = () => {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [showProcessModal, setShowProcessModal] = useState(false);
+    const [showCreatePanel, setShowCreatePanel] = useState(false);
 
     return (
         <main className="flex-1 overflow-y-auto p-8 relative">
@@ -27,7 +29,10 @@ const Orders = () => {
                         <History className="w-[18px] h-[18px]" />
                         Order History
                     </Button>
-                    <Button className="bg-app-text text-white font-semibold hover:bg-app-text/90 shadow-sm">
+                    <Button 
+                        className="bg-app-text text-white font-semibold hover:bg-app-text/90 shadow-sm"
+                        onClick={() => setShowCreatePanel(true)}
+                    >
                         <Plus className="w-[18px] h-[18px]" />
                         New Walk-in Order
                     </Button>
@@ -50,6 +55,11 @@ const Orders = () => {
                 order={selectedOrder}
                 open={showProcessModal}
                 onOpenChange={setShowProcessModal}
+            />
+
+            <OrderCreatePanel
+                open={showCreatePanel}
+                onClose={() => setShowCreatePanel(false)}
             />
         </main>
     );

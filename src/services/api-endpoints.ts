@@ -1,18 +1,18 @@
 export const ApiEndpoints = {
   LOGIN: "auth/dashboard/login",
   LOGOUT: "auth/dashboard/logout",
-  CREATE_BRANCH: "branches/create",
-  GET_ALL_BRANCHES: "branches/get-all",
+  CREATE_BRANCH: "branches",
+  GET_ALL_BRANCHES: "branches",
   DELETE_BRANCH: "branches",
   UPDATE_BRANCH: "branches",
   GET_BRANCH: "branches",
   DOWNLOAD_BRANCHES: "branches/download",
-  CREATE_CATEGORY: "category/create",
-  GET_CATEGORIES: "category/get-all",
+  CREATE_CATEGORY: "category",
+  GET_CATEGORIES: "category",
   GET_CATEGORY: "category",
   DELETE_CATEGORY: "category",
-  CREATE_MENU: "menu/create",
-  GET_MENUS: "menu/get-all",
+  CREATE_MENU: "menu",
+  GET_MENUS: "menu",
   GET_MENU: "menu",
   UPDATE_MENU: "menu",
   DELETE_MENU: "menu",
@@ -29,6 +29,7 @@ export const ApiEndpoints = {
   UPDATE_STAFF: "staff",
   DELETE_STAFF: "staff",
   DOWNLOAD_STAFF: "staff/download",
+  GET_ORDERS: "orders",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];
