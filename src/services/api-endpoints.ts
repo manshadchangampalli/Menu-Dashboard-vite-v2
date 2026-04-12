@@ -21,7 +21,7 @@ export const ApiEndpoints = {
   GET_PRODUCTS: "products",
   UPDATE_PRODUCT: "products",
   DELETE_PRODUCT: "products",
-  DOWNLOAD_PRODUCTS: "products/download",
+  DOWNLOAD_PRODUCTS: "products/download-csv",
   GET_MENU_ITEMS: "menu-items",
   CREATE_MENU_ITEM: "menu-items",
   GET_STAFF: "staff",

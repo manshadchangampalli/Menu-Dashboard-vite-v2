@@ -4,6 +4,7 @@ import StaffPerformanceStats from "../../components/staff-detail/StaffPerformanc
 import StaffActivityLog from "../../components/staff-detail/StaffActivityLog";
 import StaffDocuments from "../../components/staff-detail/StaffDocuments";
 import BranchAccessCard from "@/components/staff-detail/BranchAccessCard";
+import ChangePasswordCard from "@/components/ui/ChangePasswordCard";
 
 const StaffDetail = () => {
     return (
@@ -14,6 +15,7 @@ const StaffDetail = () => {
                 <div className="col-span-1 lg:col-span-4 space-y-4">
                     <StaffProfileCard />
                     <BranchAccessCard />
+                    <ChangePasswordCard />
                 </div>
 
                 <div className="col-span-1 lg:col-span-8 space-y-4">

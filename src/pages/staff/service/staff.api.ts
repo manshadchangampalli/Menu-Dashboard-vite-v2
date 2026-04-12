@@ -41,3 +41,10 @@ export const downloadStaff = () => {
     responseType: "blob",
   });
 };
+
+export const changeStaffPassword = (id: string, password: string) => {
+  return httpService.patch<{ message: string }>({
+    endpoint: `${ApiEndpoints.UPDATE_STAFF}/${id}/change-password`,
+    data: { password },
+  });
+};
