@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react";
-// @ts-expect-error - Module resolution issue with react-hook-form
 import { useForm, useController } from "react-hook-form";
 import SidePanel from "../ui/SidePanel";
 import { Button } from "../ui/button";
@@ -12,6 +11,7 @@ import type { CreateMenuItemRequest } from "../../pages/menu-items/menuItems.typ
 import { toast } from "sonner";
 import { useAuthStore } from "../../store/auth/auth.store";
 import { useBranches } from "../../pages/branches/hooks/useBranches";
+import { UserRole } from "../../pages/login/service/login.type";
 
 interface MenuItemCreatePanelProps {
     open: boolean;
@@ -33,7 +33,7 @@ const MenuItemCreatePanel = ({ open, onClose, categoryId, menuId, branchId }: Me
     const { mutate: createMenuItem, isPending: isCreating } = useCreateMenuItem();
 
     const user = useAuthStore((state) => state.user);
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === UserRole.ORG_ADMIN;
 
     const { data: branchesResponse, isLoading: isLoadingBranches } = useBranches({ limit: 100 });
     const branchOptions = useMemo(() => {
