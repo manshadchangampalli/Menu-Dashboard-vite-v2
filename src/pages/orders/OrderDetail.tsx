@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router";
-import { useOrderById } from "./hooks/useOrders";
-import { ArrowLeft, Package, User, Phone, Hash, MapPin, FileText, Clock, CheckCircle2, XCircle, ChefHat, Bell, Loader2 } from "lucide-react";
+import { useOrderById, useUpdateOrderStatus } from "./hooks/useOrders";
+import { ArrowLeft, Package, User, Phone, Hash, MapPin, FileText, Clock, CheckCircle2, XCircle, ChefHat, Bell, Loader2, Play, Check, Ban } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { toast } from "sonner";
 
 const STATUS_CONFIG = {
     PENDING:    { label: "Pending",    color: "bg-yellow-100 text-yellow-800 border-yellow-200",  icon: Clock },
@@ -29,6 +31,19 @@ const OrderDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { order, isLoading, isError } = useOrderById(id);
+    const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
+
+    const handleStatusUpdate = (newStatus: string) => {
+        if (!id) return;
+        updateStatus({ id, status: newStatus }, {
+            onSuccess: () => {
+                toast.success(`Order status updated to ${newStatus.toLowerCase()}`);
+            },
+            onError: () => {
+                toast.error("Failed to update order status");
+            }
+        });
+    };
 
     if (isLoading) {
         return (
@@ -127,6 +142,65 @@ const OrderDetail = () => {
 
                 {/* Right column */}
                 <div className="space-y-4">
+                    
+                    {/* Order Actions */}
+                    <div className="bg-white border border-app-border rounded-xl shadow-sm p-5">
+                        <h2 className="text-sm font-bold text-app-text mb-4">Manage Order</h2>
+                        <div className="space-y-2">
+                            {order.status === "PENDING" && (
+                                <Button 
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                                    onClick={() => handleStatusUpdate("PREPARING")}
+                                    disabled={isUpdating}
+                                >
+                                    <Play className="w-4 h-4 mr-2" />
+                                    Start Preparing
+                                </Button>
+                            )}
+                            {order.status === "PREPARING" && (
+                                <Button 
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold"
+                                    onClick={() => handleStatusUpdate("READY")}
+                                    disabled={isUpdating}
+                                >
+                                    <Bell className="w-4 h-4 mr-2" />
+                                    Mark as Ready
+                                </Button>
+                            )}
+                            {order.status === "READY" && (
+                                <Button 
+                                    className="w-full bg-app-text hover:bg-app-text/90 text-white font-bold"
+                                    onClick={() => handleStatusUpdate("COMPLETED")}
+                                    disabled={isUpdating}
+                                >
+                                    <Check className="w-4 h-4 mr-2" />
+                                    Complete Order
+                                </Button>
+                            )}
+                            
+                            {order.status !== "COMPLETED" && order.status !== "CANCELLED" && (
+                                <Button 
+                                    variant="outline"
+                                    className="w-full border-red-200 text-red-600 hover:bg-red-50 font-bold"
+                                    onClick={() => {
+                                        if (confirm("Are you sure you want to cancel this order?")) {
+                                            handleStatusUpdate("CANCELLED");
+                                        }
+                                    }}
+                                    disabled={isUpdating}
+                                >
+                                    <Ban className="w-4 h-4 mr-2" />
+                                    Cancel Order
+                                </Button>
+                            )}
+
+                            {isUpdating && (
+                                <p className="text-[10px] text-center text-app-muted animate-pulse font-medium">
+                                    Updating order status...
+                                </p>
+                            )}
+                        </div>
+                    </div>
 
                     {/* Customer Info */}
                     <div className="bg-white border border-app-border rounded-xl shadow-sm p-5">

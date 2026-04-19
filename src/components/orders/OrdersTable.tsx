@@ -95,7 +95,7 @@ const OrdersTable = ({ onViewDetails }: OrdersTableProps) => {
         },
         {
             header: "Actions",
-            accessorKey: "order_uuid",
+            accessorKey: "_id",
             cell: (order) => (
                 <div className="flex items-center gap-2">
                     <Button
