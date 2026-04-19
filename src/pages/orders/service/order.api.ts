@@ -45,3 +45,9 @@ export const createOrder = (data: CreateOrderRequest) => {
     data,
   });
 };
+export const updateOrderStatus = (id: string, status: string) => {
+  return httpService.patch<Order>({
+    endpoint: `${ApiEndpoints.GET_ORDERS}/${id}/status`,
+    data: { status },
+  });
+};

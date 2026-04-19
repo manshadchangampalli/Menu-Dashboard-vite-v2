@@ -4,11 +4,15 @@ import { ChevronRight, History, Plus } from "lucide-react";
 import OrdersTable from "../../components/orders/OrdersTable";
 import OrderCreatePanel from "../../components/orders/OrderCreatePanel";
 import { Button } from "../../components/ui/button";
+import { useOrderNotifications } from "./hooks/useOrderNotifications";
 import type { Order } from "./order.type";
 
 const Orders = () => {
     const navigate = useNavigate();
     const [showCreatePanel, setShowCreatePanel] = useState(false);
+
+    // Subscribe to real-time order notifications
+    useOrderNotifications();
 
     return (
         <main className="flex-1 overflow-y-auto p-8 relative">
