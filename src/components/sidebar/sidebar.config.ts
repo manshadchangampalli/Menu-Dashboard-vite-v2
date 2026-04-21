@@ -12,6 +12,7 @@ import {
   BookOpen,
   Layers,
   Package,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export const SIDEBAR_ITEMS = [

@@ -56,6 +56,8 @@ export interface CreateProductRequest {
   media: ProductMedia[];
   tags: string[];
   allergens: string[];
+  special_note?: string;
+  warning_note?: string;
   is_active: boolean;
   organization_id?: string;
   branch_id?: string;
@@ -79,6 +81,8 @@ export interface Product {
   media: ProductMedia[];
   tags: string[];
   allergens: string[];
+  special_note?: string;
+  warning_note?: string;
   is_active: boolean;
   is_deleted: boolean;
   organization_id: string;

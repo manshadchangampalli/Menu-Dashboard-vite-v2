@@ -30,6 +30,8 @@ export const ApiEndpoints = {
   DELETE_STAFF: "staff",
   DOWNLOAD_STAFF: "staff/download",
   GET_ORDERS: "orders",
+  FILTERS: "filters",
+  SORT_OPTIONS: "sort-options",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];

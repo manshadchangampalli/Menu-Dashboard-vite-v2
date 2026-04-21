@@ -539,8 +539,8 @@ export const MediaSection = ({ control, errors, fields, append, remove, register
         value="media"
         stepNumber={5}
         icon={Image}
-        title="Media"
-        description="Images, videos or 3D assets"
+        title="Media *"
+        description="At least one image is required"
     >
         <div className="grid gap-4">
             {fields.map((field: any, index: number) => (
@@ -554,6 +554,11 @@ export const MediaSection = ({ control, errors, fields, append, remove, register
                     errors={errors}
                 />
             ))}
+            {fields.length === 0 && (
+                <p className="text-[11px] font-bold text-red-500">
+                    At least one image is required.
+                </p>
+            )}
             <AddButton
                 label="Add Media"
                 onClick={() =>
@@ -665,6 +670,33 @@ export const AllergensSection = ({ control, fields, append, remove, watchedAller
                     onClick={() => append("" as any)}
                 />
             </div>
+        </div>
+    </AccordionStep>
+);
+
+export const NotesSection = ({ control, errors }: SectionProps) => (
+    <AccordionStep
+        value="notes"
+        stepNumber={8}
+        icon={Info}
+        title="Notes & Warnings"
+        description="Highlighted callouts shown on the product detail page"
+    >
+        <div className="grid gap-4">
+            <FormInput
+                name="special_note"
+                control={control}
+                label="Special Note"
+                placeholder="e.g. Chef's pick"
+                error={errors.special_note?.message}
+            />
+            <FormInput
+                name="warning_note"
+                control={control}
+                label="Warning Note"
+                placeholder="e.g. Contains alcohol"
+                error={errors.warning_note?.message}
+            />
         </div>
     </AccordionStep>
 );

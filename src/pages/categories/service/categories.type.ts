@@ -35,6 +35,7 @@ export interface CreateCategoryRequest {
     name: string;
     organization_id?: string;
     icon: string;
+    image_url?: string;
     isActive: boolean;
     menuId: string;
     branch_id: string;
@@ -42,12 +43,13 @@ export interface CreateCategoryRequest {
 }
 
 export interface Category {
-    _id: string; // From API
-    id?: string; // For backward compatibility if needed
+    _id: string;
+    id?: string;
     name: string;
     organization_id?: string;
     itemCount: number;
     icon: string | LucideIcon;
+    image_url?: string;
     isActive: boolean;
     menuId?: string;
     branch_id: string;
