@@ -22,6 +22,7 @@ import {
     MediaSection,
     TagsSection,
     AllergensSection,
+    NotesSection,
 } from "./ProductFormSections";
 
 interface ProductCreatePanelProps {
@@ -47,6 +48,8 @@ const DEFAULT_VALUES: Partial<CreateProductRequest> = {
     media: [],
     tags: [],
     allergens: [],
+    special_note: "",
+    warning_note: "",
     is_active: true,
     branch_id: "",
 };
@@ -94,6 +97,8 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
                 media: initialData.media ?? [],
                 tags: initialData.tags ?? [],
                 allergens: initialData.allergens ?? [],
+                special_note: initialData.special_note ?? "",
+                warning_note: initialData.warning_note ?? "",
                 is_active: initialData.is_active,
             });
         } else if (!open) {
@@ -132,6 +137,11 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
     };
 
     const onSubmit = (data: CreateProductRequest) => {
+        if (!data.media || data.media.length === 0) {
+            toast.error("Please add at least one product image.");
+            return;
+        }
+
         if (isEdit && initialData?._id) {
             updateProduct(
                 { id: initialData._id, data },
@@ -259,6 +269,7 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
                         watchedAllergens={watchedAllergens}
                         toggleAllergen={toggleAllergen}
                     />
+                    <NotesSection control={control} errors={errors} />
                 </Accordion>
             </form>
         </SidePanel>

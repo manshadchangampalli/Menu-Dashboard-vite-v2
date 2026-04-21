@@ -1,3 +1,21 @@
+export interface MenuItemVariant {
+  variant_uuid?: string;
+  label: string;
+  price: number;
+  is_default: boolean;
+  sort_order: number;
+  is_available: boolean;
+}
+
+export interface MenuItemExtra {
+  extra_uuid?: string;
+  label: string;
+  price: number;
+  is_default: boolean;
+  sort_order: number;
+  is_available: boolean;
+}
+
 export interface MenuItem {
   _id: string;
   menu_item_uuid: string;
@@ -16,6 +34,9 @@ export interface MenuItem {
   is_available: boolean;
   is_featured: boolean;
   sort_order: number;
+  variants?: MenuItemVariant[];
+  extras?: MenuItemExtra[];
+  max_extras?: number;
   created_at: string;
   updated_at: string;
   __v?: number;
@@ -30,6 +51,9 @@ export interface CreateMenuItemRequest {
   selling_price: number;
   is_available: boolean;
   branch_id?: string;
+  variants?: MenuItemVariant[];
+  extras?: MenuItemExtra[];
+  max_extras?: number;
 }
 
 export interface GetMenuItemsRequest {

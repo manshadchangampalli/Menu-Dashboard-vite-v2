@@ -18,6 +18,7 @@ import BranchDetail from "./pages/branch-detail/BranchDetail";
 import StaffDetail from "./pages/staff-detail/StaffDetail";
 import Login from "./pages/login/Login";
 import Products from "./pages/products/Products";
+import Filters from "./pages/filters/Filters";
 
 export const router = createBrowserRouter([
     {
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
             {
                 path: "products",
                 Component: Products,
+            },
+            {
+                path: "filters",
+                Component: Filters,
             },
         ],
     },

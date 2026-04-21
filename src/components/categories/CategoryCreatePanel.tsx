@@ -39,6 +39,7 @@ const STATUS_OPTIONS = [
 const DEFAULT_VALUES: Partial<CreateCategoryRequest> = {
     name: "",
     icon: CategoryIcon.UTENSILS_CROSSED,
+    image_url: "",
     isActive: true,
     menuId: "",
     branch_id: "",
@@ -85,6 +86,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
     const statusController = useController({ name: "isActive", control });
     const menuIdController = useController({ name: "menuId", control, rules: { required: "Menu is required" } });
     const iconController = useController({ name: "icon", control, rules: { required: "Icon is required" } });
+    const imageUrlController = useController({ name: "image_url", control });
     const branchIdController = useController({ name: "branch_id", control, rules: { required: isAdmin ? "Branch is required" : false } });
     const itemCountController = useController({ name: "itemCount", control });
 
@@ -93,6 +95,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
             reset({
                 name: categoryToEdit.name,
                 icon: (typeof categoryToEdit.icon === 'string' ? categoryToEdit.icon : CategoryIcon.UTENSILS_CROSSED) as any,
+                image_url: categoryToEdit.image_url || "",
                 isActive: categoryToEdit.isActive,
                 menuId: categoryToEdit.menuId || "",
                 branch_id: categoryToEdit.branch_id || "",
@@ -219,6 +222,13 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                             placeholder="Select status"
                         />
                     </div>
+
+                    <CustomInput
+                        {...imageUrlController.field}
+                        label="Image URL"
+                        placeholder="https://cdn.example.com/categories/pizza.jpg"
+                        error={errors.image_url?.message}
+                    />
                 </FormSection>
 
                 <FormSection title="Menu & Branch Mapping" icon={Layout}>

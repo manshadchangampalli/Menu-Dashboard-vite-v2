@@ -1,14 +1,18 @@
+import { useState } from "react";
 import { ChevronRight, Plus, ListFilter } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { useTableQuery } from "../../hooks/useTableFilters";
 import type { MenuItem } from "./menuItems.type";
 import { useSearchParams } from "react-router";
 import { getMenuItems } from "./service/menuItems.api";
+import MenuItemCreatePanel from "../../components/menu-items/MenuItemCreatePanel";
 
 const MenuItemList = () => {
     const [searchParams] = useSearchParams();
     const menuId = searchParams.get("menuId") || undefined;
     const categoryId = searchParams.get("categoryId") || undefined;
+    const branchId = searchParams.get("branchId") || undefined;
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
 
     const {
         data: response,
@@ -46,6 +50,7 @@ const MenuItemList = () => {
                         Filter
                     </Button>
                     <Button
+                        onClick={() => setIsPanelOpen(true)}
                         className="flex items-center gap-2 h-9 bg-app-text text-white font-semibold text-sm hover:bg-app-text/90 transition-all shadow-sm"
                     >
                         <Plus className="size-[18px]" />
@@ -106,6 +111,15 @@ const MenuItemList = () => {
                     </div>
                 )}
             </div>
+
+            <MenuItemCreatePanel
+                open={isPanelOpen}
+                onClose={() => setIsPanelOpen(false)}
+                categoryId={categoryId}
+                menuId={menuId}
+                branchId={branchId}
+            />
+
         </main>
     );
 };
