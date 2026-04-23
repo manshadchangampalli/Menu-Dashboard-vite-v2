@@ -59,6 +59,12 @@ export const SIDEBAR_ITEMS = [
     id: "products",
   },
   {
+    title: "Filters & Sort",
+    icon: SlidersHorizontal,
+    url: "/filters",
+    id: "filters",
+  },
+  {
     title: "Branches",
     icon: Store,
     url: "/branches",
