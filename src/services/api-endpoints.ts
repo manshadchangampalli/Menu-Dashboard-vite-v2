@@ -1,6 +1,7 @@
 export const ApiEndpoints = {
   LOGIN: "auth/dashboard/login",
   LOGOUT: "auth/dashboard/logout",
+  REFRESH: "auth/dashboard/refresh",
   CREATE_BRANCH: "branches",
   GET_ALL_BRANCHES: "branches",
   DELETE_BRANCH: "branches",
@@ -23,7 +24,10 @@ export const ApiEndpoints = {
   DELETE_PRODUCT: "products",
   DOWNLOAD_PRODUCTS: "products/download-csv",
   GET_MENU_ITEMS: "menu-items",
+  GET_MENU_ITEM: "menu-items",
   CREATE_MENU_ITEM: "menu-items",
+  UPDATE_MENU_ITEM: "menu-items",
+  DELETE_MENU_ITEM: "menu-items",
   GET_STAFF: "staff",
   CREATE_STAFF: "staff",
   UPDATE_STAFF: "staff",

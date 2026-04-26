@@ -24,7 +24,7 @@ export interface MenuItem {
     name: string;
     slug: string;
     type: string;
-  };
+  } | null;
   menu_id: string;
   category_id: string;
   organization_id: string;
@@ -51,6 +51,16 @@ export interface CreateMenuItemRequest {
   selling_price: number;
   is_available: boolean;
   branch_id?: string;
+  variants?: MenuItemVariant[];
+  extras?: MenuItemExtra[];
+  max_extras?: number;
+}
+
+export interface UpdateMenuItemRequest {
+  base_price?: number;
+  selling_price?: number;
+  is_available?: boolean;
+  is_featured?: boolean;
   variants?: MenuItemVariant[];
   extras?: MenuItemExtra[];
   max_extras?: number;
