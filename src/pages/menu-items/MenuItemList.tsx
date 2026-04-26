@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { ChevronRight, Plus, ListFilter } from "lucide-react";
+import { ChevronRight, Plus, ListFilter, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
+import { ConfirmDialog } from "../../components/ui/confirm-dialog";
 import { useTableQuery } from "../../hooks/useTableFilters";
 import type { MenuItem } from "./menuItems.type";
 import { useSearchParams } from "react-router";
 import { getMenuItems } from "./service/menuItems.api";
+import { useDeleteMenuItem } from "./hooks/useMenuItems";
 import MenuItemCreatePanel from "../../components/menu-items/MenuItemCreatePanel";
+import MenuItemEditPanel from "../../components/menu-items/MenuItemEditPanel";
 
 const MenuItemList = () => {
     const [searchParams] = useSearchParams();
@@ -13,6 +17,8 @@ const MenuItemList = () => {
     const categoryId = searchParams.get("categoryId") || undefined;
     const branchId = searchParams.get("branchId") || undefined;
     const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
     const {
         data: response,
@@ -26,6 +32,25 @@ const MenuItemList = () => {
             categoryId,
         }
     );
+
+    const { mutate: deleteMenuItem, isPending: isDeleting } = useDeleteMenuItem();
+
+    const handleDelete = () => {
+        if (!itemToDelete) return;
+        deleteMenuItem(itemToDelete._id, {
+            onSuccess: () => {
+                toast.success("Menu item removed");
+                setItemToDelete(null);
+            },
+            onError: (err: unknown) => {
+                const message =
+                    err && typeof err === "object" && "message" in err
+                        ? String((err as { message?: unknown }).message)
+                        : "Failed to remove menu item";
+                toast.error(message);
+            },
+        });
+    };
 
     return (
         <main className="flex-1 overflow-y-auto p-8">
@@ -59,7 +84,7 @@ const MenuItemList = () => {
                 </div>
             </div>
 
-            <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-hidden min-h-[400px]">
+            <div className="bg-white border border-app-border rounded-lg shadow-sm overflow-y-hidden min-h-[400px]">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-64">
                         <p className="text-app-muted font-bold animate-pulse uppercase tracking-widest text-xs">Loading items...</p>
@@ -74,14 +99,23 @@ const MenuItemList = () => {
                                     <th className="px-6 py-4 text-[10px] font-bold text-app-muted uppercase tracking-wider">Base Price</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-app-muted uppercase tracking-wider">Selling Price</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-app-muted uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-app-muted uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-app-border">
                                 {response?.data?.map((item: MenuItem) => (
-                                    <tr key={item._id} className="hover:bg-app-bg/20 transition-colors group">
+                                    <tr
+                                        key={item._id}
+                                        className="hover:bg-app-bg/20 transition-colors group cursor-pointer"
+                                        onClick={() => setEditingItemId(item._id)}
+                                    >
                                         <td className="px-6 py-4">
-                                            <div className="font-bold text-app-text group-hover:text-black transition-colors">{item.product_id.name}</div>
-                                            <div className="text-[10px] text-app-muted uppercase font-bold">{item.product_id.type}</div>
+                                            <div className="font-bold text-app-text group-hover:text-black transition-colors">
+                                                {item.product_id?.name ?? "Unlinked product"}
+                                            </div>
+                                            <div className="text-[10px] text-app-muted uppercase font-bold">
+                                                {item.product_id?.type ?? "—"}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-app-text">
                                             {item.category_id}
@@ -97,11 +131,24 @@ const MenuItemList = () => {
                                                 {item.is_available ? 'AVAILABLE' : 'OUT OF STOCK'}
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-8 text-app-muted hover:text-red-500 hover:bg-red-50 transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setItemToDelete(item);
+                                                }}
+                                            >
+                                                <Trash2 className="size-4" />
+                                            </Button>
+                                        </td>
                                     </tr>
                                 ))}
                                 {(!response?.data || response.data.length === 0) && (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-app-muted font-medium">
+                                        <td colSpan={6} className="px-6 py-12 text-center text-app-muted font-medium">
                                             No menu items found for the selected criteria.
                                         </td>
                                     </tr>
@@ -118,6 +165,23 @@ const MenuItemList = () => {
                 categoryId={categoryId}
                 menuId={menuId}
                 branchId={branchId}
+            />
+
+            <MenuItemEditPanel
+                open={!!editingItemId}
+                onClose={() => setEditingItemId(null)}
+                menuItemId={editingItemId}
+            />
+
+            <ConfirmDialog
+                open={!!itemToDelete}
+                onOpenChange={(open) => !open && setItemToDelete(null)}
+                title="Remove Menu Item"
+                description={`Remove "${itemToDelete?.product_id?.name ?? "this item"}" from the menu? This won't delete the underlying product.`}
+                confirmText={isDeleting ? "Removing..." : "Remove"}
+                cancelText="Cancel"
+                onConfirm={handleDelete}
+                variant="destructive"
             />
 
         </main>
