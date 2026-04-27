@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:qa": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "qa:smoke": "playwright test qa/frontend-smoke.spec.ts --reporter=list",
+    "qa:sweep": "node qa/frontend-sweep.cjs",
+    "qa:sweep:mock": "MOCK_API=1 node qa/frontend-sweep.cjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -15,6 +19,7 @@
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.563.0",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
@@ -28,7 +33,9 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.59.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

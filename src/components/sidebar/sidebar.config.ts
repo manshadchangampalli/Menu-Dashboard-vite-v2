@@ -35,16 +35,16 @@ export const SIDEBAR_ITEMS = [
     id: "reservations",
   },
   {
-    title: "Menus",
-    icon: BookOpen,
-    url: "/menu",
-    id: "menus",
-  },
-  {
     title: "Menu Items",
     icon: Utensils,
     url: "/menu-items",
     id: "menu-items",
+  },
+  {
+    title: "Products",
+    icon: Package,
+    url: "/products",
+    id: "products",
   },
   {
     title: "Categories",
@@ -53,10 +53,10 @@ export const SIDEBAR_ITEMS = [
     id: "categories",
   },
   {
-    title: "Products",
-    icon: Package,
-    url: "/products",
-    id: "products",
+    title: "Menus",
+    icon: BookOpen,
+    url: "/menu",
+    id: "menus",
   },
   {
     title: "Filters & Sort",
