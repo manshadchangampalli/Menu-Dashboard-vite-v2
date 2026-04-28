@@ -36,6 +36,7 @@ export const ApiEndpoints = {
   GET_ORDERS: "orders",
   FILTERS: "filters",
   SORT_OPTIONS: "sort-options",
+  UPLOAD_IMAGE: "upload/image",
 } as const;
 
 export type ApiEndpoints = typeof ApiEndpoints[keyof typeof ApiEndpoints];
