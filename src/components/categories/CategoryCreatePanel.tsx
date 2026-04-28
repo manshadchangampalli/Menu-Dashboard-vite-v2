@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { FormSection } from "../ui/FormSection";
+import { ImageUploader } from "../ui/ImageUploader";
 import { X, Save, Layers, Layout, Activity } from "lucide-react";
 import { useCreateCategory, useUpdateCategory } from "../../pages/categories/hooks/useCategories";
 import { useMenus } from "../../pages/menu/hooks/useMenu";
@@ -87,6 +88,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
     const menuIdController = useController({ name: "menuId", control, rules: { required: "Menu is required" } });
     const iconController = useController({ name: "icon", control, rules: { required: "Icon is required" } });
     const imageUrlController = useController({ name: "image_url", control });
+    const imagePublicIdController = useController({ name: "image_public_id", control });
     const branchIdController = useController({ name: "branch_id", control, rules: { required: isAdmin ? "Branch is required" : false } });
     const itemCountController = useController({ name: "itemCount", control });
 
@@ -96,6 +98,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                 name: categoryToEdit.name,
                 icon: (typeof categoryToEdit.icon === 'string' ? categoryToEdit.icon : CategoryIcon.UTENSILS_CROSSED) as any,
                 image_url: categoryToEdit.image_url || "",
+                image_public_id: categoryToEdit.image_public_id || "",
                 isActive: categoryToEdit.isActive,
                 menuId: categoryToEdit.menuId || "",
                 branch_id: categoryToEdit.branch_id || "",
@@ -223,10 +226,15 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                         />
                     </div>
 
-                    <CustomInput
-                        {...imageUrlController.field}
-                        label="Image URL"
-                        placeholder="https://cdn.example.com/categories/pizza.jpg"
+                    <ImageUploader
+                        label="Category Image"
+                        folder="categories"
+                        value={imageUrlController.field.value as string | undefined}
+                        publicId={imagePublicIdController.field.value as string | undefined}
+                        onChange={(next) => {
+                            imageUrlController.field.onChange(next?.url ?? "");
+                            imagePublicIdController.field.onChange(next?.public_id ?? "");
+                        }}
                         error={errors.image_url?.message}
                     />
                 </FormSection>
