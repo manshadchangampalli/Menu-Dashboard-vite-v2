@@ -83,6 +83,35 @@ const FormSelect = ({ name, control, label, options, placeholder, rules, error, 
     />
 );
 
+const FormMediaUpload = ({ name, control, label, error, rules, setValue }: FormFieldProps & { setValue?: any }) => {
+    const baseName = name.replace(/\.url$/, "");
+    const publicId = useWatch({ control, name: `${baseName}.public_id` });
+
+    return (
+        <Controller
+            name={name}
+            control={control}
+            rules={rules}
+            render={({ field }) => (
+                <ImageUploader
+                    label={label}
+                    folder="products"
+                    value={field.value}
+                    publicId={publicId}
+                    onChange={(next) => {
+                        field.onChange(next?.url || "");
+                        if (setValue) {
+                            setValue(`${baseName}.public_id`, next?.public_id || "");
+                        }
+                    }}
+                    error={error}
+                />
+            )}
+        />
+    );
+};
+
+
 // ─── Small reusable sub-components ────────────────────────────────────────────
 
 export const FieldLabel = ({ children }: { children: React.ReactNode }) => (
@@ -367,9 +396,11 @@ interface MediaItemProps {
     remove: UseFieldArrayRemove;
     register: any;
     errors: any;
+    setValue?: any;
 }
 
-const MediaItem = ({ control, index, field, remove, register, errors }: MediaItemProps) => {
+
+const MediaItem = ({ control, index, field, remove, register, errors, setValue }: MediaItemProps) => {
     const [source, setSource] = useState<"upload" | "url">("upload");
 
     const mediaType = useWatch({
@@ -419,6 +450,7 @@ const MediaItem = ({ control, index, field, remove, register, errors }: MediaIte
                     placeholder="Click to upload image or video"
                     rules={{ required: "Media file is required" }}
                     error={(errors.media?.[index] as any)?.url?.message}
+                    setValue={setValue}
                 />
             ) : (
                 <div className="grid gap-2">
@@ -518,7 +550,8 @@ interface MediaSectionProps extends SectionProps {
     register: any;
 }
 
-export const MediaSection = ({ control, errors, fields, append, remove, register }: MediaSectionProps) => (
+
+export const MediaSection = ({ control, errors, fields, append, remove, register, setValue }: MediaSectionProps) => (
     <AccordionStep
         value="media"
         stepNumber={5}
@@ -536,6 +569,7 @@ export const MediaSection = ({ control, errors, fields, append, remove, register
                     remove={remove}
                     register={register}
                     errors={errors}
+                    setValue={setValue}
                 />
             ))}
             {fields.length === 0 && (
