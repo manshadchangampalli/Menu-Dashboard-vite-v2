@@ -28,6 +28,7 @@ export const useUpdateProduct = () => {
       updateProduct(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["product", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };

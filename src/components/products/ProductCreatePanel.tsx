@@ -252,6 +252,7 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
                         append={appendMedia}
                         remove={removeMedia}
                         register={register}
+                        setValue={setValue}
                     />
                     <TagsSection
                         control={control}
