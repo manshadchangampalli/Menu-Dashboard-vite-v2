@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Controller, useWatch, type Control, type RegisterOptions, type UseFieldArrayAppend, type UseFieldArrayRemove } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { Controller, useController, useWatch, type Control, type RegisterOptions, type UseFieldArrayAppend, type UseFieldArrayRemove } from "react-hook-form";
 import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
-import { CustomMediaUpload } from "../ui/CustomMediaUpload";
+import { ImageUploader } from "../ui/ImageUploader";
 import { AccordionStep } from "../ui/accordion";
 import {
     ShoppingBag,
@@ -76,22 +76,6 @@ const FormSelect = ({ name, control, label, options, placeholder, rules, error, 
                 options={options}
                 value={transform ? transform.from(field.value) : field.value}
                 onValueChange={(val) => field.onChange(transform ? transform.to(val) : val)}
-                placeholder={placeholder}
-                error={error}
-            />
-        )}
-    />
-);
-
-const FormMediaUpload = ({ name, control, label, placeholder, rules, error }: FormFieldProps) => (
-    <Controller
-        name={name}
-        control={control}
-        rules={rules}
-        render={({ field }) => (
-            <CustomMediaUpload
-                {...field}
-                label={label}
                 placeholder={placeholder}
                 error={error}
             />

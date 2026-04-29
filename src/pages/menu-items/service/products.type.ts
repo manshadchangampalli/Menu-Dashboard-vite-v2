@@ -26,6 +26,7 @@ export enum SpiceLevel {
 
 export interface ProductMedia {
   url: string;
+  public_id?: string;
   type: MediaType;
   format: MediaFormat;
   is_primary: boolean;
