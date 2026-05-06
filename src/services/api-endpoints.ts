@@ -33,6 +33,8 @@ export const ApiEndpoints = {
   UPDATE_STAFF: "staff",
   DELETE_STAFF: "staff",
   DOWNLOAD_STAFF: "staff/download",
+  GET_CUSTOMERS: "customers",
+  GET_CUSTOMER: "customers",
   GET_ORDERS: "orders",
   FILTERS: "filters",
   SORT_OPTIONS: "sort-options",

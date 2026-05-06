@@ -77,6 +77,12 @@ export const SIDEBAR_ITEMS = [
     id: "staff-members",
   },
   {
+    title: "Customers",
+    icon: Users,
+    url: "/customers",
+    id: "customers",
+  },
+  {
     title: "Analytics",
     icon: BarChart2,
     url: "/analytics",

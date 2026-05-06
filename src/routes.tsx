@@ -19,6 +19,8 @@ import StaffDetail from "./pages/staff-detail/StaffDetail";
 import Login from "./pages/login/Login";
 import Products from "./pages/products/Products";
 import Filters from "./pages/filters/Filters";
+import Customers from "./pages/customers/Customers";
+import CustomerDetail from "./pages/customer-detail/CustomerDetail";
 
 export const router = createBrowserRouter([
     {
@@ -96,6 +98,14 @@ export const router = createBrowserRouter([
             {
                 path: "filters",
                 Component: Filters,
+            },
+            {
+                path: "customers",
+                Component: Customers,
+            },
+            {
+                path: "customers/:id",
+                Component: CustomerDetail,
             },
         ],
     },
