@@ -9,9 +9,11 @@ import { FormSection } from "../ui/FormSection";
 import { X, Save, Layout, Clock, Activity, FileText, MapPin } from "lucide-react";
 import { useCreateMenu, useUpdateMenu } from "../../pages/menu/hooks/useMenu";
 import { type Menu, MenuType, MenuStatus, type CreateMenuRequest } from "../../pages/menu/service/menu.type";
+import { UserRole } from "../../pages/login/service/login.type";
 import { toast } from "sonner";
 import { useAuthStore } from "../../store/auth/auth.store";
 import { useBranches } from "../../pages/branches/hooks/useBranches";
+import ScheduleEditor from "./ScheduleEditor";
 
 const TYPE_OPTIONS = [
     { label: "Dine-In", value: MenuType.DINE_IN },
@@ -34,8 +36,7 @@ const DEFAULT_VALUES: CreateMenuRequest = {
     name: "",
     type: MenuType.DELIVERY,
     description: "",
-    start_time: "11:00",
-    end_time: "23:00",
+    schedule: [],
     status: MenuStatus.ACTIVE,
     isActive: true,
     categoryCount: 0,
@@ -50,7 +51,7 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
     const isPending = isCreating || isUpdating;
 
     const user = useAuthStore((state) => state.user);
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === UserRole.ORG_ADMIN;
 
     const { data: branchesData } = useBranches({ limit: 100 });
     const branches = branchesData?.data || [];
@@ -69,8 +70,7 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
     const typeController = useController({ name: "type", control, rules: { required: "Type is required" } });
     const statusController = useController({ name: "status", control });
     const descriptionController = useController({ name: "description", control });
-    const startTimeController = useController({ name: "start_time", control, rules: { required: "Start time is required" } });
-    const endTimeController = useController({ name: "end_time", control, rules: { required: "End time is required" } });
+    const scheduleController = useController({ name: "schedule", control });
     const categoryCountController = useController({ name: "categoryCount", control });
     const itemCountController = useController({ name: "itemCount", control });
     const branchIdController = useController({ name: "branch_id", control, rules: { required: isAdmin ? "Branch is required" : false } });
@@ -88,7 +88,8 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
                     isActive: initialData.status === MenuStatus.ACTIVE,
                     categoryCount: initialData.categoryCount || 0,
                     itemCount: initialData.itemCount || 0,
-                    branch_id: initialData.branch_id || ""
+                    branch_id: initialData.branch_id || "",
+                    schedule: initialData.schedule ?? [],
                 });
             } else {
                 reset(DEFAULT_VALUES);
@@ -214,22 +215,11 @@ const MenuCreatePanel = ({ open, onClose, initialData }: MenuCreatePanelProps) =
                     />
                 </FormSection>
 
-                <FormSection title="Availability" icon={Clock}>
-                    <div className="grid grid-cols-2 gap-4">
-                        <CustomInput
-                            {...startTimeController.field}
-                            type="time"
-                            label="Start Time"
-                            error={errors.start_time?.message}
-                        />
-
-                        <CustomInput
-                            {...endTimeController.field}
-                            type="time"
-                            label="End Time"
-                            error={errors.end_time?.message}
-                        />
-                    </div>
+                <FormSection title="Schedule" icon={Clock}>
+                    <ScheduleEditor
+                        value={scheduleController.field.value ?? []}
+                        onChange={scheduleController.field.onChange}
+                    />
                 </FormSection>
 
                 <FormSection title="Initial Statistics" icon={Activity}>

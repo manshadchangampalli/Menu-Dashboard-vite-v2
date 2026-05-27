@@ -3,7 +3,7 @@ import { DataTable, type Column } from "../ui/data-table";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { type Menu, MenuStatus } from "../../pages/menu/service/menu.type";
-import { Edit2, Trash2, Clock } from "lucide-react";
+import { Edit2, Trash2, Clock, CircleDot } from "lucide-react";
 import { useDeleteMenu, useUpdateMenu } from "../../pages/menu/hooks/useMenu";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -132,14 +132,44 @@ const MenuTable = ({
             )
         },
         {
-            header: "Availability",
-            accessorKey: "start_time",
-            cell: (item) => (
-                <div className="flex items-center gap-1.5 text-xs text-app-muted">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{item.start_time} - {item.end_time}</span>
-                </div>
-            )
+            header: "Schedule",
+            accessorKey: "schedule",
+            cell: (item) => {
+                const windows = item.schedule ?? [];
+                if (windows.length === 0) {
+                    return (
+                        <div className="flex items-center gap-1.5 text-xs text-app-muted">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>Always</span>
+                        </div>
+                    );
+                }
+                const first = windows[0];
+                return (
+                    <div className="flex items-center gap-1.5 text-xs text-app-muted">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>
+                            {first.start_time}–{first.end_time}
+                            {windows.length > 1 ? ` +${windows.length - 1}` : ""}
+                        </span>
+                    </div>
+                );
+            },
+        },
+        {
+            header: "Live",
+            accessorKey: "is_currently_active",
+            cell: (item) => {
+                const live = item.is_currently_active === true;
+                return (
+                    <div className="flex items-center gap-1.5">
+                        <CircleDot className={`w-3.5 h-3.5 ${live ? "text-emerald-500" : "text-app-muted"}`} />
+                        <span className={`text-xs font-semibold ${live ? "text-emerald-600" : "text-app-muted"}`}>
+                            {live ? "Now" : "Off"}
+                        </span>
+                    </div>
+                );
+            },
         },
         {
             header: "Categories",

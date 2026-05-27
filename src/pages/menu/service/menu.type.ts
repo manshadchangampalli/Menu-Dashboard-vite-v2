@@ -12,12 +12,37 @@ export enum MenuStatus {
   INACTIVE = 'inactive',
 }
 
+export enum DayOfWeek {
+  MONDAY = 'Monday',
+  TUESDAY = 'Tuesday',
+  WEDNESDAY = 'Wednesday',
+  THURSDAY = 'Thursday',
+  FRIDAY = 'Friday',
+  SATURDAY = 'Saturday',
+  SUNDAY = 'Sunday',
+}
+
+export const DAYS_ORDERED: DayOfWeek[] = [
+  DayOfWeek.MONDAY,
+  DayOfWeek.TUESDAY,
+  DayOfWeek.WEDNESDAY,
+  DayOfWeek.THURSDAY,
+  DayOfWeek.FRIDAY,
+  DayOfWeek.SATURDAY,
+  DayOfWeek.SUNDAY,
+];
+
+export interface ScheduleWindow {
+  start_time: string; // "HH:mm"
+  end_time: string;   // "HH:mm"
+  days: DayOfWeek[];
+}
+
 export interface CreateMenuRequest {
   name: string;
   type: MenuType;
   description: string;
-  start_time: string;
-  end_time: string;
+  schedule: ScheduleWindow[];
   status: MenuStatus;
   isActive: boolean;
   organization_id?: string;
@@ -31,10 +56,10 @@ export interface Menu {
   name: string;
   type: MenuType;
   description: string;
-  start_time: string;
-  end_time: string;
+  schedule: ScheduleWindow[];
   status: MenuStatus;
   isActive: boolean;
+  is_currently_active?: boolean;
   organization_id: string;
   branch_id?: string;
   categoryCount: number;
