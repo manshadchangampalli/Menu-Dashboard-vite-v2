@@ -44,8 +44,8 @@ const MenuItemsTable = ({
                        <span className="text-[10px] text-app-muted font-bold text-center">ITEM</span>
                     </div>
                     <div>
-                        <div className="text-sm font-bold text-app-text">{item.product_id.name}</div>
-                        <div className="text-[10px] text-app-muted font-bold uppercase tracking-tighter">{item.product_id.type}</div>
+                        <div className="text-sm font-bold text-app-text">{item.product_id?.name ?? "-"}</div>
+                        <div className="text-[10px] text-app-muted font-bold uppercase tracking-tighter">{item.product_id?.type ?? ""}</div>
                     </div>
                 </div>
             )

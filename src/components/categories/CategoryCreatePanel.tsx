@@ -54,7 +54,7 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
     const { data: menusResponse, isLoading: isLoadingMenus } = useMenus({ limit: 100, page: 1 });
 
     const user = useAuthStore((state) => state.user);
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === 'ORG_ADMIN';
 
     const menuOptions = useMemo(() => {
         if (!menusResponse?.data) return [];
@@ -83,7 +83,6 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
     });
 
     const nameController = useController({ name: "name", control, rules: { required: "Category name is required" } });
-    const descriptionController = useController({ name: "description", control });
     const statusController = useController({ name: "isActive", control });
     const menuIdController = useController({ name: "menuId", control, rules: { required: "Menu is required" } });
     const iconController = useController({ name: "icon", control, rules: { required: "Icon is required" } });
@@ -199,12 +198,6 @@ const CategoryCreatePanel = ({ open, onClose, categoryToEdit, isEdit }: Category
                         label="Category Name"
                         placeholder="e.g. Appetizers"
                         error={errors.name?.message}
-                    />
-                    <CustomInput
-                        {...descriptionController.field}
-                        label="Description"
-                        placeholder="Category description..."
-                        error={errors.description?.message}
                     />
 
                     <div className="grid grid-cols-2 gap-4">

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Controller, useController, useWatch, type Control, type RegisterOptions, type UseFieldArrayAppend, type UseFieldArrayRemove } from "react-hook-form";
+import { useState } from "react";
+import { Controller, useWatch, type Control, type RegisterOptions, type UseFieldArrayAppend, type UseFieldArrayRemove } from "react-hook-form";
 import { CustomInput } from "../ui/CustomInput";
 import { CustomSelect } from "../ui/CustomSelect";
 import { ImageUploader } from "../ui/ImageUploader";

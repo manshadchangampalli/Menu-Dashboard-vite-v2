@@ -60,11 +60,11 @@ const ProductCreatePanel = ({ open, onClose, isEdit = false, initialData }: Prod
     const isPending = isCreating || isUpdating;
 
     const user = useAuthStore((state) => state.user);
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === 'ORG_ADMIN';
 
     const { data: branchesResponse, isLoading: isLoadingBranches } = useBranches({ limit: 100 });
     const branches = branchesResponse?.data || [];
-    const branchOptions = branches.map(b => ({ label: b.name, value: b._id || b.id }));
+    const branchOptions = branches.map(b => ({ label: b.name, value: b._id }));
 
     const {
         control,

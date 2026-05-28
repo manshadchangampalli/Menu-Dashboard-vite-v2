@@ -79,16 +79,9 @@ const OrdersTable = ({ onViewDetails }: OrdersTableProps) => {
             header: "Status",
             accessorKey: "status",
             cell: (order) => {
-                const statusMap: Record<string, "Pending" | "Preparing" | "Ready" | "Delivered" | "Cancelled"> = {
-                    PENDING: "Pending",
-                    PREPARING: "Preparing",
-                    READY: "Ready",
-                    COMPLETED: "Delivered",
-                    CANCELLED: "Cancelled",
-                };
                 return (
                     <div className="flex">
-                        <StatusBadge status={statusMap[order.status] || "Pending"} />
+                        <StatusBadge status={order.status} />
                     </div>
                 );
             },

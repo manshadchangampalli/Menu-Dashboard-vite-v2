@@ -282,7 +282,7 @@ const StaffCreatePanel = ({ open, onClose, isEdit, initialData }: StaffCreatePan
                                 control={control}
                                 rules={{
                                     required: "Please confirm password",
-                                    validate: (val: string) => val === passwordValue || "Passwords do not match",
+                                    validate: (val: string | undefined) => val === passwordValue || "Passwords do not match",
                                 }}
                                 render={({ field }: { field: any }) => (
                                     <div className="flex flex-col gap-1">
