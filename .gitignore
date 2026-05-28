@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Env files
+.env
+.env.*
+!.env.example
+
 # QA / Playwright artifacts
 qa-results/
 test-results/
