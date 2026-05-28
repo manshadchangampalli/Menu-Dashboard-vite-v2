@@ -4,7 +4,6 @@ import OrderDetailHeader from "./OrderDetailHeader";
 import CustomerInfoSection from "./CustomerInfoSection";
 import OrderItemsSection from "./OrderItemsSection";
 import PaymentSummarySection from "./PaymentSummarySection";
-import OrderTimelineSection from "./OrderTimelineSection";
 import OrderActionsFooter from "./OrderActionsFooter";
 
 interface OrderDetailPanelProps {
@@ -24,23 +23,18 @@ const OrderDetailPanel = ({ order, open, onClose, onProcess }: OrderDetailPanelP
             title={<OrderDetailHeader order={order} onClose={onClose} />}
             footer={<OrderActionsFooter onProcess={onProcess} />}
         >
-            <CustomerInfoSection customer={order.customer} />
+            <CustomerInfoSection order={order} />
 
-            {order.itemsDetail && (
-                <OrderItemsSection items={order.itemsDetail} />
+            {order.items && (
+                <OrderItemsSection items={order.items} />
             )}
 
             <PaymentSummarySection
-                subtotal={order.subtotal || 0}
-                serviceFee={order.serviceFee || 0}
-                tax={order.tax || 0}
-                total={order.total}
-                paymentMethod={order.paymentMethod}
+                subtotal={order.total_amount}
+                serviceFee={0}
+                tax={0}
+                total={`$${order.total_amount.toFixed(2)}`}
             />
-
-            {order.timeline && (
-                <OrderTimelineSection timeline={order.timeline} />
-            )}
         </SidePanel>
     );
 };

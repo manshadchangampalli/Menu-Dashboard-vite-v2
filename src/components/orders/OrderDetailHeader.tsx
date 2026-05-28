@@ -20,12 +20,12 @@ const OrderDetailHeader = ({ order, onClose }: OrderDetailHeaderProps) => {
                 <div className="flex flex-col">
                     <div className="flex items-center gap-3">
                         <h3 className="text-lg font-bold text-app-text leading-none tracking-tight">
-                            Order {order.id}
+                            Order {order.order_uuid || order._id}
                         </h3>
                         <StatusBadge status={order.status} />
                     </div>
                     <p className="text-xs text-app-muted font-medium mt-1.5">
-                        Placed on {order.timestamp}
+                        Placed on {order.created_at}
                     </p>
                 </div>
             </div>

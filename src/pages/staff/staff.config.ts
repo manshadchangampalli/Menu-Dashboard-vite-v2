@@ -1,4 +1,4 @@
-import type { StaffData, StaffRole } from "./staff.type";
+import type { StaffRole } from "./staff.type";
 
 export const STAFF_ROLE_OPTIONS = [
     { label: "Waiter", value: "WAITER" as StaffRole },

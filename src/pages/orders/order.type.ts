@@ -6,6 +6,12 @@ export interface OrderItem {
     total_price: number;
 }
 
+export interface OrderTimelineStep {
+    status: string;
+    time: string;
+    completed: boolean;
+}
+
 export interface Order {
     _id: string;
     order_uuid: string;

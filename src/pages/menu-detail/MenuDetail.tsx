@@ -102,10 +102,10 @@ const MenuDetail = () => {
                                 <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border border-app-border bg-white text-app-text uppercase tracking-wider">
                                     {menu.type}
                                 </div>
-                                {menu.start_time && (
+                                {menu.schedule?.[0]?.start_time && (
                                     <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-app-border bg-white text-app-text">
                                         <Clock className="w-3.5 h-3.5 mr-1.5 text-app-muted" />
-                                        {menu.start_time} - {menu.end_time}
+                                        {menu.schedule[0].start_time} - {menu.schedule[0].end_time}
                                     </div>
                                 )}
                             </div>

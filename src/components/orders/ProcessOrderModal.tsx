@@ -5,7 +5,7 @@ import {
     DialogDescription,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Utensils, StickyNote, ChefHat, CheckCircle, Printer, ArrowRight, AlertCircle } from "lucide-react";
+import { Utensils, StickyNote, ChefHat, CheckCircle, Printer, ArrowRight } from "lucide-react";
 import type { Order } from "../../pages/orders/order.type";
 import StatusBadge from "../ui/StatusBadge";
 
@@ -27,10 +27,10 @@ const ProcessOrderModal = ({ order, open, onOpenChange }: ProcessOrderModalProps
                         <StatusBadge status={order.status} />
                         <div>
                             <DialogTitle className="text-2xl font-bold text-app-text tracking-tight">
-                                Order {order.id}
+                                Order {order.order_uuid || order._id}
                             </DialogTitle>
                             <DialogDescription className="text-sm text-app-muted font-medium mt-1">
-                                Placed {order.timeAgo} • {order.customer.name} {order.tableNo && `• ${order.tableNo}`}
+                                Placed {order.created_at} • {order.customer_name} {order.table_number && `• ${order.table_number}`}
                             </DialogDescription>
                         </div>
                     </div>
@@ -43,40 +43,25 @@ const ProcessOrderModal = ({ order, open, onOpenChange }: ProcessOrderModalProps
                             <Utensils className="w-4 h-4" /> Order Items
                         </h3>
                         <div className="space-y-4">
-                            {order.itemsDetail?.map((item) => (
-                                <div key={item.id} className="flex items-start justify-between p-5 bg-white rounded-xl border border-app-border shadow-sm">
+                            {order.items?.map((item) => (
+                                <div key={item.menu_item_id} className="flex items-start justify-between p-5 bg-white rounded-xl border border-app-border shadow-sm">
                                     <div className="flex gap-4">
                                         <span className="text-xl font-bold text-app-text min-w-8">{item.quantity}×</span>
                                         <div>
                                             <h4 className="text-lg font-bold text-app-text leading-tight">{item.name}</h4>
-                                            {item.specialInstructions && (
-                                                <p className="text-sm text-red-600 font-bold mt-1 flex items-center gap-1">
-                                                    <AlertCircle className="w-4 h-4" />
-                                                    {item.specialInstructions.toUpperCase()}
-                                                </p>
-                                            )}
-                                            {item.addons && item.addons.length > 0 && (
-                                                <div className="mt-2 flex flex-wrap gap-2">
-                                                    {item.addons.map((addon, idx) => (
-                                                        <span key={idx} className="px-2 py-0.5 bg-app-bg border border-app-border text-xs font-semibold rounded text-app-muted">
-                                                            {addon}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {order.kitchenNotes && (
+                        {order.notes && (
                             <div className="pt-4">
                                 <h3 className="text-xs font-bold text-app-muted uppercase tracking-widest mb-3 flex items-center gap-2">
                                     <StickyNote className="w-4 h-4" /> Kitchen Notes
                                 </h3>
                                 <div className="p-4 bg-orange-50 border border-orange-100 rounded-lg text-orange-900 text-base font-medium italic">
-                                    "{order.kitchenNotes}"
+                                    "{order.notes}"
                                 </div>
                             </div>
                         )}
@@ -112,12 +97,12 @@ const ProcessOrderModal = ({ order, open, onOpenChange }: ProcessOrderModalProps
                     <div className="flex items-center gap-6">
                         <div>
                             <span className="text-[10px] text-app-muted font-bold uppercase block leading-none mb-1">Total Value</span>
-                            <span className="text-2xl font-black text-app-text leading-none">{order.total}</span>
+                            <span className="text-2xl font-black text-app-text leading-none">${order.total_amount.toFixed(2)}</span>
                         </div>
                         <div className="h-8 w-px bg-app-border"></div>
                         <div>
-                            <span className="text-[10px] text-app-muted font-bold uppercase block leading-none mb-1">Server</span>
-                            <span className="text-sm font-bold text-app-text leading-none">{order.serverName || "Unknown"}</span>
+                            <span className="text-[10px] text-app-muted font-bold uppercase block leading-none mb-1">Customer</span>
+                            <span className="text-sm font-bold text-app-text leading-none">{order.customer_name || "Unknown"}</span>
                         </div>
                     </div>
                     <div className="flex gap-4">

@@ -8,7 +8,8 @@ export const MOCK_CATEGORIES: Category[] = [
         itemCount: 12,
         icon: UtensilsCrossed,
         isActive: true,
-        menuId: "1" // Main Menu
+        menuId: "1", // Main Menu
+        branch_id: "1"
     },
     {
         _id: "2",
@@ -16,7 +17,8 @@ export const MOCK_CATEGORIES: Category[] = [
         itemCount: 24,
         icon: Utensils,
         isActive: true,
-        menuId: "1" // Main Menu
+        menuId: "1", // Main Menu
+        branch_id: "1"
     },
     {
         _id: "3",
@@ -24,7 +26,8 @@ export const MOCK_CATEGORIES: Category[] = [
         itemCount: 18,
         icon: Martini,
         isActive: true,
-        menuId: "2" // Breakfast Menu
+        menuId: "2", // Breakfast Menu
+        branch_id: "1"
     },
     {
         _id: "4",
@@ -32,7 +35,8 @@ export const MOCK_CATEGORIES: Category[] = [
         itemCount: 8,
         icon: CakeSlice,
         isActive: true,
-        menuId: "1" // Main Menu
+        menuId: "1", // Main Menu
+        branch_id: "1"
     },
     {
         _id: "5",
@@ -40,7 +44,8 @@ export const MOCK_CATEGORIES: Category[] = [
         itemCount: 0,
         icon: Star,
         isActive: false, // Matches reference "Availability" unchecked
-        menuId: "3" // Ramadan Special
+        menuId: "3", // Ramadan Special
+        branch_id: "1"
     },
     {
         _id: "6",
@@ -48,6 +53,7 @@ export const MOCK_CATEGORIES: Category[] = [
         itemCount: 6,
         icon: Baby,
         isActive: true,
-        menuId: "4" // Delivery Exclusives
+        menuId: "4", // Delivery Exclusives
+        branch_id: "1"
     }
 ];
