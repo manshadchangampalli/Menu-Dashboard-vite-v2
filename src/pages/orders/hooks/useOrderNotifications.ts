@@ -9,11 +9,14 @@ export const useOrderNotifications = () => {
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        const streamUrl = `${API_BASE_URL}/${API_VERSION}/orders/stream`;
-        
-        console.log("Connecting to Order Stream:", streamUrl);
-        
-        const eventSource = new EventSource(streamUrl, { withCredentials: true });
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
+
+        const streamUrl = `${API_BASE_URL}/${API_VERSION}/orders/stream?access_token=${encodeURIComponent(token)}`;
+
+        console.log("Connecting to Order Stream");
+
+        const eventSource = new EventSource(streamUrl);
 
         eventSource.onopen = () => {
             console.log("✅ Order Stream Connected");

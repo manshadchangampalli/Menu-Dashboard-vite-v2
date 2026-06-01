@@ -14,6 +14,12 @@ export const useLogin = () => {
     mutationFn: (data: LoginRequest) => loginAdmin(data),
     onSuccess: (response: ApiResponse<LoginResponse>) => {
       if (response.success && response.data?.user) {
+        if (response.data.access_token) {
+          localStorage.setItem("access_token", response.data.access_token);
+        }
+        if (response.data.refresh_token) {
+          localStorage.setItem("refresh_token", response.data.refresh_token);
+        }
         setUser(response.data.user);
         toast.success("Login successful! Redirecting...");
         navigate("/");
@@ -35,6 +41,8 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: () => logoutAdmin(),
     onSettled: () => {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       clearUser();
       navigate("/login");
     },
